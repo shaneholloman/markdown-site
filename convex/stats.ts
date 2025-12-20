@@ -210,11 +210,21 @@ export const getStats = query({
       .map(([path, count]) => ({ path, count }))
       .sort((a, b) => b.count - a.count);
 
-    // Use aggregate component for total page views count: O(log n) instead of O(n)
-    const totalPageViewsCount = await totalPageViews.count(ctx);
-
-    // Use aggregate component for unique visitors count: O(log n) instead of O(n)
-    const uniqueVisitorsCount = await uniqueVisitors.count(ctx);
+    // Get all page views for direct counting (always accurate)
+    // We use direct counting until aggregates are fully backfilled
+    const allPageViews = await ctx.db.query("pageViews").collect();
+    const totalPageViewsCount = allPageViews.length;
+    
+    // Count unique sessions from the views
+    const uniqueSessions = new Set(allPageViews.map((v) => v.sessionId));
+    const uniqueVisitorsCount = uniqueSessions.size;
+    
+    // Count views per path from the raw data
+    const pathCountsFromDb: Record<string, number> = {};
+    for (const view of allPageViews) {
+      pathCountsFromDb[view.path] = (pathCountsFromDb[view.path] || 0) + 1;
+    }
+    const allPaths = Object.keys(pathCountsFromDb);
 
     // Get earliest page view for tracking since date (single doc fetch)
     const firstView = await ctx.db
@@ -235,18 +245,9 @@ export const getStats = query({
       .withIndex("by_published", (q) => q.eq("published", true))
       .collect();
 
-    // Get unique paths from pageViews (needed to build pageStats)
-    // We still need to iterate for path list, but use aggregate for per-path counts
-    const allPaths = new Set<string>();
-    const pathViewsFromDb = await ctx.db.query("pageViews").collect();
-    for (const view of pathViewsFromDb) {
-      allPaths.add(view.path);
-    }
-
-    // Build page stats using aggregate counts per path: O(log n) per path
-    const pageStatsPromises = Array.from(allPaths).map(async (path) => {
-      // Use aggregate namespace count for this path
-      const views = await pageViewsByPath.count(ctx, { namespace: path });
+    // Build page stats using direct counts (always accurate)
+    const pageStatsPromises = allPaths.map(async (path) => {
+      const views = pathCountsFromDb[path] || 0;
       
       // Match path to post or page for title
       const slug = path.startsWith("/") ? path.slice(1) : path;

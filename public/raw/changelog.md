@@ -7,6 +7,22 @@ Date: 2025-12-20
 
 All notable changes to this project.
 
+## v1.11.0
+
+Released December 20, 2025
+
+**Aggregate component for efficient stats**
+
+- Replaced O(n) table scans with O(log n) aggregate counts
+- Uses `@convex-dev/aggregate` package for TableAggregate
+- Three aggregates: totalPageViews, pageViewsByPath, uniqueVisitors
+- Backfill mutation for existing page view data
+- Updated `convex/convex.config.ts` with aggregate component registration
+- Updated `convex/stats.ts` to use aggregate counts in getStats query
+- Updated `prds/howstatsworks.md` with old vs new implementation comparison
+
+Performance improvement: Stats queries now use pre-computed counts instead of scanning all page view records.
+
 ## v1.10.0
 
 Released December 20, 2025
