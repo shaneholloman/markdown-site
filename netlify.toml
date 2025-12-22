@@ -48,7 +48,7 @@
 [[edge_functions]]
   path = "/*"
   function = "botMeta"
-  excludedPath = ["/raw/*", "/api/*", "/*.xml", "/*.txt", "/*.yaml", "/*.json", "/*.md"]
+  excluded_paths = ["/raw/*", "/api/*", "/**/*.md", "/**/*.xml", "/**/*.txt", "/**/*.yaml", "/**/*.json"]
 
 # Security and SEO headers
 [[headers]]

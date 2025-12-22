@@ -6,14 +6,14 @@
 Type: post
 Date: 2025-12-14
 Reading time: 3 min read
-Tags: tutorial, markdown, cursor, publishing
+Tags: tutorial, markdown, cursor, IDE, publishing
 ---
 
 # How to Publish a Blog Post
 
 ![nature](/images/matthew-smith-Rfflri94rs8-unsplash.jpg)
 
-Your blog is set up. Now you want to publish. This guide walks through writing a markdown post and syncing it to your live site using Cursor.
+Your blog is set up. Now you want to publish. This guide walks through writing a markdown post and syncing it to your live site using Cursor or your favorite IDE.
 
 ## Use the Write Page
 
@@ -118,7 +118,7 @@ Wrap up your thoughts.
 
 ## Sync to Convex
 
-Open Cursor's terminal and run:
+Open Cursor's or your dev terminal and run:
 
 ```bash
 npm run sync
@@ -170,7 +170,7 @@ Here is the full workflow:
 1. **Create file**: `content/blog/my-post.md`
 2. **Add frontmatter**: Title, description, date, slug, published, tags
 3. **Write content**: Markdown with headings, lists, code blocks
-4. **Sync**: Run `npm run sync` in developmnet and `npm run sync:prod` in production in terminal
+4. **Sync**: Run `npm run sync` in development and `npm run sync:prod` in production in terminal
 5. **View**: Open your site and navigate to `/your-slug`
 
 ## Tips
