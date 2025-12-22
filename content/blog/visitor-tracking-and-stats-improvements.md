@@ -20,6 +20,7 @@ The stats page now shows a live world map with visitor locations. Each active vi
 
 The map uses Netlify's built-in geo detection. No third-party API needed. No IP addresses stored. Just city, country, and coordinates.
 
+![visitors map](/images/map.gif)
 Configure it in siteConfig:
 
 ```typescript
