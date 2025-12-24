@@ -7,6 +7,58 @@ Date: 2025-12-24
 
 All notable changes to this project.
 
+## v1.25.2
+
+Released December 24, 2025
+
+**AI service links disabled due to Netlify edge function issues**
+
+- Direct links to ChatGPT, Claude, and Perplexity removed from CopyPageDropdown
+  - AI crawlers cannot reliably fetch `/raw/*.md` files despite multiple configuration attempts
+  - Netlify edge functions intercept requests before static files are served
+  - Multiple solutions attempted: excludedPath, code-level bypasses, AI crawler whitelisting, Netlify Functions, header adjustments
+  - None resolved the issue for ChatGPT or Perplexity (Claude works)
+
+- Workaround for users
+  - Copy page: copies markdown to clipboard, paste directly into any AI tool
+  - View as Markdown: opens raw `.md` file in browser for manual copying
+  - Download as SKILL.md: downloads in Anthropic Agent Skills format
+
+- Removed Netlify Function at `/api/raw/:slug`
+  - Caused build failures and dependency conflicts
+  - Static `/raw/*.md` files still work in browsers
+
+Updated files: `src/components/CopyPageDropdown.tsx`, `netlify.toml`
+
+Documentation: `content/blog/netlify-edge-excludedpath-ai-crawlers.md` updated with detailed log of all attempted solutions
+
+## v1.25.1
+
+Released December 24, 2025
+
+**Logo moved to top navigation header**
+
+- Logo now appears in header bar (top-left) on all pages
+- Separate from back button and navigation links
+- Reads from `siteConfig.innerPageLogo` and `siteConfig.logo`
+- Mobile responsive: logo positioned on left in header
+
+Updated files: `src/components/Layout.tsx`, `src/pages/Post.tsx`, `src/pages/Blog.tsx`, `src/styles/global.css`
+
+## v1.25.0
+
+Released December 24, 2025
+
+**Sidebar styling updated to match Cursor docs style**
+
+- Sidebar has alternate background color for visual separation
+- Vertical border line on right side of sidebar
+- Theme-aware colors for all four themes
+- Sidebar width increased to 240px
+- Mobile responsive: sidebar hidden below 1024px
+
+Updated files: `src/styles/global.css`
+
 ## v1.24.4
 
 Released December 23, 2025

@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.25.2] - 2025-12-24
+
+### Changed
+
+- Disabled AI service links (ChatGPT, Claude, Perplexity) in CopyPageDropdown
+  - Direct links to AI services removed due to Netlify edge function interception issues
+  - AI crawlers cannot reliably fetch `/raw/*.md` files despite multiple configuration attempts
+  - Users can still copy markdown and paste directly into AI tools manually
+  - "Copy page", "View as Markdown", and "Download as SKILL.md" options remain available
+
+### Removed
+
+- Netlify Function at `/api/raw/:slug` endpoint
+  - Removed due to build failures and dependency conflicts
+  - Static `/raw/*.md` files still work in browsers but not for AI crawler fetch tools
+
+### Technical
+
+- `src/components/CopyPageDropdown.tsx`: Commented out AI service buttons, kept manual copy/view/download options
+- `netlify.toml`: Removed `/api/raw/*` redirect rule
+- `netlify/functions/raw.js`: Deleted Netlify Function file
+- `content/blog/netlify-edge-excludedpath-ai-crawlers.md`: Updated with detailed log of all attempted solutions and timestamps
+
 ## [1.25.1] - 2025-12-24
 
 ### Changed

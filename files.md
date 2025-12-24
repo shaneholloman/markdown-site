@@ -53,7 +53,7 @@ A brief description of each file in the codebase.
 | `ThemeToggle.tsx`         | Theme switcher (dark/light/tan/cloud)                      |
 | `PostList.tsx`            | Year-grouped blog post list or card grid (supports list/cards view modes) |
 | `BlogPost.tsx`            | Markdown renderer with syntax highlighting and collapsible sections (details/summary) |
-| `CopyPageDropdown.tsx`    | Share dropdown for LLMs (ChatGPT, Claude, Perplexity) using raw markdown URLs for better AI parsing, with View as Markdown and Generate Skill options |
+| `CopyPageDropdown.tsx`    | Share dropdown with Copy page (markdown to clipboard), View as Markdown (opens raw .md file), and Download as SKILL.md (Anthropic Agent Skills format). AI service links (ChatGPT, Claude, Perplexity) disabled due to Netlify edge function issues |
 | `SearchModal.tsx`         | Full text search modal with keyboard navigation            |
 | `FeaturedCards.tsx`       | Card grid for featured posts/pages with excerpts           |
 | `LogoMarquee.tsx`         | Scrolling logo gallery with clickable links                |
@@ -183,7 +183,7 @@ Frontmatter is the YAML metadata at the top of each markdown file. Here is how i
 
 | File         | Description                                                  |
 | ------------ | ------------------------------------------------------------ |
-| `botMeta.ts` | Edge function for social media crawler detection             |
+| `botMeta.ts` | Edge function for social media crawler detection, excludes `/raw/*` paths and AI crawlers from OG interception |
 | `rss.ts`     | Proxies `/rss.xml` and `/rss-full.xml` to Convex HTTP        |
 | `sitemap.ts` | Proxies `/sitemap.xml` to Convex HTTP                        |
 | `api.ts`     | Proxies `/api/posts`, `/api/post`, `/api/export` to Convex   |

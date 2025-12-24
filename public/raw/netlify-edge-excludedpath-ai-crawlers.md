@@ -5,7 +5,7 @@
 ---
 Type: post
 Date: 2025-12-21
-Reading time: 4 min read
+Reading time: 5 min read
 Tags: netlify, edge-functions, ai, troubleshooting, help
 ---
 
@@ -36,78 +36,157 @@ The page could not be loaded with the tools currently available, so its raw mark
 **Claude:**
 Works. Loads and reads the markdown successfully.
 
-## Current configuration
+## Attempted solutions log
 
-Static files exist in `public/raw/` and are served via `_redirects`:
+### December 24, 2025
 
-```
-/raw/*         /raw/:splat    200
-```
+**Attempt 1: excludedPath in netlify.toml**
 
-Edge function configuration in `netlify.toml`:
+Added array of excluded paths to the edge function declaration:
 
 ```toml
 [[edge_functions]]
   path = "/*"
   function = "botMeta"
-  excludedPath = "/raw/*"
+  excludedPath = [
+    "/raw/*",
+    "/assets/*",
+    "/api/*",
+    "/.netlify/*",
+    "/favicon.ico",
+    "/favicon.svg",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/llms.txt",
+    "/openapi.yaml"
+  ]
 ```
 
-The `botMeta` function also has a code-level check:
+Result: ChatGPT and Perplexity still blocked.
+
+**Attempt 2: Hard bypass in botMeta.ts**
+
+Added early return at top of handler to guarantee static markdown is never intercepted:
 
 ```typescript
-// Skip if it's the home page, static assets, API routes, or raw markdown files
+const url = new URL(request.url);
 if (
-  pathParts.length === 0 ||
-  pathParts[0].includes(".") ||
-  pathParts[0] === "api" ||
-  pathParts[0] === "_next" ||
-  pathParts[0] === "raw" // This check exists
+  url.pathname.startsWith("/raw/") ||
+  url.pathname.startsWith("/assets/") ||
+  url.pathname.startsWith("/api/") ||
+  url.pathname.startsWith("/.netlify/") ||
+  url.pathname.endsWith(".md")
 ) {
   return context.next();
 }
 ```
 
-## Why it's not working
+Result: ChatGPT and Perplexity still blocked.
 
-Despite `excludedPath = "/raw/*"` and the code check, the edge function still intercepts requests to `/raw/*.md` before static files are served.
+**Attempt 3: AI crawler whitelist**
 
-According to Netlify docs, edge functions run before redirects and static file serving. The `excludedPath` should prevent the function from running, but it appears the function still executes and may be returning a response that blocks static file access.
-
-## What we've tried
-
-1. Added `excludedPath = "/raw/*"` in netlify.toml
-2. Added code-level check in botMeta.ts to skip `/raw/` paths
-3. Verified static files exist in `public/raw/` after build
-4. Confirmed `_redirects` rule for `/raw/*` is in place
-5. Tested with different URLPattern syntax (`/raw/*`, `/**/*.md`)
-
-All attempts result in the same behavior: ChatGPT and Perplexity cannot access the files, while Claude can.
-
-## Why Claude works
-
-Claude's web fetcher may use different headers or handle Netlify's edge function responses differently. It successfully bypasses whatever is blocking ChatGPT and Perplexity.
-
-## The question
-
-How can we configure Netlify edge functions to truly exclude `/raw/*` paths so static markdown files are served directly to all AI crawlers without interception?
-
-Is there a configuration issue with `excludedPath`? Should we use a different approach like header-based matching to exclude AI crawlers from the botMeta function? Or is there a processing order issue where edge functions always run before static files regardless of exclusions?
-
-## Code reference
-
-The CopyPageDropdown component sends these URLs to AI services:
+Added explicit bypass for known AI user agents:
 
 ```typescript
-const rawMarkdownUrl = `${origin}/raw/${props.slug}.md`;
+const AI_CRAWLERS = [
+  "gptbot", "chatgpt", "chatgpt-user", "oai-searchbot",
+  "claude-web", "claudebot", "anthropic", "perplexitybot"
+];
+
+if (isAICrawler(userAgent)) {
+  return context.next();
+}
 ```
 
-Example: `https://www.markdown.fast/raw/fork-configuration-guide.md`
+Result: ChatGPT and Perplexity still blocked.
 
-The files exist. The redirects are configured. The edge function has exclusions. But AI crawlers still cannot access them.
+**Attempt 4: Netlify Function at /api/raw/:slug**
+
+Created a serverless function to serve markdown files directly:
+
+```javascript
+// netlify/functions/raw.js
+exports.handler = async (event) => {
+  const slug = event.queryStringParameters?.slug;
+  // Read from dist/raw/${slug}.md or public/raw/${slug}.md
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+    body: markdownContent
+  };
+};
+```
+
+With redirect rule:
+
+```toml
+[[redirects]]
+  from = "/api/raw/*"
+  to = "/.netlify/functions/raw?slug=:splat"
+  status = 200
+  force = true
+```
+
+Result: Netlify build failures due to function bundling issues and `package-lock.json` dependency conflicts.
+
+**Attempt 5: Header adjustments**
+
+Removed `Link` header from global scope to prevent header merging on `/raw/*`:
+
+```toml
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    # Link header removed from global scope
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Link = "</llms.txt>; rel=\"author\""
+```
+
+Removed `X-Robots-Tag = "noindex"` from `/raw/*` headers.
+
+Result: ChatGPT and Perplexity still blocked.
+
+### Why these attempts failed
+
+The core issue appears to be how ChatGPT and Perplexity fetch URLs. Their tools receive 400 or 403 responses even when `curl` from the command line works. This suggests:
+
+1. Netlify may handle AI crawler user agents differently at the CDN level
+2. The edge function exclusions work for browsers but not for AI fetch tools
+3. There may be rate limiting or bot protection enabled by default
+
+## Current workaround
+
+Users can still share content with AI tools by:
+
+1. **Copy page** copies markdown to clipboard, then paste into any AI
+2. **View as Markdown** opens the raw `.md` file in a browser tab for manual copying
+3. **Download as SKILL.md** downloads in Anthropic Agent Skills format
+
+The direct "Open in ChatGPT/Claude/Perplexity" buttons have been disabled since the URLs don't work reliably.
+
+## Working features
+
+Despite AI crawler issues, these features work correctly:
+
+- `/raw/*.md` files load in browsers
+- `llms.txt` discovery file is accessible
+- `openapi.yaml` API spec loads properly
+- Sitemap and RSS feeds generate correctly
+- Social preview bots (Twitter, Facebook, LinkedIn) receive OG metadata
+- Claude's web fetcher can access raw markdown
 
 ## Help needed
 
-If you've solved this or have suggestions, we'd appreciate guidance. The goal is simple: serve static markdown files at `/raw/*.md` to all clients, including AI crawlers, without edge function interception.
+If you've solved this or have suggestions, open an issue. We've tried:
 
-GitHub raw URLs work as a workaround, but we'd prefer to use Netlify-hosted files for consistency and to avoid requiring users to configure GitHub repo details when forking.
+- netlify.toml excludedPath arrays
+- Code-level path checks in edge functions
+- AI crawler user agent whitelisting
+- Netlify Functions as an alternative endpoint
+- Header configuration adjustments
+
+None have worked for ChatGPT or Perplexity. GitHub raw URLs remain the most reliable option for AI consumption, but require additional repository configuration when forking.

@@ -5,7 +5,7 @@ This is the homepage index of all published content.
 ## Blog Posts (11)
 
 - **[Netlify edge functions blocking AI crawlers from static files](/raw/netlify-edge-excludedpath-ai-crawlers.md)** - Why excludedPath in netlify.toml isn't preventing edge functions from intercepting /raw/* requests, and how ChatGPT and Perplexity get blocked while Claude works.
-  - Date: 2025-12-21 | Reading time: 4 min read | Tags: netlify, edge-functions, ai, troubleshooting, help
+  - Date: 2025-12-21 | Reading time: 5 min read | Tags: netlify, edge-functions, ai, troubleshooting, help
 - **[Visitor tracking and stats improvements](/raw/visitor-tracking-and-stats-improvements.md)** - Real-time visitor map, write conflict prevention, GitHub Stars integration, and better AI prompts. Updates from v1.18.1 to v1.20.2.
   - Date: 2025-12-21 | Reading time: 5 min read | Tags: features, stats, convex, updates, analytics
 - **[Configure your fork in one command](/raw/fork-configuration-guide.md)** - Two options to set up your forked markdown framework: automated JSON config with npm run configure, or step-by-step manual guide.

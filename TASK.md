@@ -2,23 +2,14 @@
 
 ## To Do
 
-- [ ] fix netlify markdown bug
-- [ ] add MIT Licensed. Do whatevs.
-- [ ] add mcp
-- [ ] https://www.npmjs.com/package/remark-rehype
-- [ ] https://github.com/remarkjs/remark-rehype
-- [ ] https://github.com/remarkjs/remark-rehype
-- [ ] https://remark.js.org/
-- [ ] https://unifiedjs.com/explore/package/rehype-raw/
-- [ ] - add markdown html https://gist.github.com/pierrejoubert73/902cc94d79424356a8d20be2b382e1ab
-- [ ]
+- [ ] fix Netlify edge functions blocking AI crawlers from static files
 
 ## Current Status
 
 v1.24.4 deployed. Added `showInNav` field for pages and hardcoded navigation items configuration for React routes.
 
 ## Completed
-
+- [x] add MIT Licensed. Do whatevs.
 - [x] Blog page view mode toggle (list and card views)
 - [x] Post cards component with thumbnails, titles, excerpts, and metadata
 - [x] View preference saved to localStorage
@@ -195,5 +186,5 @@ v1.24.4 deployed. Added `showInNav` field for pages and hardcoded navigation ite
 - [ ] Newsletter signup
 - [ ] Comments system
 - [ ] Draft preview mode
-- [ ] Image optimization
-- [ ] Reading progress indicator
+
+

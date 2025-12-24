@@ -633,8 +633,8 @@ body {
   max-width: 1400px;
   margin-left: calc(-1 * (min(100vw - 48px, 1400px) - 680px) / 2);
   position: relative;
-  /* Add left padding to align content with sidebar edge */
-  padding-left: 24px;
+  /* Add left padding to align content with sidebar edge 
+  padding-left: 24px;*/
 }
 
 .post-nav {
@@ -839,26 +839,41 @@ body {
   width: 100%;
 }
 
-/* Sidebar wrapper - docs-style with alt background and right border */
+/* Sidebar wrapper - docs-style with alt background and borders */
 .post-sidebar-wrapper {
   position: sticky;
   top: 80px;
   align-self: flex-start;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
+  /* Hide scrollbar while keeping scroll functionality */
+  -ms-overflow-style: none; /* IE */
+  scrollbar-width: none; /* Firefox */
   background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-sidebar);
   margin-left: -24px;
   padding-left: 24px;
   padding-top: 24px;
   padding-bottom: 24px;
   margin-top: -24px;
+  border-radius: 8px;
   /* Extend background to fill height */
   min-height: calc(100vh - 80px);
+  /* Top border using CSS variable for theme consistency */
+  border-top: 1px solid var(--border-sidebar);
+  /* Right border using box-shadow for consistent 1px width regardless of scrollbar */
+  box-shadow: inset -1px 0 0 var(--border-sidebar);
+}
+
+/* Hide scrollbar for Chrome/Safari/Edge */
+.post-sidebar-wrapper::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* Left sidebar - flush left with internal padding */
 .post-sidebar-left {
+  /* Top border using CSS variable for theme consistency */
+  border-top: 1px solid var(--border-sidebar);
   padding-right: 24px;
 }
 
@@ -3638,8 +3653,8 @@ body {
   display: flex;
 }
 
-@media (max-width: 768px) {
-  /* Move top-nav to left side on mobile */
+@media (max-width: 1024px) {
+  /* Move top-nav to left side on mobile/tablet */
   .top-nav {
     right: auto;
     left: 13px;
@@ -3920,7 +3935,7 @@ body {
 }
 
 /* Tablet adjustments */
-@media (min-width: 481px) and (max-width: 768px) {
+@media (min-width: 481px) and (max-width: 1024px) {
   .mobile-menu-drawer {
     width: 320px;
   }
@@ -3953,7 +3968,7 @@ body {
 }
 
 /* Desktop - hide mobile menu components */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .mobile-nav-controls,
   .mobile-menu-backdrop,
   .mobile-menu-drawer {
