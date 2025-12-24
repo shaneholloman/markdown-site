@@ -341,7 +341,7 @@ function generateRawMarkdownFile(
   date: string,
   tags: string[],
   readTime?: string,
-  type: "post" | "page" = "post"
+  type: "post" | "page" = "post",
 ): void {
   // Ensure raw output directory exists
   if (!fs.existsSync(RAW_OUTPUT_DIR)) {
@@ -375,10 +375,7 @@ function generateRawMarkdownFile(
 }
 
 // Generate homepage index markdown file listing all posts
-function generateHomepageIndex(
-  posts: ParsedPost[],
-  pages: ParsedPage[]
-): void {
+function generateHomepageIndex(posts: ParsedPost[], pages: ParsedPage[]): void {
   const publishedPosts = posts.filter((p) => p.published);
   const publishedPages = pages.filter((p) => p.published);
 
@@ -448,7 +445,7 @@ function generateHomepageIndex(
 // Generate all raw markdown files during sync
 function generateRawMarkdownFiles(
   posts: ParsedPost[],
-  pages: ParsedPage[]
+  pages: ParsedPage[],
 ): void {
   console.log("\nGenerating static markdown files in public/raw/...");
 
@@ -473,7 +470,7 @@ function generateRawMarkdownFiles(
       post.date,
       post.tags,
       post.readTime,
-      "post"
+      "post",
     );
   }
 
@@ -488,7 +485,7 @@ function generateRawMarkdownFiles(
       new Date().toISOString().split("T")[0], // pages don't have date
       [], // pages don't have tags
       undefined,
-      "page"
+      "page",
     );
   }
 
@@ -496,7 +493,7 @@ function generateRawMarkdownFiles(
   generateHomepageIndex(posts, pages);
 
   console.log(
-    `Generated ${publishedPosts.length} post files, ${publishedPages.length} page files, and 1 index file`
+    `Generated ${publishedPosts.length} post files, ${publishedPages.length} page files, and 1 index file`,
   );
 }
 
