@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.24.9] - 2025-12-24
+
+### Added
+
+- Safety-net raw markdown endpoint for AI tools (`/api/raw/:slug`)
+  - New Netlify Function at `netlify/functions/raw.ts`
+  - Returns `text/plain` with minimal headers for reliable AI ingestion
+  - Reads from `dist/raw/` (production) or `public/raw/` (dev/preview)
+  - Handles 400 (missing slug), 404 (not found), and 200 (success) responses
+  - No Link, X-Robots-Tag, or SEO headers that cause AI fetch failures
+
+### Changed
+
+- AI service links (ChatGPT, Claude, Perplexity) now use `/api/raw/:slug` instead of `/raw/:slug.md`
+  - Netlify Function endpoint more reliable for AI crawler fetch
+  - "View as Markdown" menu item still uses `/raw/:slug.md` for browser viewing
+
+### Technical
+
+- `netlify/functions/raw.ts`: New Netlify Function to serve raw markdown
+- `netlify.toml`: Added redirect from `/api/raw/*` to the function
+- `src/components/CopyPageDropdown.tsx`: AI services use `/api/raw/:slug` endpoint
+- `package.json`: Added `@netlify/functions` dev dependency
+
 ## [1.24.8] - 2025-12-23
 
 ### Fixed

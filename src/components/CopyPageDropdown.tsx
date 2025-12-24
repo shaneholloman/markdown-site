@@ -322,27 +322,18 @@ export default function CopyPageDropdown(props: CopyPageDropdownProps) {
   };
 
   // Generic handler for opening AI services
-  // Uses raw markdown URL for better AI parsing
+  // Uses /api/raw/:slug endpoint for AI tools (ChatGPT, Claude, Perplexity)
   // IMPORTANT: window.open must happen BEFORE any await to avoid popup blockers
   const handleOpenInAI = async (service: AIService) => {
-    // Use raw markdown URL for better AI parsing
+    // Use /api/raw/:slug endpoint for AI tools - more reliable than static /raw/*.md files
     if (service.buildUrlFromRawMarkdown) {
-      // Build absolute raw markdown URL using current origin (not props.url)
-      // This ensures correct URL even if props.url points to canonical/deploy preview domain
-      const rawMarkdownUrl = new URL(
-        `/raw/${props.slug}.md`,
+      // Build absolute API URL using current origin
+      // Uses Netlify Function endpoint that returns text/plain with minimal headers
+      const apiRawUrl = new URL(
+        `/api/raw/${props.slug}`,
         window.location.origin,
       ).toString();
-      const targetUrl = service.buildUrlFromRawMarkdown(rawMarkdownUrl);
-
-      // For ChatGPT, add fallback if URL fetch fails
-      if (service.id === "chatgpt") {
-        // Open ChatGPT with raw URL
-        window.open(targetUrl, "_blank");
-        setIsOpen(false);
-        // Optional: Could add error handling here if needed
-        return;
-      }
+      const targetUrl = service.buildUrlFromRawMarkdown(apiRawUrl);
 
       window.open(targetUrl, "_blank");
       setIsOpen(false);

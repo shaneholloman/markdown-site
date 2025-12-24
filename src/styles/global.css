@@ -116,7 +116,7 @@
   --font-size-mobile-nav-link: var(--font-size-base);
   --font-size-mobile-home-link: var(--font-size-md);
   --font-size-mobile-toc-title: var(--font-size-2xs);
-  --font-size-mobile-toc-link: var(--font-size-sm);
+  --font-size-mobile-toc-link: var(--font-size-md);
 
   /* Copy dropdown font sizes */
   --font-size-copy-trigger: var(--font-size-sm);
@@ -3811,7 +3811,7 @@ body {
 }
 .mobile-menu-toc-level-3 {
   padding-left: 28px;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
 }
 .mobile-menu-toc-level-4,
 .mobile-menu-toc-level-5,

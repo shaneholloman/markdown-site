@@ -5,6 +5,13 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# API raw markdown endpoint for AI tools (ChatGPT, Claude, Perplexity)
+[[redirects]]
+  from = "/api/raw/*"
+  to = "/.netlify/functions/raw/:splat"
+  status = 200
+  force = true
+
 # Raw markdown passthrough - explicit rule prevents SPA fallback from intercepting
 [[redirects]]
   from = "/raw/*"
