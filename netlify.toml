@@ -8,7 +8,7 @@
 # API raw markdown endpoint for AI tools (ChatGPT, Claude, Perplexity)
 [[redirects]]
   from = "/api/raw/*"
-  to = "/.netlify/functions/raw/:splat"
+  to = "/.netlify/functions/raw?slug=:splat"
   status = 200
   force = true
 
