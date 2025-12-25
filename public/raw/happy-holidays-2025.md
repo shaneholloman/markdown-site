@@ -25,6 +25,4 @@ Recent additions include tag pages, related posts, and improved AI service integ
 
 ## Keep building
 
-Write markdown. Sync from the terminal. Your content appears instantly. That's the goal.
-
 Happy holidays.

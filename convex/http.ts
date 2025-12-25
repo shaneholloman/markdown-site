@@ -6,7 +6,7 @@ import { rssFeed, rssFullFeed } from "./rss";
 const http = httpRouter();
 
 // Site configuration
-const SITE_URL = process.env.SITE_URL || "https://markdown.fast";
+const SITE_URL = process.env.SITE_URL || "https://www.markdown.fast";
 const SITE_NAME = "markdown sync framework";
 
 // RSS feed endpoint (descriptions only)

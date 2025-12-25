@@ -8,7 +8,7 @@ tags: ["configuration", "setup", "fork", "tutorial"]
 readTime: "4 min read"
 featured: true
 layout: "sidebar"
-featuredOrder: 0
+featuredOrder: 3
 authorName: "Markdown"
 authorImage: "/images/authors/markdown.png"
 image: "/images/forkconfig.png"

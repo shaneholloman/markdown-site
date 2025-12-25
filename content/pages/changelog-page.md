@@ -8,6 +8,21 @@ layout: "sidebar"
 
 All notable changes to this project.
 
+## v1.28.1
+
+Released December 25, 2025
+
+**RSS feed validation fixes**
+
+- Standardized all URLs to `www.markdown.fast` across the application
+- Fixed `atom:link rel="self"` attribute mismatch that caused RSS validation failures
+- Updated `index.html` meta tags (og:url, og:image, twitter:domain, twitter:url, twitter:image, JSON-LD)
+- Updated `convex/rss.ts` and `convex/http.ts` SITE_URL constants to use www.markdown.fast
+- Updated `public/robots.txt`, `public/openapi.yaml`, and `public/llms.txt` with www URLs
+- RSS exclusions already present in `netlify.toml` for botMeta edge function
+
+All URL references now consistently use `https://www.markdown.fast`. RSS feed `rel="self"` attribute now matches actual feed URL. Build passes successfully.
+
 ## v1.28.0
 
 Released December 25, 2025

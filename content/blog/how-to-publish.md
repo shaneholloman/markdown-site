@@ -6,7 +6,7 @@ slug: "how-to-publish"
 published: true
 tags: ["tutorial", "markdown", "cursor", "IDE", "publishing"]
 readTime: "3 min read"
-featured: true
+featured: false
 featuredOrder: 3
 authorName: "Markdown"
 authorImage: "/images/authors/markdown.png"

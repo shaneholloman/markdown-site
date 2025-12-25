@@ -12,11 +12,13 @@ Reference documentation for setting up, customizing, and deploying this markdown
 **Sync commands:**
 
 **Development:**
+
 - `npm run sync` - Sync markdown content
 - `npm run sync:discovery` - Update discovery files (AGENTS.md, llms.txt)
 - `npm run sync:all` - Sync content + discovery files together
 
 **Production:**
+
 - `npm run sync:prod` - Sync markdown content
 - `npm run sync:discovery:prod` - Update discovery files
 - `npm run sync:all:prod` - Sync content + discovery files together
@@ -226,6 +228,7 @@ To add a custom frontmatter field, update these files:
 ### Syncing content
 
 **Development:**
+
 ```bash
 npm run sync              # Sync markdown content
 npm run sync:discovery    # Update discovery files (AGENTS.md, llms.txt)
@@ -233,6 +236,7 @@ npm run sync:all          # Sync content + discovery files together
 ```
 
 **Production:**
+
 ```bash
 npm run sync:prod              # Sync markdown content
 npm run sync:discovery:prod   # Update discovery files
@@ -240,6 +244,7 @@ npm run sync:all:prod         # Sync content + discovery files together
 ```
 
 **Sync everything together:**
+
 ```bash
 npm run sync:all        # Development: content + discovery
 npm run sync:all:prod   # Production: content + discovery
@@ -247,17 +252,17 @@ npm run sync:all:prod   # Production: content + discovery
 
 ### When to sync vs deploy
 
-| What you're changing             | Command                    | Timing               |
-| -------------------------------- | -------------------------- | -------------------- |
-| Blog posts in `content/blog/`    | `npm run sync`             | Instant (no rebuild) |
-| Pages in `content/pages/`        | `npm run sync`             | Instant (no rebuild) |
-| Featured items (via frontmatter) | `npm run sync`             | Instant (no rebuild) |
+| What you're changing             | Command                    | Timing                  |
+| -------------------------------- | -------------------------- | ----------------------- |
+| Blog posts in `content/blog/`    | `npm run sync`             | Instant (no rebuild)    |
+| Pages in `content/pages/`        | `npm run sync`             | Instant (no rebuild)    |
+| Featured items (via frontmatter) | `npm run sync`             | Instant (no rebuild)    |
 | Site config changes              | `npm run sync:discovery`   | Updates discovery files |
-| Import external URL              | `npm run import` then sync | Instant (no rebuild) |
-| Images in `public/images/`       | Git commit + push          | Requires rebuild     |
-| `siteConfig` in `Home.tsx`       | Redeploy                   | Requires rebuild     |
-| Logo gallery config              | Redeploy                   | Requires rebuild     |
-| React components/styles          | Redeploy                   | Requires rebuild     |
+| Import external URL              | `npm run import` then sync | Instant (no rebuild)    |
+| Images in `public/images/`       | Git commit + push          | Requires rebuild        |
+| `siteConfig` in `Home.tsx`       | Redeploy                   | Requires rebuild        |
+| Logo gallery config              | Redeploy                   | Requires rebuild        |
+| React components/styles          | Redeploy                   | Requires rebuild        |
 
 **Markdown content** syncs instantly to Convex. **Images and source code** require pushing to GitHub for Netlify to rebuild.
 
@@ -713,12 +718,12 @@ Each post and page includes a share dropdown with options:
 
 **Git push required for AI links:** The "Open in ChatGPT," "Open in Claude," and "Open in Perplexity" options use GitHub raw URLs. For these to work, you must push your content to GitHub with `git push`. The `npm run sync` command syncs content to Convex for your live site, but AI services fetch directly from GitHub.
 
-| What you want                        | Command needed                 |
-| ------------------------------------ | ------------------------------ |
-| Content visible on your site         | `npm run sync` or `sync:prod`  |
+| What you want                        | Command needed                                    |
+| ------------------------------------ | ------------------------------------------------- |
+| Content visible on your site         | `npm run sync` or `sync:prod`                     |
 | Discovery files updated              | `npm run sync:discovery` or `sync:discovery:prod` |
-| AI links (ChatGPT/Claude/Perplexity) | `git push` to GitHub           |
-| Both content and discovery           | `npm run sync:all` or `sync:all:prod` |
+| AI links (ChatGPT/Claude/Perplexity) | `git push` to GitHub                              |
+| Both content and discovery           | `npm run sync:all` or `sync:all:prod`             |
 
 **Download as SKILL.md:** Downloads the content formatted as an Anthropic Agent Skills file with metadata, triggers, and instructions sections.
 

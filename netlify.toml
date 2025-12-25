@@ -72,6 +72,8 @@
     "/favicon.svg",
     "/robots.txt",
     "/sitemap.xml",
+    "/rss.xml",
+    "/rss-full.xml",
     "/llms.txt",
     "/openapi.yaml"
   ]

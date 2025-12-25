@@ -99,8 +99,8 @@ A brief description of each file in the codebase.
 | `search.ts`        | Full text search queries across posts and pages                      |
 | `stats.ts`         | Real-time stats with aggregate component for O(log n) counts, page view recording, session heartbeat |
 | `crons.ts`         | Cron job for stale session cleanup                                   |
-| `http.ts`          | HTTP endpoints: sitemap, API (update SITE_URL/SITE_NAME when forking) |
-| `rss.ts`           | RSS feed generation (update SITE_URL/SITE_TITLE when forking)        |
+| `http.ts`          | HTTP endpoints: sitemap, API (update SITE_URL/SITE_NAME when forking, uses www.markdown.fast) |
+| `rss.ts`           | RSS feed generation (update SITE_URL/SITE_TITLE when forking, uses www.markdown.fast)        |
 | `convex.config.ts` | Convex app configuration with aggregate component registrations (pageViewsByPath, totalPageViews, uniqueVisitors) |
 | `tsconfig.json`    | Convex TypeScript configuration                                      |
 
@@ -211,9 +211,9 @@ Frontmatter is the YAML metadata at the top of each markdown file. Here is how i
 | -------------- | ---------------------------------------------- |
 | `favicon.svg`  | Site favicon                                   |
 | `_redirects`   | SPA redirect rules for static files            |
-| `robots.txt`   | Crawler rules for search engines and AI bots (update sitemap URL when forking) |
-| `llms.txt`     | AI agent discovery file (update site name/URL when forking) |
-| `openapi.yaml` | OpenAPI 3.0 specification (update API title when forking) |
+| `robots.txt`   | Crawler rules for search engines and AI bots (update sitemap URL when forking, uses www.markdown.fast) |
+| `llms.txt`     | AI agent discovery file (update site name/URL when forking, uses www.markdown.fast) |
+| `openapi.yaml` | OpenAPI 3.0 specification (update API title when forking, uses www.markdown.fast) |
 
 ### Raw Markdown Files (`public/raw/`)
 

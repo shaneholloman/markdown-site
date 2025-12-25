@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.28.1] - 2025-12-25
+
+### Fixed
+
+- RSS feed validation errors resolved
+  - Standardized all URLs to `www.markdown.fast` across the application
+  - Fixed `atom:link rel="self"` attribute mismatch that caused RSS validation failures
+  - Updated `index.html` meta tags (og:url, og:image, twitter:domain, twitter:url, twitter:image, JSON-LD)
+  - Updated `convex/rss.ts` and `convex/http.ts` SITE_URL constants to use www.markdown.fast
+  - Updated `public/robots.txt`, `public/openapi.yaml`, and `public/llms.txt` with www URLs
+  - RSS exclusions already present in `netlify.toml` for botMeta edge function
+
+### Technical
+
+- All URL references now consistently use `https://www.markdown.fast`
+- RSS feed `rel="self"` attribute now matches actual feed URL
+- Build passes successfully with URL standardization
+
 ## [1.28.0] - 2025-12-25
 
 ### Added

@@ -8,10 +8,15 @@
 
 ## Current Status
 
-v1.28.0 ready. Added discovery files sync automation with new sync commands.
+v1.28.1 ready. Fixed RSS feed validation errors by standardizing all URLs to www.markdown.fast.
 
 ## Completed
 
+- [x] RSS feed validation errors fixed by standardizing URLs to www.markdown.fast
+- [x] Updated index.html meta tags (og:url, og:image, twitter:domain, twitter:url, twitter:image, JSON-LD)
+- [x] Updated convex/rss.ts and convex/http.ts SITE_URL constants
+- [x] Updated public/robots.txt, public/openapi.yaml, and public/llms.txt with www URLs
+- [x] RSS exclusions confirmed in netlify.toml for botMeta edge function
 - [x] Discovery files sync script (sync-discovery-files.ts)
 - [x] Automated updates for AGENTS.md and llms.txt with current app data
 - [x] New npm scripts: sync:discovery, sync:discovery:prod, sync:all, sync:all:prod

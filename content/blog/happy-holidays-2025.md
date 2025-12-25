@@ -8,6 +8,7 @@ tags: ["updates", "community", "ai"]
 readTime: "2 min read"
 featured: true
 featuredOrder: 0
+image: /images/1225-changelog.png
 excerpt: "Thank you for the stars, forks, and feedback. More AI-first publishing features are coming."
 authorName: "Wayne Sutton"
 authorImage: "/images/authors/markdown.png"
@@ -28,7 +29,5 @@ More AI-first publishing features are on the way. The changelog at [/changelog](
 Recent additions include tag pages, related posts, and improved AI service integrations. The roadmap focuses on making content creation faster and more accessible to AI agents.
 
 ## Keep building
-
-Write markdown. Sync from the terminal. Your content appears instantly. That's the goal.
 
 Happy holidays.
