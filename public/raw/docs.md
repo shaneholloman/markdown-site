@@ -2,7 +2,7 @@
 
 ---
 Type: page
-Date: 2025-12-26
+Date: 2025-12-27
 ---
 
 ## Getting Started
@@ -98,22 +98,22 @@ image: "/images/og-image.png"
 Content here...
 ```
 
-| Field           | Required | Description                                       |
-| --------------- | -------- | ------------------------------------------------- |
-| `title`         | Yes      | Post title                                        |
-| `description`   | Yes      | SEO description                                   |
-| `date`          | Yes      | YYYY-MM-DD format                                 |
-| `slug`          | Yes      | URL path (unique)                                 |
-| `published`     | Yes      | `true` to show                                    |
-| `tags`          | Yes      | Array of strings                                  |
-| `readTime`      | No       | Display time estimate                             |
-| `image`         | No       | OG image and featured card thumbnail              |
-| `excerpt`       | No       | Short text for card view                          |
-| `featured`      | No       | `true` to show in featured section                |
-| `featuredOrder` | No       | Order in featured (lower = first)                 |
-| `authorName`    | No       | Author display name shown next to date            |
-| `authorImage`   | No       | Round author avatar image URL                     |
-| `layout`        | No       | Set to `"sidebar"` for docs-style layout with TOC |
+| Field           | Required | Description                                                                                                                 |
+| --------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `title`         | Yes      | Post title                                                                                                                  |
+| `description`   | Yes      | SEO description                                                                                                             |
+| `date`          | Yes      | YYYY-MM-DD format                                                                                                           |
+| `slug`          | Yes      | URL path (unique)                                                                                                           |
+| `published`     | Yes      | `true` to show                                                                                                              |
+| `tags`          | Yes      | Array of strings                                                                                                            |
+| `readTime`      | No       | Display time estimate                                                                                                       |
+| `image`         | No       | OG image and featured card thumbnail. See [Using Images in Blog Posts](/using-images-in-posts) for markdown and HTML syntax |
+| `excerpt`       | No       | Short text for card view                                                                                                    |
+| `featured`      | No       | `true` to show in featured section                                                                                          |
+| `featuredOrder` | No       | Order in featured (lower = first)                                                                                           |
+| `authorName`    | No       | Author display name shown next to date                                                                                      |
+| `authorImage`   | No       | Round author avatar image URL                                                                                               |
+| `layout`        | No       | Set to `"sidebar"` for docs-style layout with TOC                                                                           |
 
 ### Static pages
 
@@ -728,6 +728,8 @@ Mobile sizes defined in `@media (max-width: 768px)` block.
 3. Wait for Netlify to rebuild
 
 The `npm run sync` command only syncs markdown text content. Images are deployed when Netlify builds your site. Use `npm run sync:discovery` to update discovery files (AGENTS.md, llms.txt) when site configuration changes.
+
+**Adding images to posts:** You can add images using markdown syntax `![alt](src)` or HTML `<img>` tags. The site uses `rehypeRaw` and `rehypeSanitize` to safely render HTML in markdown content. See [Using Images in Blog Posts](/using-images-in-posts) for complete examples and best practices.
 
 **Logo options:**
 

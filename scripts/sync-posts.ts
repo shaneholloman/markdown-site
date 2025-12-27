@@ -39,6 +39,7 @@ interface PostFrontmatter {
   layout?: string; // Layout type: "sidebar" for docs-style layout
   rightSidebar?: boolean; // Enable right sidebar with CopyPageDropdown (default: true when siteConfig.rightSidebar.enabled)
   aiChat?: boolean; // Enable AI chat in right sidebar (requires rightSidebar: true)
+  blogFeatured?: boolean; // Show as hero featured post on /blog page
 }
 
 interface ParsedPost {
@@ -61,6 +62,7 @@ interface ParsedPost {
   showFooter?: boolean; // Show footer on this post (overrides siteConfig default)
   footer?: string; // Footer markdown content (overrides siteConfig defaultContent)
   aiChat?: boolean; // Enable AI chat in right sidebar (requires rightSidebar: true)
+  blogFeatured?: boolean; // Show as hero featured post on /blog page
 }
 
 // Page frontmatter (for static pages like About, Projects, Contact)
@@ -143,6 +145,7 @@ function parseMarkdownFile(filePath: string): ParsedPost | null {
       showFooter: frontmatter.showFooter, // Show footer on this post
       footer: frontmatter.footer, // Footer markdown content
       aiChat: frontmatter.aiChat, // Enable AI chat in right sidebar
+      blogFeatured: frontmatter.blogFeatured, // Show as hero featured post on /blog page
     };
   } catch (error) {
     console.error(`Error parsing ${filePath}:`, error);

@@ -95,6 +95,7 @@ export interface FooterConfig {
   showOnHomepage: boolean; // Show footer on homepage
   showOnPosts: boolean; // Default: show footer on blog posts
   showOnPages: boolean; // Default: show footer on static pages
+  showOnBlogPage: boolean; // Show footer on /blog page
   defaultContent?: string; // Default markdown content if no frontmatter footer field provided
 }
 
@@ -266,7 +267,7 @@ export const siteConfig: SiteConfig = {
     title: "Blog", // Page title
     description: "All posts from the blog, sorted by date.", // Optional description
     order: 2, // Nav order (lower = first, e.g., 0 = first, 5 = after pages with order 0-4)
-    viewMode: "list", // Default view mode: "list" or "cards"
+    viewMode: "cards", // Default view mode: "list" or "cards"
     showViewToggle: true, // Show toggle button to switch between list and card views
   },
 
@@ -337,6 +338,7 @@ export const siteConfig: SiteConfig = {
     showOnHomepage: true, // Show footer on homepage
     showOnPosts: true, // Default: show footer on blog posts (override with frontmatter)
     showOnPages: true, // Default: show footer on static pages (override with frontmatter)
+    showOnBlogPage: true, // Show footer on /blog page
     // Default footer markdown (used when frontmatter footer field is not provided)
     defaultContent: `Built with [Convex](https://convex.dev) for real-time sync and deployed on [Netlify](https://netlify.com). Read the [project on GitHub](https://github.com/waynesutton/markdown-site) to fork and deploy your own. View [real-time site stats](/stats).
 

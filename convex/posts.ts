@@ -25,6 +25,7 @@ export const getAllPosts = query({
       rightSidebar: v.optional(v.boolean()),
       showFooter: v.optional(v.boolean()),
       footer: v.optional(v.string()),
+      blogFeatured: v.optional(v.boolean()),
     }),
   ),
   handler: async (ctx) => {
@@ -58,6 +59,53 @@ export const getAllPosts = query({
       layout: post.layout,
       rightSidebar: post.rightSidebar,
       showFooter: post.showFooter,
+      blogFeatured: post.blogFeatured,
+    }));
+  },
+});
+
+// Get all blog featured posts for the /blog page (hero + featured row)
+// Returns posts with blogFeatured: true, sorted by date descending
+export const getBlogFeaturedPosts = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      _id: v.id("posts"),
+      slug: v.string(),
+      title: v.string(),
+      description: v.string(),
+      date: v.string(),
+      tags: v.array(v.string()),
+      readTime: v.optional(v.string()),
+      image: v.optional(v.string()),
+      excerpt: v.optional(v.string()),
+      authorName: v.optional(v.string()),
+      authorImage: v.optional(v.string()),
+    }),
+  ),
+  handler: async (ctx) => {
+    const posts = await ctx.db
+      .query("posts")
+      .withIndex("by_blogFeatured", (q) => q.eq("blogFeatured", true))
+      .collect();
+
+    // Filter to only published posts and sort by date descending
+    const publishedFeatured = posts
+      .filter((p) => p.published)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return publishedFeatured.map((post) => ({
+      _id: post._id,
+      slug: post.slug,
+      title: post.title,
+      description: post.description,
+      date: post.date,
+      tags: post.tags,
+      readTime: post.readTime,
+      image: post.image,
+      excerpt: post.excerpt,
+      authorName: post.authorName,
+      authorImage: post.authorImage,
     }));
   },
 });
@@ -194,6 +242,7 @@ export const syncPosts = internalMutation({
         showFooter: v.optional(v.boolean()),
         footer: v.optional(v.string()),
         aiChat: v.optional(v.boolean()),
+        blogFeatured: v.optional(v.boolean()),
       }),
     ),
   },
@@ -239,6 +288,7 @@ export const syncPosts = internalMutation({
           showFooter: post.showFooter,
           footer: post.footer,
           aiChat: post.aiChat,
+          blogFeatured: post.blogFeatured,
           lastSyncedAt: now,
         });
         updated++;
@@ -288,6 +338,7 @@ export const syncPostsPublic = mutation({
         showFooter: v.optional(v.boolean()),
         footer: v.optional(v.string()),
         aiChat: v.optional(v.boolean()),
+        blogFeatured: v.optional(v.boolean()),
       }),
     ),
   },
@@ -333,6 +384,7 @@ export const syncPostsPublic = mutation({
           showFooter: post.showFooter,
           footer: post.footer,
           aiChat: post.aiChat,
+          blogFeatured: post.blogFeatured,
           lastSyncedAt: now,
         });
         updated++;

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import PostList from "../components/PostList";
+import BlogHeroCard from "../components/BlogHeroCard";
+import Footer from "../components/Footer";
 import siteConfig from "../config/siteConfig";
 import { ArrowLeft } from "lucide-react";
 
@@ -10,13 +12,19 @@ import { ArrowLeft } from "lucide-react";
 const BLOG_VIEW_MODE_KEY = "blog-view-mode";
 
 // Blog page component
-// Displays all published posts in a year-grouped list or card grid
+// Displays all published posts with featured blog posts layout:
+// 1. Hero: first blogFeatured post (large card)
+// 2. Featured row: remaining blogFeatured posts (2 columns)
+// 3. Regular posts: non-featured posts (3 columns)
 // Controlled by siteConfig.blogPage and siteConfig.postsDisplay settings
 export default function Blog() {
   const navigate = useNavigate();
 
-  // Fetch published posts from Convex
+  // Fetch all published posts from Convex
   const posts = useQuery(api.posts.getAllPosts);
+
+  // Fetch all blog featured posts for hero + featured row
+  const blogFeaturedPosts = useQuery(api.posts.getBlogFeaturedPosts);
 
   // State for view mode toggle (list or cards)
   const [viewMode, setViewMode] = useState<"list" | "cards">(
@@ -41,8 +49,33 @@ export default function Blog() {
   // Check if posts should be shown on blog page
   const showPosts = siteConfig.postsDisplay.showOnBlogPage;
 
+  // Check if footer should be shown on blog page
+  const showFooter =
+    siteConfig.footer.enabled && siteConfig.footer.showOnBlogPage;
+
+  // Split featured posts: first one is hero, rest go to featured row
+  const heroPost = blogFeaturedPosts && blogFeaturedPosts.length > 0 ? blogFeaturedPosts[0] : null;
+  const featuredRowPosts = blogFeaturedPosts && blogFeaturedPosts.length > 1 ? blogFeaturedPosts.slice(1) : [];
+
+  // Get slugs of all featured posts for filtering
+  const featuredSlugs = new Set(blogFeaturedPosts?.map((p) => p.slug) || []);
+
+  // Filter out all featured posts from regular posts list
+  const regularPosts = posts?.filter((post) => !featuredSlugs.has(post.slug));
+
+  // Determine if we have featured content to show
+  const hasFeaturedContent = heroPost !== null;
+
+  // Build CSS class for the blog page
+  const blogPageClass = [
+    "blog-page",
+    viewMode === "cards" ? "blog-page-cards" : "blog-page-list",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="blog-page">
+    <div className={blogPageClass}>
       {/* Navigation with back button */}
       <nav className="post-nav">
         <button onClick={() => navigate("/")} className="back-button">
@@ -55,12 +88,12 @@ export default function Blog() {
       <header className="blog-header">
         <div className="blog-header-top">
           <div>
-        <h1 className="blog-title">{siteConfig.blogPage.title}</h1>
-        {siteConfig.blogPage.description && (
+            <h1 className="blog-title">{siteConfig.blogPage.title}</h1>
+            {siteConfig.blogPage.description && (
               <p className="blog-description">
                 {siteConfig.blogPage.description}
               </p>
-        )}
+            )}
           </div>
           {/* View toggle button */}
           {showPosts &&
@@ -112,13 +145,50 @@ export default function Blog() {
         </div>
       </header>
 
-      {/* Blog posts section */}
+      {/* Hero featured post section (only in cards view) */}
+      {showPosts && hasFeaturedContent && viewMode === "cards" && heroPost && (
+        <section className="blog-hero-section">
+          <BlogHeroCard
+            slug={heroPost.slug}
+            title={heroPost.title}
+            description={heroPost.description}
+            date={heroPost.date}
+            tags={heroPost.tags}
+            readTime={heroPost.readTime}
+            image={heroPost.image}
+            excerpt={heroPost.excerpt}
+            authorName={heroPost.authorName}
+            authorImage={heroPost.authorImage}
+          />
+        </section>
+      )}
+
+      {/* Featured row: remaining featured posts in 2 columns (only in cards view) */}
+      {showPosts && featuredRowPosts.length > 0 && viewMode === "cards" && (
+        <section className="blog-featured-row">
+          <PostList
+            posts={featuredRowPosts}
+            viewMode="cards"
+            columns={2}
+            showExcerpts={true}
+          />
+        </section>
+      )}
+
+      {/* Regular posts section: non-featured posts in 3 columns */}
       {showPosts && (
         <section className="blog-posts">
-          {posts === undefined ? null : posts.length === 0 ? (
-            <p className="no-posts">No posts yet. Check back soon!</p>
+          {regularPosts === undefined ? null : regularPosts.length === 0 ? (
+            !hasFeaturedContent && (
+              <p className="no-posts">No posts yet. Check back soon!</p>
+            )
           ) : (
-            <PostList posts={posts} viewMode={viewMode} />
+            <PostList
+              posts={regularPosts}
+              viewMode={viewMode}
+              columns={3}
+              showExcerpts={false}
+            />
           )}
         </section>
       )}
@@ -130,6 +200,9 @@ export default function Blog() {
           <code>postsDisplay.showOnBlogPage</code> in siteConfig to enable.
         </p>
       )}
+
+      {/* Footer section */}
+      {showFooter && <Footer />}
     </div>
   );
 }

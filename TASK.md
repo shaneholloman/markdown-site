@@ -8,9 +8,26 @@
 
 ## Current Status
 
-v1.33.0 ready. AI Chat Write Agent (Agent) integration complete with Anthropic Claude API support. Available on Write page and optionally in RightSidebar on posts/pages.
+v1.34.0 ready. Blog page featured layout with hero post, featured row, and regular posts grid. Uses `blogFeatured` frontmatter field to control featured posts display.
 
 ## Completed
+
+- [x] Blog page featured layout with hero post
+  - [x] `blogFeatured` frontmatter field for posts to mark as featured on blog page
+  - [x] `BlogHeroCard` component for the hero featured post (first blogFeatured post)
+  - [x] Featured row displays remaining blogFeatured posts in 2-column grid with excerpts
+  - [x] Regular posts display in 3-column grid without excerpts
+  - [x] `getBlogFeaturedPosts` query returns all published posts with `blogFeatured: true`
+  - [x] `PostList` component updated with `columns` prop (2 or 3) and `showExcerpts` prop
+  - [x] Schema updated with `blogFeatured` field and `by_blogFeatured` index
+  - [x] sync-posts.ts updated to parse `blogFeatured` frontmatter
+  - [x] Hero card displays landscape image, tags, date, title, excerpt, author info, and read more link
+  - [x] Featured row shows excerpts for blogFeatured posts
+  - [x] Regular posts hide excerpts for cleaner grid layout
+  - [x] Responsive design: hero stacks on mobile, grids adjust columns at breakpoints
+  - [x] CSS styles for `.blog-hero-section`, `.blog-hero-card`, `.blog-featured-row`, `.post-cards-2col`
+  - [x] Card images use 16:10 landscape aspect ratio matching Giga.ai style
+  - [x] Footer support on blog page via `siteConfig.footer.showOnBlogPage`
 
 - [x] AI Chat Write Agent (Agent) integration
   - [x] AIChatView component created with Anthropic Claude API integration

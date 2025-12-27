@@ -8,6 +8,7 @@ featured: false
 featuredOrder: 4
 tags: ["images", "tutorial", "markdown", "open-graph"]
 readTime: "4 min read"
+blogFeatured: true
 authorName: "Markdown"
 authorImage: "/images/authors/markdown.png"
 image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&h=630&fit=crop"
@@ -52,6 +53,10 @@ featuredOrder: 1
 
 ## Inline Images
 
+You can add images using markdown syntax or HTML. The site uses `rehypeRaw` and `rehypeSanitize` to safely render HTML in markdown content.
+
+### Markdown Syntax
+
 Add images anywhere in your markdown content using standard syntax:
 
 ```markdown
@@ -63,6 +68,29 @@ Here's an example image from Unsplash:
 ![Laptop on a wooden desk with coffee and notebook](https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=450&fit=crop)
 
 The alt text appears as a caption below the image.
+
+### HTML Syntax
+
+You can also use HTML `<img>` tags directly in your markdown:
+
+```html
+<img src="/images/screenshot.png" alt="Alt text description" />
+```
+
+Or with additional attributes:
+
+```html
+<img
+  src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=450&fit=crop"
+  alt="Laptop on a wooden desk with coffee and notebook"
+  width="800"
+  height="450"
+/>
+```
+
+**HTML images:** HTML `<img>` tags are sanitized for security using `rehypeSanitize`. Allowed attributes include `src`, `alt`, `width`, `height`, `loading`, and `class`. The alt text still appears as a caption below HTML images, matching the markdown behavior.
+
+**Combining markdown and HTML:** You can mix markdown and HTML in the same post. Both syntaxes render images with the same styling and caption behavior.
 
 ## Image Sources
 
@@ -121,3 +149,4 @@ These sites offer free, high-quality images:
 - [Pexels](https://pexels.com) - Photos and videos
 - [unDraw](https://undraw.co) - Illustrations
 - [Heroicons](https://heroicons.com) - Icons
+- [Phosphor Icons](https://phosphoricons.com/) - Icons

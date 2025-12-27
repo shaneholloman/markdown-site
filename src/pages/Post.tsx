@@ -206,6 +206,8 @@ export default function Post({
     // Check if right sidebar is enabled (only when explicitly set in frontmatter)
     const hasRightSidebar = siteConfig.rightSidebar.enabled && page.rightSidebar === true;
     const hasAnySidebar = hasLeftSidebar || hasRightSidebar;
+    // Track if only right sidebar is enabled (for centering article)
+    const hasOnlyRightSidebar = hasRightSidebar && !hasLeftSidebar;
 
     return (
       <div className={`post-page ${hasAnySidebar ? "post-page-with-sidebar" : ""}`}>
@@ -229,7 +231,7 @@ export default function Post({
           )}
         </nav>
 
-        <div className={hasAnySidebar ? "post-content-with-sidebar" : ""}>
+        <div className={`${hasAnySidebar ? "post-content-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-content-right-sidebar-only" : ""}`}>
           {/* Left sidebar - TOC */}
           {hasLeftSidebar && (
             <aside className="post-sidebar-wrapper post-sidebar-left">
@@ -238,7 +240,7 @@ export default function Post({
           )}
           
           {/* Main content */}
-          <article className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""}`}>
+          <article className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-article-centered" : ""}`}>
             <header className="post-header">
               <div className="post-title-row">
                 <h1 className="post-title">{page.title}</h1>
@@ -334,6 +336,8 @@ export default function Post({
   // Check if right sidebar is enabled (only when explicitly set in frontmatter)
   const hasRightSidebar = siteConfig.rightSidebar.enabled && post.rightSidebar === true;
   const hasAnySidebar = hasLeftSidebar || hasRightSidebar;
+  // Track if only right sidebar is enabled (for centering article)
+  const hasOnlyRightSidebar = hasRightSidebar && !hasLeftSidebar;
 
   // Render blog post with full metadata
   return (
@@ -361,7 +365,7 @@ export default function Post({
         )}
       </nav>
 
-      <div className={hasAnySidebar ? "post-content-with-sidebar" : ""}>
+      <div className={`${hasAnySidebar ? "post-content-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-content-right-sidebar-only" : ""}`}>
         {/* Left sidebar - TOC */}
         {hasLeftSidebar && (
           <aside className="post-sidebar-wrapper post-sidebar-left">
@@ -369,7 +373,7 @@ export default function Post({
           </aside>
         )}
 
-        <article className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""}`}>
+        <article className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-article-centered" : ""}`}>
         <header className="post-header">
           <div className="post-title-row">
             <h1 className="post-title">{post.title}</h1>

@@ -23,12 +23,14 @@ export default defineSchema({
     showFooter: v.optional(v.boolean()), // Show footer on this post (overrides siteConfig default)
     footer: v.optional(v.string()), // Footer markdown content (overrides siteConfig defaultContent)
     aiChat: v.optional(v.boolean()), // Enable AI chat in right sidebar
+    blogFeatured: v.optional(v.boolean()), // Show as hero featured post on /blog page
     lastSyncedAt: v.number(),
   })
     .index("by_slug", ["slug"])
     .index("by_date", ["date"])
     .index("by_published", ["published"])
     .index("by_featured", ["featured"])
+    .index("by_blogFeatured", ["blogFeatured"])
     .searchIndex("search_content", {
       searchField: "content",
       filterFields: ["published"],

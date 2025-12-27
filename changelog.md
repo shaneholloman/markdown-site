@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.34.0] - 2025-12-26
+
+### Added
+
+- Blog page featured layout with hero post 
+  - `blogFeatured` frontmatter field for posts to mark as featured on blog page
+  - First `blogFeatured` post displays as hero card with landscape image, tags, date, title, excerpt, author info, and read more link
+  - Remaining `blogFeatured` posts display in 2-column featured row with excerpts
+  - Regular (non-featured) posts display in 3-column grid without excerpts
+  - New `BlogHeroCard` component (`src/components/BlogHeroCard.tsx`) for hero display
+  - New `getBlogFeaturedPosts` query returns all published posts with `blogFeatured: true` sorted by date
+  - `PostList` component updated with `columns` prop (2 or 3) and `showExcerpts` prop
+  - Card images use 16:10 landscape aspect ratio
+  - Footer support on blog page via `siteConfig.footer.showOnBlogPage`
+
+### Changed
+
+- `convex/schema.ts`: Added `blogFeatured` field to posts table with `by_blogFeatured` index
+- `convex/posts.ts`: Added `getBlogFeaturedPosts` query, updated sync mutations to handle `blogFeatured` field
+- `scripts/sync-posts.ts`: Updated to parse `blogFeatured` from post frontmatter
+- `src/pages/Blog.tsx`: Refactored to display hero, featured row, and regular posts sections
+- `src/components/PostList.tsx`: Added `columns` and `showExcerpts` props for layout control
+- `src/styles/global.css`: Added styles for `.blog-hero-section`, `.blog-hero-card`, `.blog-featured-row`, `.post-cards-2col`
+
+### Technical
+
+- Hero card responsive design: stacks content on mobile, side-by-side on desktop
+- Featured row uses 2-column grid with excerpts visible
+- Regular posts grid uses 3-column layout without excerpts for cleaner appearance
+- Responsive breakpoints: 2 columns at 768px, 1 column at 480px
+- Layout class names updated: `blog-page-cards` and `blog-page-list` for view modes
+
+## [1.33.1] - 2025-12-26
+
+### Changed
+
+- Article centering in sidebar layouts
+  - Article content now centers in the middle column when sidebars are present
+  - Left sidebar stays flush left, right sidebar stays flush right
+  - Article uses `margin-left: auto; margin-right: auto` within its `1fr` grid column
+  - Works with both two-column (left sidebar only) and three-column (both sidebars) layouts
+  - Consistent `max-width: 800px` for article content across all sidebar configurations
+
+### Technical
+
+- Updated `.post-article-with-sidebar` in `src/styles/global.css` with auto margins for centering
+- Added `padding-right: 48px` to match left padding for balanced spacing
+
 ## [1.33.0] - 2025-12-26
 
 ### Added

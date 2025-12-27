@@ -105,10 +105,25 @@ export const generateResponse = action({
   },
   returns: v.string(),
   handler: async (ctx, args) => {
-    // Get API key
+    // Get API key - return friendly message if not configured
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error("API key is not set");
+      const notConfiguredMessage =
+        "**AI chat is not configured.**\n\n" +
+        "To enable AI responses, add your `ANTHROPIC_API_KEY` to the Convex environment variables.\n\n" +
+        "**Setup steps:**\n" +
+        "1. Get an API key from [Anthropic Console](https://console.anthropic.com/)\n" +
+        "2. Add it to Convex: `npx convex env set ANTHROPIC_API_KEY your-key-here`\n" +
+        "3. For production, set it in the [Convex Dashboard](https://dashboard.convex.dev/)\n\n" +
+        "See the [Convex environment variables docs](https://docs.convex.dev/production/environment-variables) for more details.";
+
+      // Save the message to chat history so it appears in the conversation
+      await ctx.runMutation(internal.aiChats.addAssistantMessage, {
+        chatId: args.chatId,
+        content: notConfiguredMessage,
+      });
+
+      return notConfiguredMessage;
     }
 
     // Get chat history

@@ -8,6 +8,8 @@ tags: ["updates", "community", "ai"]
 readTime: "2 min read"
 featured: true
 featuredOrder: 0
+blogFeatured: true
+aiChat: true
 image: /images/1225-changelog.png
 excerpt: "Thank you for the stars, forks, and feedback. More AI-first publishing features are coming."
 authorName: "Wayne Sutton"

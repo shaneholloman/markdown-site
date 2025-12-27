@@ -221,10 +221,12 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
       </MobileMenu>
 
-      {/* Use wider layout for stats page, normal layout for other pages */}
+      {/* Use wider layout for stats and blog pages, normal layout for other pages */}
       <main
         className={
-          location.pathname === "/stats" ? "main-content-wide" : "main-content"
+          location.pathname === "/stats" || location.pathname === "/blog"
+            ? "main-content-wide"
+            : "main-content"
         }
       >
         {children}

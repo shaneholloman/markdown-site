@@ -16,6 +16,8 @@ interface Post {
 interface PostListProps {
   posts: Post[];
   viewMode?: "list" | "cards";
+  columns?: 2 | 3; // Number of columns for card view (default: 3)
+  showExcerpts?: boolean; // Show excerpts in card view (default: true)
 }
 
 // Group posts by year
@@ -33,7 +35,12 @@ function groupByYear(posts: Post[]): Record<string, Post[]> {
   );
 }
 
-export default function PostList({ posts, viewMode = "list" }: PostListProps) {
+export default function PostList({
+  posts,
+  viewMode = "list",
+  columns = 3,
+  showExcerpts = true,
+}: PostListProps) {
   // Sort posts by date descending
   const sortedPosts = [...posts].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -41,8 +48,11 @@ export default function PostList({ posts, viewMode = "list" }: PostListProps) {
 
   // Card view: render all posts in a grid
   if (viewMode === "cards") {
+    // Apply column class for 2 or 3 columns
+    const cardGridClass =
+      columns === 2 ? "post-cards post-cards-2col" : "post-cards";
     return (
-      <div className="post-cards">
+      <div className={cardGridClass}>
         {sortedPosts.map((post) => (
           <Link key={post._id} to={`/${post.slug}`} className="post-card">
             {/* Thumbnail image displayed as square using object-fit: cover */}
@@ -58,7 +68,8 @@ export default function PostList({ posts, viewMode = "list" }: PostListProps) {
             )}
             <div className="post-card-content">
               <h3 className="post-card-title">{post.title}</h3>
-              {(post.excerpt || post.description) && (
+              {/* Only show excerpt if showExcerpts is true */}
+              {showExcerpts && (post.excerpt || post.description) && (
                 <p className="post-card-excerpt">
                   {post.excerpt || post.description}
                 </p>
