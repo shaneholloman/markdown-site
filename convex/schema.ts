@@ -36,6 +36,7 @@ export default defineSchema({
     .index("by_published", ["published"])
     .index("by_featured", ["featured"])
     .index("by_blogFeatured", ["blogFeatured"])
+    .index("by_authorName", ["authorName"])
     .searchIndex("search_content", {
       searchField: "content",
       filterFields: ["published"],

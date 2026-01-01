@@ -5,6 +5,7 @@ import Stats from "./pages/Stats";
 import Blog from "./pages/Blog";
 import Write from "./pages/Write";
 import TagPage from "./pages/TagPage";
+import AuthorPage from "./pages/AuthorPage";
 import Unsubscribe from "./pages/Unsubscribe";
 import NewsletterAdmin from "./pages/NewsletterAdmin";
 import Dashboard from "./pages/Dashboard";
@@ -87,6 +88,8 @@ function App() {
           )}
           {/* Tag page route - displays posts filtered by tag */}
           <Route path="/tags/:tag" element={<TagPage />} />
+          {/* Author page route - displays posts by a specific author */}
+          <Route path="/author/:authorSlug" element={<AuthorPage />} />
           {/* Catch-all for post/page slugs - must be last */}
           <Route path="/:slug" element={<Post />} />
         </Routes>

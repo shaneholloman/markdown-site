@@ -282,7 +282,12 @@ export default function Post({
                       />
                     )}
                     {page.authorName && (
-                      <span className="post-author-name">{page.authorName}</span>
+                      <Link
+                        to={`/author/${page.authorName.toLowerCase().replace(/\s+/g, "-")}`}
+                        className="post-author-name post-author-link"
+                      >
+                        {page.authorName}
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -449,7 +454,12 @@ export default function Post({
                   />
                 )}
                 {post.authorName && (
-                  <span className="post-author-name">{post.authorName}</span>
+                  <Link
+                    to={`/author/${post.authorName.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="post-author-name post-author-link"
+                  >
+                    {post.authorName}
+                  </Link>
                 )}
                 <span className="post-meta-separator">·</span>
               </div>

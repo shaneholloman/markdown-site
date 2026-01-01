@@ -9,6 +9,7 @@ readTime: "2 min read"
 featured: false
 featuredOrder: 0
 blogFeatured: false
+authorName: "Wayne Sutton"
 aiChat: false
 image: /images/1225-changelog.png
 excerpt: "Thank you for the stars, forks, and feedback. More AI-first publishing features are coming."

@@ -8,6 +8,37 @@ Date: 2026-01-01
 All notable changes to this project.
 ![](https://img.shields.io/badge/License-MIT-yellow.svg)
 
+## v2.3.0
+
+Released December 31, 2025
+
+**Author pages feature**
+
+- Author archive pages at `/author/:authorSlug` displaying all posts by that author
+  - Click on any author name in a post to view all their posts
+  - View mode toggle (list/cards) with localStorage persistence
+  - Mobile responsive layout matching tag pages design
+  - Sitemap updated to include all author pages dynamically
+- New Convex queries for author data
+  - `getAllAuthors`: Returns all unique authors with post counts
+  - `getPostsByAuthor`: Returns posts by a specific author slug
+- Author name links in post headers
+  - Author names now clickable with hover underline effect
+  - Works on both blog posts and pages with authorName field
+- Follows existing tag pages pattern for consistent UX
+
+**Technical details:**
+
+- Added `by_authorName` index to posts table in `convex/schema.ts`
+- New queries in `convex/posts.ts`: `getAllAuthors`, `getPostsByAuthor`
+- New component: `src/pages/AuthorPage.tsx` (based on TagPage.tsx pattern)
+- Added route `/author/:authorSlug` in `src/App.tsx`
+- Updated `src/pages/Post.tsx` to make authorName a clickable Link
+- Added author link and page styles to `src/styles/global.css`
+- Added author pages to sitemap in `convex/http.ts`
+
+Updated files: `convex/schema.ts`, `convex/posts.ts`, `convex/http.ts`, `src/pages/AuthorPage.tsx`, `src/App.tsx`, `src/pages/Post.tsx`, `src/styles/global.css`, `files.md`, `prds/authorname-blogs.md`
+
 ## v2.2.2
 
 Released December 31, 2025

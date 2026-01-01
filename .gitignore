@@ -35,7 +35,8 @@ fork-config.json
 .cursor/rules/write.mdc
 
 # Claude skills 
-.claude/skills/write.mdc
+.claude/skills/write.md
+
 
 # PRD files
 prds/metadataforsubs.md

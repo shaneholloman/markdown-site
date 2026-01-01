@@ -31,6 +31,7 @@ http.route({
     const posts = await ctx.runQuery(api.posts.getAllPosts);
     const pages = await ctx.runQuery(api.pages.getAllPages);
     const tags = await ctx.runQuery(api.posts.getAllTags);
+    const authors = await ctx.runQuery(api.posts.getAllAuthors);
 
     const urls = [
       // Homepage
@@ -60,6 +61,14 @@ http.route({
       ...tags.map(
         (tagInfo: { tag: string }) => `  <url>
     <loc>${SITE_URL}/tags/${encodeURIComponent(tagInfo.tag.toLowerCase())}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`,
+      ),
+      // All author pages
+      ...authors.map(
+        (author: { slug: string }) => `  <url>
+    <loc>${SITE_URL}/author/${encodeURIComponent(author.slug)}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>`,

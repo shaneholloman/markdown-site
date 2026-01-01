@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import ThemeToggle from "./ThemeToggle";
+import FontToggle from "./FontToggle";
 import SearchModal from "./SearchModal";
 import MobileMenu, { HamburgerButton } from "./MobileMenu";
 import ScrollToTop, { ScrollToTopConfig } from "./ScrollToTop";
@@ -165,6 +166,8 @@ export default function Layout({ children }: LayoutProps) {
           >
             <MagnifyingGlass size={18} weight="bold" />
           </button>
+          {/* Font toggle */}
+          <FontToggle />
           {/* Theme toggle */}
           <div className="theme-toggle-container">
             <ThemeToggle />
@@ -196,6 +199,8 @@ export default function Layout({ children }: LayoutProps) {
           >
             <MagnifyingGlass size={18} weight="bold" />
           </button>
+          {/* Font toggle */}
+          <FontToggle />
           {/* Theme toggle */}
           <div className="theme-toggle-container">
             <ThemeToggle />

@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.3.0] - 2025-12-31
+
+### Added
+
+- Author pages at `/author/:authorSlug` with post list
+  - Click on any author name in a post to view all their posts
+  - View mode toggle (list/cards) with localStorage persistence
+  - Mobile responsive layout matching tag pages design
+  - Sitemap updated to include all author pages dynamically
+- New Convex queries for author data
+  - `getAllAuthors`: Returns all unique authors with post counts
+  - `getPostsByAuthor`: Returns posts by a specific author slug
+- Author name links in post headers
+  - Author names now clickable with hover underline effect
+  - Works on both blog posts and pages with authorName field
+
+### Technical
+
+- Added `by_authorName` index to posts table in `convex/schema.ts`
+- New queries in `convex/posts.ts`: `getAllAuthors`, `getPostsByAuthor`
+- New component: `src/pages/AuthorPage.tsx` (based on TagPage.tsx pattern)
+- Added route `/author/:authorSlug` in `src/App.tsx`
+- Updated `src/pages/Post.tsx` to make authorName a clickable Link
+- Added author link and page styles to `src/styles/global.css`
+- Added author pages to sitemap in `convex/http.ts`
+
 ## [2.2.2] - 2025-12-31
 
 ### Fixed

@@ -2,14 +2,25 @@
 
 ## To Do
 
-- [ ] Newsletter signup
-- [ ] Draft preview mode
+- [x] Link author name to author page with post list
+- [ ] site confg add header icons
 
 ## Current Status
 
-v2.2.2 ready. Homepage intro loading flash fix. Removed "Loading..." text from Suspense fallback in main.tsx and fixed Home.tsx conditional to render nothing while homeIntro query loads. Home intro content now appears without any visible loading state.
+v2.3.0 ready. Author pages feature. Links authorName to `/author/:authorSlug` archive pages displaying all posts by that author. Follows existing tag pages pattern.
 
 ## Completed
+
+- [x] Author pages at `/author/:authorSlug` with post list
+  - [x] Added `by_authorName` index to posts table in convex/schema.ts
+  - [x] Added `getAllAuthors` and `getPostsByAuthor` queries in convex/posts.ts
+  - [x] Created AuthorPage.tsx component with view mode toggle (list/cards)
+  - [x] Added `/author/:authorSlug` route in App.tsx
+  - [x] Made authorName clickable in Post.tsx (links to author page)
+  - [x] Added author link styles and author page styles to global.css
+  - [x] Added author pages to sitemap in convex/http.ts
+  - [x] Updated files.md with AuthorPage.tsx documentation
+  - [x] Saved implementation plan to prds/authorname-blogs.md
 
 - [x] Homepage intro loading flash fix
   - [x] Removed "Loading..." text from Suspense fallback in main.tsx
