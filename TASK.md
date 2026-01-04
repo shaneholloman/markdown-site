@@ -4,9 +4,15 @@
 
 ## Current Status
 
-v2.8.6 ready. Fork configuration script now updates 14 files for complete site branding.
+v2.8.7 ready. Write page frontmatter sidebar toggle now works outside focus mode.
 
 ## Completed
+
+- [x] Write page frontmatter sidebar toggle fix
+  - [x] Added CSS rules for `.write-layout.frontmatter-collapsed` to adjust grid when sidebar collapsed
+  - [x] Added CSS rules for `.write-layout.sidebar-collapsed.frontmatter-collapsed` for both sidebars collapsed
+  - [x] Added responsive tablet styles for frontmatter collapsed state
+  - [x] Frontmatter toggle now works consistently in both focus mode and normal mode
 
 - [x] Fork configuration improvements
   - [x] Updated `scripts/configure-fork.ts` to update 3 additional files (DocsPage.tsx, mcp.ts, send-newsletter.ts)

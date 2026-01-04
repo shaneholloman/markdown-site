@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.8.7] - 2026-01-04
+
+### Fixed
+
+- Write page frontmatter sidebar toggle now works outside focus mode
+  - Grid layout adjusts properly when frontmatter sidebar is collapsed
+  - Previously only worked in focus mode due to missing CSS rules
+
+### Technical
+
+- Added `.write-layout.frontmatter-collapsed` CSS rule (grid-template-columns: 220px 1fr 56px)
+- Added `.write-layout.sidebar-collapsed.frontmatter-collapsed` CSS rule for both sidebars collapsed
+- Added responsive tablet styles for frontmatter collapsed state
+
 ## [2.8.6] - 2026-01-04
 
 ### Changed

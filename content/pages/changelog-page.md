@@ -11,6 +11,25 @@ docsSectionOrder: 4
 
 All notable changes to this project.
 
+## v2.8.7
+
+Released January 4, 2026
+
+**Write page frontmatter sidebar toggle fix**
+
+- Frontmatter sidebar toggle now works outside focus mode
+  - Grid layout adjusts properly when frontmatter sidebar is collapsed
+  - Previously only worked in focus mode due to missing CSS rules
+  - Both sidebars can now be collapsed independently or together
+
+**Technical details:**
+
+- Added `.write-layout.frontmatter-collapsed` CSS rule (grid-template-columns: 220px 1fr 56px)
+- Added `.write-layout.sidebar-collapsed.frontmatter-collapsed` CSS rule for both sidebars collapsed
+- Added responsive tablet styles for frontmatter collapsed state
+
+Updated files: `src/styles/global.css`
+
 ## v2.8.6
 
 Released January 4, 2026
