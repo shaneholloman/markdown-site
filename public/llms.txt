@@ -1,6 +1,6 @@
 # llms.txt - Information for AI assistants and LLMs
 # Learn more: https://llmstxt.org/
-# Last updated: 2026-01-04T05:50:22.820Z
+# Last updated: 2026-01-04T17:25:36.682Z
 
 > Your content is instantly available to browsers, LLMs, and AI agents.
 

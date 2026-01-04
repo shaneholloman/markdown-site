@@ -18,15 +18,15 @@ An open-source publishing framework built for AI agents and developers to ship w
 
 **Development:**
 
-- `npm run sync` - Sync markdown content
-- `npm run sync:discovery` - Update discovery files (AGENTS.md, llms.txt)
-- `npm run sync:all` - Sync content + discovery files together
+- <span class="copy-command">npm run sync</span> - Sync markdown content
+- <span class="copy-command">npm run sync:discovery</span> - Update discovery files (AGENTS.md, llms.txt)
+- <span class="copy-command">npm run sync:all</span> - Sync content + discovery files together
 
 **Production:**
 
-- `npm run sync:prod` - Sync markdown content
-- `npm run sync:discovery:prod` - Update discovery files
-- `npm run sync:all:prod` - Sync content + discovery files together
+- <span class="copy-command">npm run sync:prod</span> - Sync markdown content
+- <span class="copy-command">npm run sync:discovery:prod</span> - Update discovery files
+- <span class="copy-command">npm run sync:all:prod</span> - Sync content + discovery files together
 
 **Version controlled.** Markdown source files live in your repo alongside code. Commit changes, review diffs, roll back like any codebase. The sync command pushes content to the database.
 

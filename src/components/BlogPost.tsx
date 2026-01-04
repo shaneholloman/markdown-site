@@ -36,6 +36,7 @@ const sanitizeSchema = {
     p: ["style"], // Allow inline styles on p elements
     a: ["style", "href", "target", "rel"], // Allow inline styles on links
     img: [...(defaultSchema.attributes?.img || []), "style"], // Allow inline styles on images
+    span: ["className", "class", "style"], // Allow class attribute on span for copy-command
     iframe: [
       "src",
       "width",
@@ -67,6 +68,30 @@ function CodeCopyButton({ code }: { code: string }) {
       title={copied ? "Copied!" : "Copy code"}
     >
       {copied ? <Check size={14} /> : <Copy size={14} />}
+    </button>
+  );
+}
+
+// Inline copy button for commands in lists
+function InlineCopyButton({ command }: { command: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      className="inline-copy-button"
+      onClick={handleCopy}
+      aria-label={copied ? "Copied!" : "Copy command"}
+      title={copied ? "Copied!" : "Copy command"}
+    >
+      {copied ? <Check size={12} /> : <Copy size={12} />}
     </button>
   );
 }
@@ -706,6 +731,19 @@ export default function BlogPost({
         td({ children }) {
           return <td className="blog-td">{children}</td>;
         },
+        // Span component with copy-command support
+        span({ className, children }) {
+          if (className === "copy-command") {
+            const command = getTextContent(children);
+            return (
+              <span className="copy-command">
+                <code className="inline-code">{command}</code>
+                <InlineCopyButton command={command} />
+              </span>
+            );
+          }
+          return <span className={className}>{children}</span>;
+        },
         // Iframe component with domain whitelisting for YouTube and Twitter/X
         iframe(props) {
           const src = props.src as string;
@@ -980,6 +1018,19 @@ export default function BlogPost({
             },
             td({ children }) {
               return <td className="blog-td">{children}</td>;
+            },
+            // Span component with copy-command support
+            span({ className, children }) {
+              if (className === "copy-command") {
+                const command = getTextContent(children);
+                return (
+                  <span className="copy-command">
+                    <code className="inline-code">{command}</code>
+                    <InlineCopyButton command={command} />
+                  </span>
+                );
+              }
+              return <span className={className}>{children}</span>;
             },
             // Iframe component with domain whitelisting for YouTube and Twitter/X
             iframe(props) {

@@ -7,6 +7,22 @@ Date: 2026-01-04
 
 All notable changes to this project.
 
+## v2.8.6
+
+Released January 4, 2026
+
+**Fork configuration improvements**
+
+- Fork configuration script now updates 14 files (was 11)
+  - Added `src/pages/DocsPage.tsx` (SITE_URL constant)
+  - Added `netlify/edge-functions/mcp.ts` (SITE_URL, SITE_NAME, MCP_SERVER_NAME)
+  - Added `scripts/send-newsletter.ts` (default SITE_URL)
+  - Improved `public/openapi.yaml` handling for all example URLs
+- Logo gallery hrefs now use relative URLs instead of hardcoded markdown.fast URLs
+- Updated `fork-config.json.example` with missing options (statsPage, mcpServer, imageLightbox)
+
+Updated files: `scripts/configure-fork.ts`, `src/config/siteConfig.ts`, `FORK_CONFIG.md`, `content/blog/fork-configuration-guide.md`, `fork-config.json.example`
+
 ## v2.8.5
 
 Released January 3, 2026

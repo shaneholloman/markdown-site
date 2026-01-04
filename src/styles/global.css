@@ -1729,6 +1729,48 @@ body {
   font-size: var(--font-size-inline-code);
 }
 
+/* Copy command inline styles */
+.copy-command {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copy-command .inline-code {
+  margin: 0;
+}
+
+.inline-copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.inline-copy-button:hover {
+  opacity: 1;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.inline-copy-button:active {
+  transform: scale(0.95);
+}
+
 /* Image styles */
 .blog-image-wrapper {
   display: block;
