@@ -11,6 +11,35 @@ docsSectionOrder: 4
 
 All notable changes to this project.
 
+## v2.10.2
+
+Released January 6, 2026
+
+**SEO fixes for GitHub Issue #4**
+
+Seven SEO issues resolved to improve search engine optimization:
+
+1. **Canonical URL** - Dynamic canonical link tags added client-side for posts and pages
+2. **Single H1 per page** - Markdown H1s demoted to H2 elements with `.blog-h1-demoted` class (maintains H1 visual styling)
+3. **DOM order fix** - Article now loads before sidebar in DOM for better SEO (CSS `order` property maintains visual layout)
+4. **X-Robots-Tag** - HTTP header added via netlify.toml (public routes indexed, dashboard/API routes noindexed)
+5. **Hreflang tags** - Self-referencing hreflang (en, x-default) for language targeting
+6. **og:url consistency** - Uses same canonicalUrl variable as canonical link tag
+7. **twitter:site** - New `TwitterConfig` in siteConfig.ts for Twitter Cards
+
+**Configuration:**
+
+Add your Twitter handle in `src/config/siteConfig.ts`:
+
+```typescript
+twitter: {
+  site: "@yourhandle",
+  creator: "@yourhandle",
+},
+```
+
+**Updated files:** `src/config/siteConfig.ts`, `src/pages/Post.tsx`, `src/components/BlogPost.tsx`, `src/styles/global.css`, `convex/http.ts`, `netlify.toml`, `index.html`, `fork-config.json.example`
+
 ## v2.10.1
 
 Released January 5, 2026

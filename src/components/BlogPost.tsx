@@ -643,12 +643,14 @@ export default function BlogPost({
           );
         },
         h1({ children }) {
+          // Demote H1 in markdown content to H2 since page title is the H1
+          // This ensures only one H1 per page for better SEO
           const id = generateSlug(getTextContent(children));
           return (
-            <h1 id={id} className="blog-h1">
+            <h2 id={id} className="blog-h1-demoted">
               <HeadingAnchor id={id} />
               {children}
-            </h1>
+            </h2>
           );
         },
         h2({ children }) {
@@ -931,12 +933,14 @@ export default function BlogPost({
               );
             },
             h1({ children }) {
+              // Demote H1 in markdown content to H2 since page title is the H1
+              // This ensures only one H1 per page for better SEO
               const id = generateSlug(getTextContent(children));
               return (
-                <h1 id={id} className="blog-h1">
+                <h2 id={id} className="blog-h1-demoted">
                   <HeadingAnchor id={id} />
                   {children}
-                </h1>
+                </h2>
               );
             },
             h2({ children }) {

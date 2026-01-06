@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.10.2] - 2026-01-06
+
+### Added
+
+- SEO fixes for GitHub Issue #4 (7 issues resolved)
+  - Canonical URL: Client-side dynamic canonical link tags for posts and pages
+  - Single H1 per page: Markdown H1s demoted to H2 (`.blog-h1-demoted` class with H1 visual styling)
+  - DOM order fix: Article loads before sidebar in DOM for SEO (CSS `order` property maintains visual layout)
+  - X-Robots-Tag: HTTP header added via netlify.toml (`index, follow` for public, `noindex` for dashboard/api)
+  - Hreflang tags: Self-referencing hreflang (en, x-default) for all pages
+  - og:url consistency: Uses same canonicalUrl variable as canonical link
+  - twitter:site meta tag: New TwitterConfig in siteConfig.ts for Twitter Cards
+
+### Technical
+
+- New `TwitterConfig` interface in `src/config/siteConfig.ts` with site and creator fields
+- Updated `src/pages/Post.tsx` with SEO meta tags for both posts and pages (canonical, hreflang, og:url, twitter)
+- Updated `src/pages/Post.tsx` DOM order: article before sidebar with CSS order for visual positioning
+- Updated `src/components/BlogPost.tsx` h1 renderer outputs h2 with `.blog-h1-demoted` class
+- Updated `src/styles/global.css` with `.blog-h1-demoted` styling and CSS order properties for sidebar
+- Updated `convex/http.ts` generateMetaHtml() with hreflang and twitter:site tags
+- Updated `netlify.toml` with X-Robots-Tag headers for public, dashboard, and API routes
+- Updated `index.html` with canonical, hreflang, and twitter:site placeholder tags
+- Updated `fork-config.json.example` with twitter configuration fields
+
 ## [2.10.1] - 2026-01-05
 
 ### Added

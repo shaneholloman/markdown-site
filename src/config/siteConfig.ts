@@ -243,6 +243,13 @@ export interface SemanticSearchConfig {
   enabled: boolean; // Global toggle for semantic search feature
 }
 
+// Twitter/X configuration for Twitter Cards
+// Used for twitter:site and twitter:creator meta tags
+export interface TwitterConfig {
+  site?: string; // @username for the website (e.g., "@yoursite")
+  creator?: string; // @username for default content creator
+}
+
 // Social link configuration for social footer
 export interface SocialLink {
   platform:
@@ -375,6 +382,9 @@ export interface SiteConfig {
 
   // Semantic search configuration (optional)
   semanticSearch?: SemanticSearchConfig;
+
+  // Twitter/X configuration (optional)
+  twitter?: TwitterConfig;
 }
 
 // Default site configuration
@@ -760,6 +770,14 @@ export const siteConfig: SiteConfig = {
   // When disabled, only keyword search is available (no API key needed)
   semanticSearch: {
     enabled: false, // Set to true to enable semantic search (requires OPENAI_API_KEY)
+  },
+
+  // Twitter/X configuration for Twitter Cards
+  // Set your Twitter handle for twitter:site meta tag
+  // Leave empty if you don't want to include twitter:site
+  twitter: {
+    site: "", // Your Twitter handle (e.g., "@yoursite")
+    creator: "", // Default creator handle
   },
 };
 

@@ -92,7 +92,20 @@
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "index, follow"
     # Link header removed from global scope to avoid applying to /raw/*
+
+# Dashboard - prevent indexing of admin pages
+[[headers]]
+  for = "/dashboard/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# API endpoints - prevent indexing
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
 
 # Link header for SPA entry point only
 [[headers]]

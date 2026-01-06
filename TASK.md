@@ -4,9 +4,19 @@
 
 ## Current Status
 
-v2.10.1 ready. Semantic search now optional via siteConfig.semanticSearch.enabled toggle.
+v2.10.2 ready. SEO fixes from GitHub Issue #4 implemented.
 
 ## Completed
+
+- [x] SEO fixes for GitHub Issue #4 (7 issues)
+  - [x] Canonical URL: Dynamic canonical link tags for posts and pages in Post.tsx
+  - [x] Single H1 per page: Markdown H1s demoted to H2 with `.blog-h1-demoted` class in BlogPost.tsx
+  - [x] DOM order fix: Article before sidebar in DOM, CSS `order` for visual positioning
+  - [x] X-Robots-Tag: HTTP header in netlify.toml (index for public, noindex for dashboard/api)
+  - [x] Hreflang tags: Self-referencing hreflang (en, x-default) in index.html, Post.tsx, http.ts
+  - [x] og:url consistency: Uses same canonicalUrl variable as canonical link
+  - [x] twitter:site: New TwitterConfig in siteConfig.ts with site and creator fields
+  - [x] Updated fork-config.json.example with twitter configuration
 
 - [x] Optional semantic search configuration
   - [x] Added `SemanticSearchConfig` interface to `siteConfig.ts`

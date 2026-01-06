@@ -182,6 +182,10 @@
   },
   "semanticSearch": {
     "enabled": false
+  },
+  "twitter": {
+    "site": "@yourhandle",
+    "creator": "@yourhandle"
   }
 }
 

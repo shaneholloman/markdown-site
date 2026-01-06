@@ -227,12 +227,144 @@ export default function Post({
     updateMeta('meta[name="twitter:image"]', "content", ogImage);
     updateMeta('meta[name="twitter:card"]', "content", "summary_large_image");
 
+    // Update twitter:site and twitter:creator if configured
+    if (siteConfig.twitter?.site) {
+      updateMeta('meta[name="twitter:site"]', "content", siteConfig.twitter.site);
+    }
+    if (siteConfig.twitter?.creator || post.authorTwitter) {
+      updateMeta(
+        'meta[name="twitter:creator"]',
+        "content",
+        post.authorTwitter || siteConfig.twitter?.creator || "",
+      );
+    }
+
+    // Update canonical URL
+    const canonicalUrl = postUrl;
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]',
+    ) as HTMLLinkElement | null;
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", canonicalUrl);
+
+    // Update hreflang tags for SEO
+    let hreflangEn = document.querySelector(
+      'link[hreflang="en"]',
+    ) as HTMLLinkElement | null;
+    if (!hreflangEn) {
+      hreflangEn = document.createElement("link");
+      hreflangEn.setAttribute("rel", "alternate");
+      hreflangEn.setAttribute("hreflang", "en");
+      document.head.appendChild(hreflangEn);
+    }
+    hreflangEn.setAttribute("href", canonicalUrl);
+
+    let hreflangDefault = document.querySelector(
+      'link[hreflang="x-default"]',
+    ) as HTMLLinkElement | null;
+    if (!hreflangDefault) {
+      hreflangDefault = document.createElement("link");
+      hreflangDefault.setAttribute("rel", "alternate");
+      hreflangDefault.setAttribute("hreflang", "x-default");
+      document.head.appendChild(hreflangDefault);
+    }
+    hreflangDefault.setAttribute("href", canonicalUrl);
+
     // Cleanup on unmount
     return () => {
       const scriptEl = document.getElementById("json-ld-article");
       if (scriptEl) scriptEl.remove();
     };
   }, [post, page]);
+
+  // Inject SEO meta tags for static pages (canonical, hreflang, og:url, twitter)
+  useEffect(() => {
+    if (!page || post) return; // Only run for pages, not posts
+
+    const pageUrl = `${SITE_URL}/${page.slug}`;
+    const ogImage = page.image
+      ? page.image.startsWith("http")
+        ? page.image
+        : `${SITE_URL}${page.image}`
+      : `${SITE_URL}${DEFAULT_OG_IMAGE}`;
+
+    // Helper to update or create meta tag
+    const updateMeta = (selector: string, attr: string, value: string) => {
+      let meta = document.querySelector(selector);
+      if (!meta) {
+        meta = document.createElement("meta");
+        const attrName = selector.includes("property=") ? "property" : "name";
+        const attrValue = selector.match(/["']([^"']+)["']/)?.[1] || "";
+        meta.setAttribute(attrName, attrValue);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute(attr, value);
+    };
+
+    // Update meta description
+    const description = page.excerpt || `${page.title} - ${SITE_NAME}`;
+    updateMeta('meta[name="description"]', "content", description);
+
+    // Update Open Graph meta tags
+    updateMeta('meta[property="og:title"]', "content", page.title);
+    updateMeta('meta[property="og:description"]', "content", description);
+    updateMeta('meta[property="og:url"]', "content", pageUrl);
+    updateMeta('meta[property="og:image"]', "content", ogImage);
+    updateMeta('meta[property="og:type"]', "content", "website");
+
+    // Update Twitter Card meta tags
+    updateMeta('meta[name="twitter:title"]', "content", page.title);
+    updateMeta('meta[name="twitter:description"]', "content", description);
+    updateMeta('meta[name="twitter:image"]', "content", ogImage);
+    updateMeta('meta[name="twitter:card"]', "content", "summary_large_image");
+
+    // Update twitter:site and twitter:creator if configured
+    if (siteConfig.twitter?.site) {
+      updateMeta('meta[name="twitter:site"]', "content", siteConfig.twitter.site);
+    }
+    if (siteConfig.twitter?.creator) {
+      updateMeta('meta[name="twitter:creator"]', "content", siteConfig.twitter.creator);
+    }
+
+    // Update canonical URL
+    const canonicalUrl = pageUrl;
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]',
+    ) as HTMLLinkElement | null;
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", canonicalUrl);
+
+    // Update hreflang tags for SEO
+    let hreflangEn = document.querySelector(
+      'link[hreflang="en"]',
+    ) as HTMLLinkElement | null;
+    if (!hreflangEn) {
+      hreflangEn = document.createElement("link");
+      hreflangEn.setAttribute("rel", "alternate");
+      hreflangEn.setAttribute("hreflang", "en");
+      document.head.appendChild(hreflangEn);
+    }
+    hreflangEn.setAttribute("href", canonicalUrl);
+
+    let hreflangDefault = document.querySelector(
+      'link[hreflang="x-default"]',
+    ) as HTMLLinkElement | null;
+    if (!hreflangDefault) {
+      hreflangDefault = document.createElement("link");
+      hreflangDefault.setAttribute("rel", "alternate");
+      hreflangDefault.setAttribute("hreflang", "x-default");
+      document.head.appendChild(hreflangDefault);
+    }
+    hreflangDefault.setAttribute("href", canonicalUrl);
+  }, [page, post]);
 
   // Check if we're loading a docs page - keep layout mounted to prevent flash
   const isDocsRoute = siteConfig.docsSection?.enabled && slug;
@@ -347,17 +479,8 @@ export default function Post({
         <div
           className={`${hasAnySidebar ? "post-content-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-content-right-sidebar-only" : ""}`}
         >
-          {/* Left sidebar - TOC */}
-          {hasLeftSidebar && (
-            <aside className="post-sidebar-wrapper post-sidebar-left">
-              <PageSidebar
-                headings={headings}
-                activeId={location.hash.slice(1)}
-              />
-            </aside>
-          )}
-
-          {/* Main content */}
+          {/* Main content - placed first in DOM for SEO (H1 loads before sidebar H3) */}
+          {/* CSS order property handles visual positioning (sidebar on left) */}
           <article
             className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-article-centered" : ""}`}
           >
@@ -443,6 +566,17 @@ export default function Post({
                 ? page.showSocialFooter
                 : siteConfig.socialFooter.showOnPages) && <SocialFooter />}
           </article>
+
+          {/* Left sidebar - TOC (placed after article in DOM for SEO) */}
+          {/* CSS order: -1 positions it visually on the left */}
+          {hasLeftSidebar && (
+            <aside className="post-sidebar-wrapper post-sidebar-left">
+              <PageSidebar
+                headings={headings}
+                activeId={location.hash.slice(1)}
+              />
+            </aside>
+          )}
 
           {/* Right sidebar - with optional AI chat support */}
           {hasRightSidebar && (
@@ -590,16 +724,8 @@ export default function Post({
       <div
         className={`${hasAnySidebar ? "post-content-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-content-right-sidebar-only" : ""}`}
       >
-        {/* Left sidebar - TOC */}
-        {hasLeftSidebar && (
-          <aside className="post-sidebar-wrapper post-sidebar-left">
-            <PageSidebar
-              headings={headings}
-              activeId={location.hash.slice(1)}
-            />
-          </aside>
-        )}
-
+        {/* Main content - placed first in DOM for SEO (H1 loads before sidebar H3) */}
+        {/* CSS order property handles visual positioning (sidebar on left) */}
         <article
           className={`post-article ${hasAnySidebar ? "post-article-with-sidebar" : ""} ${hasOnlyRightSidebar ? "post-article-centered" : ""}`}
         >
@@ -783,6 +909,17 @@ export default function Post({
               ? post.showSocialFooter
               : siteConfig.socialFooter.showOnPosts) && <SocialFooter />}
         </article>
+
+        {/* Left sidebar - TOC (placed after article in DOM for SEO) */}
+        {/* CSS order: -1 positions it visually on the left */}
+        {hasLeftSidebar && (
+          <aside className="post-sidebar-wrapper post-sidebar-left">
+            <PageSidebar
+              headings={headings}
+              activeId={location.hash.slice(1)}
+            />
+          </aside>
+        )}
 
         {/* Right sidebar - with optional AI chat support */}
         {hasRightSidebar && (

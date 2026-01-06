@@ -302,12 +302,18 @@ function generateMetaHtml(content: {
       : ""
   }
   
+  <!-- Hreflang for language/region targeting -->
+  <link rel="alternate" hreflang="en" href="${canonicalUrl}">
+  <link rel="alternate" hreflang="x-default" href="${canonicalUrl}">
+
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${safeTitle}">
   <meta name="twitter:description" content="${safeDescription}">
   <meta name="twitter:image" content="${ogImage}">
-  
+  <meta name="twitter:site" content="">
+  <meta name="twitter:creator" content="">
+
   <!-- Redirect to actual page after a brief delay for crawlers -->
   <script>
     setTimeout(() => {
