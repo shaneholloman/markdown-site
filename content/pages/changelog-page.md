@@ -11,6 +11,117 @@ docsSectionOrder: 4
 
 All notable changes to this project.
 
+---
+
+## v2.21.1
+
+Released February 21, 2026
+
+**Stats performance optimizations**
+
+This release significantly improves stats page loading performance and reduces Convex database usage.
+
+**Performance improvements:**
+
+- Stats tracking now respects `statsPage.enabled` config. When disabled, no page views or heartbeats are recorded, eliminating all stats-related DB writes.
+- Removed the expensive full table scan fallback in `getStats` query. The query now trusts aggregate counts directly, improving from O(n) to O(log n) complexity.
+- Added `uniquePaths` aggregate component for efficient tracking of distinct pages viewed.
+- Paginated `pageStats` to return only the top 50 pages by views instead of all paths.
+
+**UI updates:**
+
+- Stats page now shows "Top Pages by Views" section title
+- Displays "(showing X of Y)" count indicator when more paths exist than displayed
+
+**Files changed:**
+
+- `src/hooks/usePageTracking.ts` (stats enabled check)
+- `convex/stats.ts` (removed table scan, added pagination, added uniquePaths)
+- `convex/convex.config.ts` (uniquePaths aggregate registration)
+- `src/pages/Stats.tsx` (updated section title and count display)
+- `src/styles/global.css` (stats-section-subtitle class)
+
+**After deploying**, run the backfill to populate the new aggregate:
+
+```bash
+npx convex run stats:backfillAggregates
+```
+
+---
+
+## v2.21.0
+
+Released February 21, 2026
+
+**Convex self hosting and @robelest/convex-auth integration**
+
+Major architecture update establishing Convex self hosting and `@robelest/convex-auth` as the default deployment and authentication stack while preserving full backwards compatibility with WorkOS and Netlify.
+
+**Default architecture:**
+
+- `auth.mode: "convex-auth"` with GitHub OAuth via `@robelest/convex-auth`
+- `hosting.mode: "convex-self-hosted"` with `@convex-dev/self-hosting`
+- `media.provider: "convex"` for direct Convex storage
+
+**Legacy compatibility:**
+
+- `auth.mode: "workos"` for WorkOS AuthKit
+- `hosting.mode: "netlify"` for Netlify deployment
+- `media.provider: "convexfs"` or `"r2"` for alternate storage
+
+**New backend wiring:**
+
+- `convex/auth.ts` exports Convex Auth helpers
+- `convex/staticHosting.ts` provides static asset deployment APIs
+- `convex/http.ts` registers auth routes and static file routes
+- `convex/convex.config.ts` registers Auth, Self Hosting, and R2 components
+- `convex/r2.ts` for optional Cloudflare R2 uploads
+- `convex/media.ts` for provider resolution
+
+**Frontend auth refactor:**
+
+- `src/main.tsx` uses centralized auth wrapper
+- `src/AppWithWorkOS.tsx` handles all auth modes with proper `ConvexAuthWrapper`
+- Custom domain support via `VITE_CONVEX_SITE_URL` and `VITE_SITE_URL`
+
+**Dashboard admin system:**
+
+- Server-side admin authorization with `dashboardAdmins` table
+- Admin APIs in `convex/authAdmin.ts` for grant/revoke/list
+- Bootstrap command: `npx convex run authAdmin:bootstrapDashboardAdmin`
+- Optional strict email gate via `DASHBOARD_PRIMARY_ADMIN_EMAIL`
+- Auth setup status query for first-admin guidance UI
+
+**One click deploy improvements:**
+
+- GitHub template flow: Use this template, clone, run `npm install && npx convex dev --once && npm run sync && npm run deploy`
+- CLI flow: `npx create-markdown-sync my-site`
+- Updated `FORK_CONFIG.md` with admin setup instructions
+- Updated `fork-config.json.example` with default mode config
+- Validation scripts: `scripts/validate-env.ts`, `scripts/verify-deploy.ts`
+
+**Rich text editor replacement:**
+
+- Replaced Quill with lightweight `contentEditable` editor
+- Simple formatting toolbar (bold, italic, strike, headings, lists, quote)
+- Preserved Markdown, Rich Text, Preview modes
+- Image insertion support
+- Zero vulnerabilities: `npm audit --omit=dev` passes
+
+**Files changed:**
+
+- `convex/auth.ts`, `convex/authAdmin.ts`, `convex/dashboardAuth.ts`
+- `convex/staticHosting.ts`, `convex/media.ts`, `convex/r2.ts`
+- `convex/http.ts`, `convex/convex.config.ts`, `convex/schema.ts`
+- `src/main.tsx`, `src/AppWithWorkOS.tsx`, `src/utils/workos.ts`
+- `src/pages/Dashboard.tsx`, `src/config/siteConfig.ts`
+- `README.md`, `FORK_CONFIG.md`, `fork-config.json.example`
+- `scripts/validate-env.ts`, `scripts/verify-deploy.ts`
+- `.cursor/skills/robel-auth/SKILL.md`
+- `.cursor/skills/convex-self-hosting/SKILL.md`
+
+---
+
 ## v2.20.1
 
 Released January 11, 2026

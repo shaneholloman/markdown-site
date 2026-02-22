@@ -4,7 +4,13 @@ Instructions for AI coding agents working on this codebase.
 
 ## Project overview
 
-Your content is instantly available to browsers, LLMs, and AI agents.. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.
+Your content is instantly available to browsers, LLMs, and AI agents.. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.
+
+## Default and legacy modes
+
+- Default auth mode: `convex-auth`
+- Default hosting mode: `convex-self-hosted`
+- Legacy compatibility mode: `workos` auth + `netlify` hosting
 
 **Key features:**
 - Markdown posts with frontmatter
@@ -31,7 +37,8 @@ Your content is instantly available to browsers, LLMs, and AI agents.. Write mar
 | Frontend | React 18, TypeScript, Vite |
 | Backend | Convex (real-time serverless database) |
 | Styling | CSS variables, no preprocessor |
-| Hosting | Netlify with edge functions |
+| Hosting | Convex self-hosting (default) or Netlify (legacy) |
+| Auth | @robelest/convex-auth (default) or WorkOS (legacy) |
 | Content | Markdown with gray-matter frontmatter |
 
 ## Setup commands
@@ -57,6 +64,7 @@ Content syncs instantly. No rebuild needed for markdown changes.
 ```bash
 npm run build                  # Build for production
 npx convex deploy              # Deploy Convex functions to production
+npm run deploy                 # Deploy with Convex self-hosting
 ```
 
 **Netlify build command:**

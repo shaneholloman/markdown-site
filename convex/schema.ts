@@ -273,4 +273,15 @@ export default defineSchema({
     key: v.string(), // Setting key: "enabled"
     value: v.boolean(), // Setting value
   }).index("by_key", ["key"]),
+
+  // Dashboard admin access control
+  // Access can be granted by auth subject and/or email for compatibility
+  dashboardAdmins: defineTable({
+    subject: v.optional(v.string()), // Auth identity subject
+    email: v.optional(v.string()), // Auth identity email (lowercase)
+    createdAt: v.number(),
+    createdBySubject: v.optional(v.string()),
+  })
+    .index("by_subject", ["subject"])
+    .index("by_email", ["email"]),
 });

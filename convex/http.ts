@@ -1,12 +1,80 @@
 import { httpRouter } from "convex/server";
+import { registerStaticRoutes } from "@convex-dev/self-hosting";
 import { httpAction } from "./_generated/server";
 import { api, components } from "./_generated/api";
 import { rssFeed, rssFullFeed } from "./rss";
 import { streamResponse, streamResponseOptions } from "./askAI.node";
 import { registerRoutes } from "convex-fs";
 import { fs } from "./fs";
+import { auth } from "./auth";
 
 const http = httpRouter();
+
+// Register Convex Auth routes for default auth mode.
+// Legacy WorkOS mode remains available through convex/auth.config.ts.
+auth.http.add(http);
+
+// Serve raw markdown files with text/plain so browsers and AI services
+// (Claude, ChatGPT, Perplexity) can read them. Must be registered before
+// registerStaticRoutes so this handler takes precedence over static assets.
+http.route({
+  pathPrefix: "/raw/",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    // /raw/documentation.md -> documentation
+    const slug = url.pathname.replace(/^\/raw\//, "").replace(/\.md$/, "");
+
+    if (!slug) {
+      return new Response("Not found", { status: 404 });
+    }
+
+    // Try post first, then page
+    const post = await ctx.runQuery(api.posts.getPostBySlug, { slug });
+    if (post) {
+      const frontmatter = [
+        "---",
+        `Type: post`,
+        `Date: ${post.date}`,
+        post.readTime ? `Read time: ${post.readTime}` : null,
+        post.tags?.length ? `Tags: ${post.tags.join(", ")}` : null,
+        "---",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const markdown = `${frontmatter}\n\n# ${post.title}\n\n${post.description ? `> ${post.description}\n\n` : ""}${post.content}`;
+
+      return new Response(markdown, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "public, max-age=300",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    const page = await ctx.runQuery(api.pages.getPageBySlug, { slug });
+    if (page) {
+      const today = new Date().toISOString().split("T")[0];
+      const frontmatter = `---\nType: page\nDate: ${today}\n---`;
+      const markdown = `${frontmatter}\n\n# ${page.title}\n\n${page.content}`;
+
+      return new Response(markdown, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "public, max-age=300",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    return new Response("Not found", { status: 404 });
+  }),
+});
+
+// Register static file serving for self-hosted deployments.
+registerStaticRoutes(http, components.selfHosting);
 
 // Site configuration - update these for your site (or run npm run configure)
 const SITE_URL = process.env.SITE_URL || "https://www.markdown.fast";
@@ -423,11 +491,8 @@ http.route({
 if (fs) {
   registerRoutes(http, components.fs, fs, {
     pathPrefix: "/fs",
-    uploadAuth: async () => {
-      // TODO: Add authentication check for production
-      // const identity = await ctx.auth.getUserIdentity();
-      // return identity !== null;
-      return true;
+    uploadAuth: async (ctx) => {
+      return await ctx.runQuery(api.authAdmin.isCurrentUserDashboardAdmin, {});
     },
     downloadAuth: async () => {
       // Public downloads - images should be accessible to all

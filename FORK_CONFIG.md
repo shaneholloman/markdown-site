@@ -4,6 +4,52 @@ After forking this repo, update these files with your site information. Choose o
 
 **Important**: Keep your `fork-config.json` file after configuring. The `sync:discovery` commands will use it to update discovery files (`AGENTS.md`, `CLAUDE.md`, `public/llms.txt`) with your configured values.
 
+## Option 0: GitHub template button
+
+If you want the fastest browser-first start:
+
+1. Click [Use this template](https://github.com/waynesutton/markdown-site/generate)
+2. Create your repo from the template
+3. Clone your new repo locally
+4. Run:
+
+```bash
+npm install
+npx convex dev --once
+npm run sync
+npm run deploy
+```
+
+Use the options below to customize app branding and behavior after the first deploy.
+
+## Default and legacy modes
+
+Default mode:
+
+- `auth.mode: "convex-auth"`
+- `hosting.mode: "convex-self-hosted"`
+- `media.provider: "convex"`
+
+Legacy mode:
+
+- `auth.mode: "workos"` for WorkOS compatibility
+- `hosting.mode: "netlify"` for Netlify compatibility
+- `media.provider: "convexfs"` or `media.provider: "r2"` for optional media backends
+
+Local fallback mode:
+
+- `auth.mode: "none"` for local development only
+
+Example:
+
+```json
+{
+  "auth": { "mode": "convex-auth" },
+  "hosting": { "mode": "convex-self-hosted" },
+  "media": { "provider": "convex" }
+}
+```
+
 ---
 
 ## Option 1: npx CLI (Recommended)
@@ -62,8 +108,8 @@ The file `fork-config.json` is gitignored, so your configuration stays local and
   "siteName": "Your Site Name",
   "siteTitle": "Your Tagline",
   "siteDescription": "A one-sentence description of your site.",
-  "siteUrl": "https://yoursite.netlify.app",
-  "siteDomain": "yoursite.netlify.app",
+  "siteUrl": "https://yoursite.example.com",
+  "siteDomain": "yoursite.example.com",
   "githubUsername": "yourusername",
   "githubRepo": "your-repo-name",
   "contactEmail": "you@example.com",
@@ -107,6 +153,7 @@ git diff                    # Review changes
 npx convex dev              # Start Convex (if not running)
 npm run sync                # Sync content
 npm run dev                 # Test locally
+npm run deploy              # One-shot Convex self-hosted deploy
 ```
 
 ---
@@ -337,7 +384,7 @@ Update the footer section (lines 203-271):
 Update the site constants (lines 11-13):
 
 ```typescript
-const SITE_URL = "https://YOURSITE.netlify.app";
+const SITE_URL = "https://yoursite.example.com";
 const SITE_NAME = "YOUR SITE NAME";
 const DEFAULT_OG_IMAGE = "/images/og-default.svg";
 ```
@@ -347,14 +394,14 @@ const DEFAULT_OG_IMAGE = "/images/og-default.svg";
 Update the site configuration (lines 9-10):
 
 ```typescript
-const SITE_URL = process.env.SITE_URL || "https://YOURSITE.netlify.app";
+const SITE_URL = process.env.SITE_URL || "https://yoursite.example.com";
 const SITE_NAME = "YOUR SITE NAME";
 ```
 
 Also update the `generateMetaHtml` function (lines 233-234):
 
 ```typescript
-const siteUrl = process.env.SITE_URL || "https://YOURSITE.netlify.app";
+const siteUrl = process.env.SITE_URL || "https://yoursite.example.com";
 const siteName = "YOUR SITE NAME";
 ```
 
@@ -363,7 +410,7 @@ const siteName = "YOUR SITE NAME";
 Update the RSS configuration (lines 5-8):
 
 ```typescript
-const SITE_URL = process.env.SITE_URL || "https://YOURSITE.netlify.app";
+const SITE_URL = process.env.SITE_URL || "https://yoursite.example.com";
 const SITE_TITLE = "YOUR SITE NAME";
 const SITE_DESCRIPTION = "YOUR SITE DESCRIPTION HERE.";
 ```
@@ -380,21 +427,21 @@ Update all meta tags and JSON-LD structured data:
 <!-- Open Graph -->
 <meta property="og:title" content="YOUR SITE NAME" />
 <meta property="og:description" content="YOUR SITE DESCRIPTION" />
-<meta property="og:url" content="https://YOURSITE.netlify.app/" />
+<meta property="og:url" content="https://yoursite.example.com/" />
 <meta property="og:site_name" content="YOUR SITE NAME" />
 <meta
   property="og:image"
-  content="https://YOURSITE.netlify.app/images/og-default.svg"
+  content="https://yoursite.example.com/images/og-default.svg"
 />
 
 <!-- Twitter Card -->
-<meta property="twitter:domain" content="YOURSITE.netlify.app" />
-<meta property="twitter:url" content="https://YOURSITE.netlify.app/" />
+<meta property="twitter:domain" content="yoursite.example.com" />
+<meta property="twitter:url" content="https://yoursite.example.com/" />
 <meta name="twitter:title" content="YOUR SITE NAME" />
 <meta name="twitter:description" content="YOUR SITE DESCRIPTION" />
 <meta
   name="twitter:image"
-  content="https://YOURSITE.netlify.app/images/og-default.svg"
+  content="https://yoursite.example.com/images/og-default.svg"
 />
 
 <!-- JSON-LD -->
@@ -403,7 +450,7 @@ Update all meta tags and JSON-LD structured data:
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "YOUR SITE NAME",
-    "url": "https://YOURSITE.netlify.app",
+    "url": "https://yoursite.example.com",
     "description": "YOUR SITE DESCRIPTION"
   }
 </script>
@@ -418,7 +465,7 @@ Update site information:
 ```
 # Site Information
 - Name: YOUR SITE NAME
-- URL: https://YOURSITE.netlify.app
+- URL: https://yoursite.example.com
 - Description: YOUR SITE DESCRIPTION
 
 # Links
@@ -432,7 +479,7 @@ Update the header and sitemap URL:
 ```
 # robots.txt for YOUR SITE NAME
 
-Sitemap: https://YOURSITE.netlify.app/sitemap.xml
+Sitemap: https://yoursite.example.com/sitemap.xml
 ```
 
 ### 9. public/openapi.yaml
@@ -446,7 +493,7 @@ info:
     url: https://github.com/YOURUSERNAME/YOUR-REPO
 
 servers:
-  - url: https://YOURSITE.netlify.app
+  - url: https://yoursite.example.com
 ```
 
 ### 10. public/.well-known/ai-plugin.json
@@ -746,13 +793,72 @@ In `src/config/siteConfig.ts`:
 ```typescript
 dashboard: {
   enabled: true,        // Global toggle for dashboard page
-  requireAuth: false,   // Set to true to require WorkOS authentication
+  requireAuth: true,    // Keep true for production deployments
+  showInNav: true,      // Show "Dashboard" nav item for admins
 },
 ```
 
 **Authentication:**
 
-WorkOS authentication is optional. When `requireAuth` is `false`, the dashboard is open access. When `requireAuth` is `true` and WorkOS is configured, users must log in to access the dashboard.
+Dashboard access is server-enforced and admin-only when authentication is enabled. Use:
+
+- `auth.mode: "convex-auth"` for the default path (GitHub OAuth)
+- `auth.mode: "workos"` for legacy compatibility
+
+When `dashboard.requireAuth` is `true`, users must be authenticated and present in the `dashboardAdmins` table to access `/dashboard`.
+
+### Setting up your admin email (required for fork users)
+
+After forking, you must set up your own admin email to access the dashboard:
+
+**Step 1: Set up GitHub OAuth**
+
+1. Go to https://github.com/settings/developers
+2. Create a new OAuth App
+3. Set Homepage URL to your frontend URL (e.g., `http://localhost:5173`)
+4. Set Authorization callback URL to: `https://<your-deployment>.convex.site/api/auth/callback/github`
+5. Copy Client ID and Client Secret
+
+**Step 2: Set environment variables**
+
+```bash
+npx convex env set AUTH_GITHUB_ID "your-github-client-id"
+npx convex env set AUTH_GITHUB_SECRET "your-github-client-secret"
+npx convex env set DASHBOARD_ADMIN_BOOTSTRAP_KEY "choose-a-long-random-secret"
+```
+
+**Step 3: Bootstrap your admin**
+
+```bash
+npx convex run authAdmin:bootstrapDashboardAdmin \
+  '{"bootstrapKey":"choose-a-long-random-secret","email":"your-email@example.com"}'
+```
+
+**Step 4 (optional): Add strict email gate**
+
+For extra security, set a strict email gate that only allows one specific email:
+
+```bash
+npx convex env set DASHBOARD_PRIMARY_ADMIN_EMAIL "your-email@example.com"
+```
+
+### Non-admin user behavior
+
+When a user signs in with GitHub but is not in the `dashboardAdmins` table:
+
+- **Homepage**: Shows a dismissible notice with Sign Out and Dismiss buttons
+- **Dashboard route**: Redirects to homepage with the notice
+- **Navigation**: Dashboard link is hidden for non-admins
+
+Non-admin users can browse all public content but cannot access `/dashboard` or modify any content.
+
+### Grant additional admins
+
+Once you are an admin, grant access to others:
+
+```bash
+npx convex run authAdmin:grantDashboardAdmin '{"email":"colleague@example.com"}'
+```
 
 **WorkOS Setup:**
 
@@ -763,7 +869,7 @@ To enable WorkOS authentication:
 3. Set `VITE_WORKOS_REDIRECT_URI` (e.g., `http://localhost:5173/callback`)
 4. Add `WORKOS_CLIENT_ID` to Convex environment variables
 5. Configure redirect URI in WorkOS dashboard
-6. Set `requireAuth: true` in `siteConfig.ts`
+6. Set `auth.mode` to `"workos"` and keep `dashboard.requireAuth: true` in `siteConfig.ts`
 
 See [How to setup WorkOS](https://www.markdown.fast/how-to-setup-workos) for complete setup instructions.
 
@@ -1367,7 +1473,7 @@ I just forked the markdown-site repo. Please update all configuration files with
 Site Name: [YOUR SITE NAME]
 Site Title/Tagline: [YOUR TAGLINE]
 Site Description: [YOUR DESCRIPTION]
-Site URL: https://[YOURSITE].netlify.app
+Site URL: https://[YOURSITE].example.com
 GitHub Username: [YOURUSERNAME]
 GitHub Repo: [YOUR-REPO]
 Contact Email: [your@email.com]
@@ -1407,7 +1513,7 @@ Update these files:
 1. Run `npx convex dev` to initialize Convex
 2. Run `npm run sync` to sync content to development
 3. Run `npm run dev` to test locally
-4. Deploy to Netlify when ready
+4. Deploy with Convex self-hosting when ready (`npm run deploy`)
 
 **Note**: Keep your `fork-config.json` file. When you run `npm run sync:discovery` or `npm run sync:all`, it reads from `fork-config.json` to update discovery files with your site information.
 

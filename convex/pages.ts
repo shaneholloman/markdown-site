@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { requireDashboardAdmin } from "./dashboardAuth";
 
 // Get all pages (published and unpublished) for dashboard admin view
 export const listAll = query({
@@ -25,6 +26,8 @@ export const listAll = query({
     }),
   ),
   handler: async (ctx) => {
+    await requireDashboardAdmin(ctx);
+
     const pages = await ctx.db.query("pages").collect();
 
     // Sort by order, then by title

@@ -6,6 +6,7 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { requireDashboardAdmin } from "./dashboardAuth";
 
 // Generate secure unsubscribe token
 // Uses random alphanumeric characters for URL-safe tokens
@@ -254,6 +255,8 @@ export const getAllSubscribers = query({
     subscribedCount: v.number(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     const limit = args.limit ?? 50;
     const filter = args.filter ?? "all";
     const search = args.search?.toLowerCase().trim();
@@ -322,6 +325,8 @@ export const deleteSubscriber = mutation({
     message: v.string(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     // Check if subscriber exists using direct get
     const subscriber = await ctx.db.get(args.subscriberId);
     if (!subscriber) {
@@ -355,6 +360,8 @@ export const getNewsletterStats = query({
     ),
   }),
   handler: async (ctx) => {
+    await requireDashboardAdmin(ctx);
+
     // Get all subscribers
     const subscribers = await ctx.db.query("newsletterSubscribers").collect();
     const activeSubscribers = subscribers.filter((s) => s.subscribed).length;
@@ -401,6 +408,8 @@ export const getPostsForNewsletter = query({
     })
   ),
   handler: async (ctx) => {
+    await requireDashboardAdmin(ctx);
+
     // Get all published posts
     const posts = await ctx.db
       .query("posts")
@@ -475,6 +484,8 @@ export const scheduleSendPostNewsletter = mutation({
     message: v.string(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     // Check if post was already sent
     const sent = await ctx.db
       .query("newsletterSentPosts")
@@ -515,6 +526,8 @@ export const scheduleSendCustomNewsletter = mutation({
     message: v.string(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     // Validate inputs
     if (!args.subject.trim()) {
       return { success: false, message: "Subject is required." };
@@ -548,6 +561,8 @@ export const scheduleSendStatsSummary = mutation({
     message: v.string(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     // Schedule the action to run immediately
     await ctx.scheduler.runAfter(0, internal.newsletterActions.sendWeeklyStatsSummary, {
       siteName: args.siteName,

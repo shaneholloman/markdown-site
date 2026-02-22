@@ -107,7 +107,7 @@ showInNav: false
 order: -1
 ---
 
-Built with [Convex](https://convex.dev) for real-time sync and deployed on [Netlify](https://netlify.com).
+Built with [Convex](https://convex.dev) for real-time sync and deployed with Convex self-hosting by default.
 
 Created by [Your Name](https://x.com/yourhandle). Follow on [Twitter/X](https://x.com/yourhandle) and [GitHub](https://github.com/yourusername).
 ```
@@ -278,12 +278,12 @@ npm run sync:all:prod   # Production: content + discovery
 | Featured items (via frontmatter) | `npm run sync`             | Instant (no rebuild)    |
 | Site config changes              | `npm run sync:discovery`   | Updates discovery files |
 | Import external URL              | `npm run import` then sync | Instant (no rebuild)    |
-| Images in `public/images/`       | Git commit + push          | Requires rebuild        |
+| Images in `public/images/`       | `npm run deploy`           | Requires rebuild        |
 | `siteConfig` in `Home.tsx`       | Redeploy                   | Requires rebuild        |
 | Logo gallery config              | Redeploy                   | Requires rebuild        |
 | React components/styles          | Redeploy                   | Requires rebuild        |
 
-**Markdown content** syncs instantly to Convex. **Images and source code** require pushing to GitHub for Netlify to rebuild.
+**Markdown content** syncs instantly to Convex. **Images and source code** require a deploy (`npm run deploy`) in the default Convex self-hosted flow. In legacy Netlify mode, push to GitHub to trigger a Netlify rebuild.
 
 ## Tag pages and related posts
 

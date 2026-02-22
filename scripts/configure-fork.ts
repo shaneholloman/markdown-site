@@ -34,12 +34,12 @@ const silent = process.argv.includes("--silent");
 
 // Log helper that respects silent mode
 function log(message: string): void {
-  if (!silent) log(message);
+  if (!silent) console.log(message);
 }
 
 // Warn helper that always shows warnings
 function warn(message: string): void {
-  warn(message);
+  console.warn(message);
 }
 
 // Configuration interface matching fork-config.json
@@ -113,6 +113,15 @@ interface ForkConfig {
       siteName?: string;
       showYear?: boolean;
     };
+  };
+  auth?: {
+    mode: "convex-auth" | "workos" | "none";
+  };
+  hosting?: {
+    mode: "convex-self-hosted" | "netlify";
+  };
+  media?: {
+    provider?: "convex" | "convexfs" | "r2";
   };
 }
 
@@ -407,6 +416,30 @@ function updateSiteConfig(config: ForkConfig): void {
         `showYear: ${config.socialFooter.copyright.showYear}, // Auto-updates to current year`,
       );
     }
+  }
+
+  // Update auth mode if specified
+  if (config.auth?.mode) {
+    content = content.replace(
+      /auth:\s*\{\s*mode:\s*"(?:convex-auth|workos|none)"/,
+      `auth: {\n    mode: "${config.auth.mode}"`,
+    );
+  }
+
+  // Update hosting mode if specified
+  if (config.hosting?.mode) {
+    content = content.replace(
+      /hosting:\s*\{\s*mode:\s*"(?:convex-self-hosted|netlify)"/,
+      `hosting: {\n    mode: "${config.hosting.mode}"`,
+    );
+  }
+
+  // Update media provider if specified
+  if (config.media?.provider) {
+    content = content.replace(
+      /provider:\s*"(?:convex|convexfs|r2)"/,
+      `provider: "${config.media.provider}"`,
+    );
   }
 
   fs.writeFileSync(filePath, content, "utf-8");
@@ -797,7 +830,7 @@ function updateOpenApiYaml(config: ForkConfig): void {
     },
     // Match any GitHub contact URL
     {
-      search: /url: https:\/\/github\.com\/[^\/]+\/[^\s]+/,
+      search: /url: https:\/\/github\.com\/[^/]+\/[^\s]+/,
       replace: `url: ${githubUrl}`,
     },
     // Match any server URL (production server line)
@@ -906,7 +939,7 @@ function updateSendNewsletter(config: ForkConfig): void {
   updateFile("scripts/send-newsletter.ts", [
     // Match any existing SITE_URL fallback in comment
     {
-      search: /\*   - SITE_URL: Your site URL \(default: https:\/\/[^)]+\)/,
+      search: /\* {3}- SITE_URL: Your site URL \(default: https:\/\/[^)]+\)/,
       replace: `*   - SITE_URL: Your site URL (default: ${config.siteUrl})`,
     },
     // Match any existing SITE_URL fallback in code

@@ -3,7 +3,7 @@ title: "Markdown Sync RC1 Release"
 slug: "version-rc1"
 description: "RC1 brings semantic search, ConvexFS Media Library, OpenCode integration, RAG-based AI Q&A, and a new CLI to get started in seconds."
 date: "2026-01-11"
-published: true
+published: false
 tags: ["release", "rc1", "features", "convex", "ai"]
 readTime: "3 min read"
 order: 1

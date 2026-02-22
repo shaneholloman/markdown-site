@@ -3,7 +3,6 @@ import {
   printSection,
   isValidEmail,
   isValidUrl,
-  extractDomain,
   extractGitHubUsername,
   extractTwitterHandle,
   detectPackageManager,
@@ -77,6 +76,9 @@ export interface WizardAnswers {
   contactFormTitle: string;
 
   // Section 11: Advanced Features
+  authMode: 'convex-auth' | 'workos' | 'none';
+  hostingMode: 'convex-self-hosted' | 'netlify';
+  mediaProvider: 'convex' | 'convexfs' | 'r2';
   mcpServerEnabled: boolean;
   semanticSearchEnabled: boolean;
   askAIEnabled: boolean;
@@ -516,6 +518,38 @@ export async function runWizard(initialProjectName?: string): Promise<WizardAnsw
 
   const section11 = await prompts([
     {
+      type: 'select',
+      name: 'authMode',
+      message: 'Authentication mode',
+      choices: [
+        { title: 'Convex Auth (default)', value: 'convex-auth' },
+        { title: 'WorkOS (legacy)', value: 'workos' },
+        { title: 'No auth (local/dev only)', value: 'none' },
+      ],
+      initial: 0,
+    },
+    {
+      type: 'select',
+      name: 'hostingMode',
+      message: 'Hosting mode',
+      choices: [
+        { title: 'Convex self-hosted (default)', value: 'convex-self-hosted' },
+        { title: 'Netlify (legacy)', value: 'netlify' },
+      ],
+      initial: 0,
+    },
+    {
+      type: 'select',
+      name: 'mediaProvider',
+      message: 'Media provider',
+      choices: [
+        { title: 'Convex storage (default)', value: 'convex' },
+        { title: 'ConvexFS + Bunny (optional)', value: 'convexfs' },
+        { title: 'Cloudflare R2 (optional)', value: 'r2' },
+      ],
+      initial: 0,
+    },
+    {
       type: 'confirm',
       name: 'mcpServerEnabled',
       message: 'Enable MCP server for AI tools?',
@@ -546,12 +580,15 @@ export async function runWizard(initialProjectName?: string): Promise<WizardAnsw
       name: 'dashboardRequireAuth',
       message: 'Require authentication for dashboard?',
       initial: false,
-      hint: 'Requires WorkOS setup',
+      hint: 'Recommended after OAuth setup. You can enable this later.',
     },
   ], { onCancel });
 
   Object.assign(answers, {
     ...section11,
+    authMode: section11.authMode || 'convex-auth',
+    hostingMode: section11.hostingMode || 'convex-self-hosted',
+    mediaProvider: section11.mediaProvider || 'convex',
     dashboardRequireAuth: section11.dashboardRequireAuth ?? false,
   });
 

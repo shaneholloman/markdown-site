@@ -58,6 +58,10 @@ export default defineConfig(({ mode }) => {
           target: convexSiteUrl,
           changeOrigin: true,
         },
+        "/raw/": {
+          target: convexSiteUrl,
+          changeOrigin: true,
+        },
       },
     },
   };

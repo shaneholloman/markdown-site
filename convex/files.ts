@@ -2,6 +2,10 @@ import { mutation, query, action } from "./_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 import { fs, isBunnyConfigured } from "./fs";
+import {
+  requireDashboardAdmin,
+  requireDashboardAdminAction,
+} from "./dashboardAuth";
 
 // Allowed image MIME types
 const ALLOWED_TYPES = [
@@ -33,6 +37,8 @@ export const commitFile = action({
     height: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requireDashboardAdminAction(ctx);
+
     if (!fs) {
       throw new Error(
         "Media uploads not configured. Set BUNNY_API_KEY, BUNNY_STORAGE_ZONE, and BUNNY_CDN_HOSTNAME in Convex Dashboard."
@@ -84,6 +90,8 @@ export const listFiles = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     if (!fs) {
       // Return empty results when not configured
       return {
@@ -104,6 +112,8 @@ export const listFiles = query({
 export const getFileInfo = query({
   args: { path: v.string() },
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     if (!fs) {
       return null;
     }
@@ -127,6 +137,8 @@ export const getFileInfo = query({
 export const getDownloadUrl = action({
   args: { path: v.string() },
   handler: async (ctx, args) => {
+    await requireDashboardAdminAction(ctx);
+
     if (!fs) {
       throw new Error("Media uploads not configured");
     }
@@ -148,6 +160,8 @@ export const getDownloadUrl = action({
 export const deleteFile = mutation({
   args: { path: v.string() },
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     if (!fs) {
       throw new Error("Media uploads not configured");
     }
@@ -161,6 +175,8 @@ export const deleteFile = mutation({
 export const deleteFiles = mutation({
   args: { paths: v.array(v.string()) },
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     if (!fs) {
       throw new Error("Media uploads not configured");
     }
@@ -181,6 +197,8 @@ export const setFileExpiration = action({
     expiresInMs: v.optional(v.number()), // null to remove expiration
   },
   handler: async (ctx, args) => {
+    await requireDashboardAdminAction(ctx);
+
     if (!fs) {
       throw new Error("Media uploads not configured");
     }
@@ -209,6 +227,8 @@ export const setFileExpiration = action({
 export const getFileCount = query({
   args: {},
   handler: async (ctx) => {
+    await requireDashboardAdmin(ctx);
+
     if (!fs) {
       return 0;
     }

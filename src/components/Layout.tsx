@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { MagnifyingGlass, Sparkle } from "@phosphor-icons/react";
+import { MagnifyingGlass, SignIn, Sparkle } from "@phosphor-icons/react";
 import ThemeToggle from "./ThemeToggle";
 import FontToggle from "./FontToggle";
 import SearchModal from "./SearchModal";
@@ -28,18 +28,15 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   // Fetch published pages for navigation
   const pages = useQuery(api.pages.getAllPages);
+  const isDashboardAdmin = useQuery(api.authAdmin.isCurrentUserDashboardAdmin);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAskAIOpen, setIsAskAIOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   // Fetch docs pages and posts for detecting if current page is in docs section
-  const docsPages = useQuery(
-    siteConfig.docsSection?.enabled ? api.pages.getDocsPages : "skip"
-  );
-  const docsPosts = useQuery(
-    siteConfig.docsSection?.enabled ? api.posts.getDocsPosts : "skip"
-  );
+  const docsPages = useQuery(api.pages.getDocsPages);
+  const docsPosts = useQuery(api.posts.getDocsPosts);
 
   // Check if current page is a docs page
   const currentSlug = location.pathname.replace(/^\//, "");
@@ -169,6 +166,22 @@ export default function Layout({ children }: LayoutProps) {
     });
   }
 
+  // Add dashboard link for admins when enabled and configured to show in nav.
+  const dashboardEnabled = siteConfig.dashboard?.enabled ?? true;
+  const dashboardShowInNav = siteConfig.dashboard?.showInNav ?? true;
+  const dashboardRequiresAuth = siteConfig.dashboard?.requireAuth ?? true;
+  const canShowDashboardNav =
+    dashboardEnabled &&
+    dashboardShowInNav &&
+    (!dashboardRequiresAuth || isDashboardAdmin === true);
+  if (canShowDashboardNav) {
+    navItems.push({
+      slug: "dashboard",
+      title: "Dashboard",
+      order: 21, // Keeps Dashboard next to Write by default
+    });
+  }
+
   // Add pages from Convex
   if (pages && pages.length > 0) {
     pages.forEach((page) => {
@@ -200,7 +213,7 @@ export default function Layout({ children }: LayoutProps) {
               width={siteConfig.innerPageLogo.size}
               height={siteConfig.innerPageLogo.size}
               style={{ height: siteConfig.innerPageLogo.size, width: "auto" }}
-              fetchPriority="high"
+              fetchpriority="high"
             />
           </Link>
         )}
@@ -210,6 +223,17 @@ export default function Layout({ children }: LayoutProps) {
         <div className="mobile-nav-controls">
           {/* Hamburger button for mobile menu */}
           <HamburgerButton onClick={openMobileMenu} isOpen={isMobileMenuOpen} />
+          {/* Dashboard entry icon (sign-in/admin entrypoint) */}
+          {dashboardEnabled && (
+            <Link
+              to="/dashboard"
+              className="search-button"
+              aria-label="Dashboard sign in"
+              title="Dashboard sign in"
+            >
+              <SignIn size={18} weight="bold" />
+            </Link>
+          )}
           {/* Ask AI button (only if enabled) */}
           {siteConfig.askAI?.enabled && siteConfig.semanticSearch?.enabled && (
             <button
@@ -254,6 +278,17 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Desktop search and theme (visible on desktop only) */}
         <div className="desktop-controls desktop-only">
+          {/* Dashboard entry icon (sign-in/admin entrypoint) */}
+          {dashboardEnabled && (
+            <Link
+              to="/dashboard"
+              className="search-button"
+              aria-label="Dashboard sign in"
+              title="Dashboard sign in"
+            >
+              <SignIn size={18} weight="bold" />
+            </Link>
+          )}
           {/* Social icons in header (if enabled) */}
           {siteConfig.socialFooter?.enabled &&
             siteConfig.socialFooter?.showInHeader && (

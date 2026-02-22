@@ -49,6 +49,7 @@ export async function setupConvex(
 
     console.log('');
     log.success('Convex project initialized');
+    log.info('You can deploy now without auth setup, then add GitHub auth later when ready');
     return true;
   } catch (error) {
     // Spinner may already be stopped, so use log.error instead

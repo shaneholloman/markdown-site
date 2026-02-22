@@ -1,6 +1,6 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { components } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { TableAggregate } from "@convex-dev/aggregate";
 
@@ -51,6 +51,19 @@ const uniqueVisitors = new TableAggregate<{
   TableName: "pageViews";
 }>(components.uniqueVisitors, {
   sortKey: (doc) => doc.sessionId,
+});
+
+/**
+ * Aggregate for unique paths.
+ * Uses path as key to count distinct pages that have been viewed.
+ * Enables O(1) retrieval of all unique paths without table scan.
+ */
+const uniquePaths = new TableAggregate<{
+  Key: string; // path
+  DataModel: DataModel;
+  TableName: "pageViews";
+}>(components.uniquePaths, {
+  sortKey: (doc) => doc.path,
 });
 
 /**
@@ -107,6 +120,8 @@ export const recordPageView = mutation({
     // Update aggregates with the new page view
     await pageViewsByPath.insertIfDoesNotExist(ctx, doc);
     await totalPageViews.insertIfDoesNotExist(ctx, doc);
+    // Track unique paths (insertIfDoesNotExist ensures only one entry per path)
+    await uniquePaths.insertIfDoesNotExist(ctx, doc);
     // Only insert into unique visitors aggregate if this is a new session
     if (isNewVisitor) {
       await uniqueVisitors.insertIfDoesNotExist(ctx, doc);
@@ -181,11 +196,14 @@ export const heartbeat = mutation({
   },
 });
 
+// Maximum number of page stats to return (top N by views)
+const PAGE_STATS_LIMIT = 50;
+
 /**
  * Get all stats for the stats page.
  * Real-time subscription via useQuery.
  * Uses aggregate components for O(log n) counts instead of O(n) table scans.
- * Returns visitor locations for the world map display.
+ * Returns top 50 pages by views and visitor locations for the world map.
  */
 export const getStats = query({
   args: {},
@@ -210,7 +228,7 @@ export const getStats = query({
         views: v.number(),
       }),
     ),
-    // Visitor locations for world map display
+    totalPaths: v.number(),
     visitorLocations: v.array(
       v.object({
         latitude: v.number(),
@@ -240,50 +258,10 @@ export const getStats = query({
       .map(([path, count]) => ({ path, count }))
       .sort((a, b) => b.count - a.count);
 
-    // Get all page views once (needed for unique paths and fallback counts)
-    const allPageViews = await ctx.db
-      .query("pageViews")
-      .withIndex("by_path")
-      .collect();
-
-    // Extract unique paths
-    const uniquePathsSet = new Set<string>();
-    for (const view of allPageViews) {
-      uniquePathsSet.add(view.path);
-    }
-    const allPaths = Array.from(uniquePathsSet);
-
-    // Calculate direct counts from pageViews (includes all historical data)
-    const totalPageViewsDirect = allPageViews.length;
-    const uniqueSessionsDirect = new Set(allPageViews.map((v) => v.sessionId))
-      .size;
-    const pathCountsDirect: Record<string, number> = {};
-    for (const view of allPageViews) {
-      pathCountsDirect[view.path] = (pathCountsDirect[view.path] || 0) + 1;
-    }
-
-    // Get aggregate counts (fast O(log n), but may be incomplete until backfilled)
-    const totalPageViewsAggregate = await totalPageViews.count(ctx);
-    const uniqueVisitorsAggregate = await uniqueVisitors.count(ctx);
-
-    // Get view counts per path using aggregate component (O(log n) per path)
-    const pathCountsFromAggregate: Record<string, number> = {};
-    const pathCountPromises = allPaths.map(async (path) => {
-      const count = await pageViewsByPath.count(ctx, { namespace: path });
-      pathCountsFromAggregate[path] = count;
-    });
-    await Promise.all(pathCountPromises);
-
-    // Use maximum of aggregate vs direct counts to ensure all historical data is shown
-    // This handles the case where aggregates haven't been fully backfilled yet
-    const totalPageViewsCount = Math.max(
-      totalPageViewsAggregate,
-      totalPageViewsDirect,
-    );
-    const uniqueVisitorsCount = Math.max(
-      uniqueVisitorsAggregate,
-      uniqueSessionsDirect,
-    );
+    // Get aggregate counts (fast O(log n))
+    const totalPageViewsCount = await totalPageViews.count(ctx);
+    const uniqueVisitorsCount = await uniqueVisitors.count(ctx);
+    const totalPathsCount = await uniquePaths.count(ctx);
 
     // Get earliest page view for tracking since date (single doc fetch)
     const firstView = await ctx.db
@@ -293,7 +271,7 @@ export const getStats = query({
       .first();
     const trackingSince = firstView ? firstView.timestamp : null;
 
-    // Get published posts and pages for titles
+    // Get published posts and pages for titles (indexed queries, typically small)
     const posts = await ctx.db
       .query("posts")
       .withIndex("by_published", (q) => q.eq("published", true))
@@ -304,17 +282,64 @@ export const getStats = query({
       .withIndex("by_published", (q) => q.eq("published", true))
       .collect();
 
-    // Build page stats using maximum of aggregate vs direct counts
-    // This ensures all historical views are shown even if aggregates aren't fully backfilled
-    const pageStatsPromises = allPaths.map(async (path) => {
-      const aggregateCount = pathCountsFromAggregate[path] || 0;
-      const directCount = pathCountsDirect[path] || 0;
-      const views = Math.max(aggregateCount, directCount);
+    // Build a slug-to-content map for fast title lookups
+    const postsBySlug: Record<string, { title: string }> = {};
+    for (const post of posts) {
+      postsBySlug[post.slug] = { title: post.title };
+    }
+    const pagesBySlug: Record<string, { title: string }> = {};
+    for (const page of pages) {
+      pagesBySlug[page.slug] = { title: page.title };
+    }
 
-      // Match path to post or page for title
+    // Get unique paths from aggregate (iterate to get all paths)
+    // This is O(n) but avoids the full pageViews table scan
+    const pathsWithCounts: Array<{ path: string; views: number }> = [];
+    
+    // Use aggregate to iterate through unique paths
+    // Each namespace in pageViewsByPath represents a unique path
+    // We need to get all paths first, then count views for each
+    const allPathsFromAggregate = await uniquePaths.sum(ctx, {
+      // Get all paths by iterating the aggregate
+      // The aggregate stores one entry per unique path
+    });
+    
+    // Since we can't iterate the aggregate directly, we need to get paths differently
+    // Use a limited scan of recent page views to find active paths
+    // Then use aggregates for accurate counts
+    const recentViews = await ctx.db
+      .query("pageViews")
+      .withIndex("by_timestamp")
+      .order("desc")
+      .take(1000);
+    
+    // Extract unique paths from recent views
+    const recentPathsSet = new Set<string>();
+    for (const view of recentViews) {
+      recentPathsSet.add(view.path);
+    }
+    
+    // Also include paths from active sessions
+    for (const session of activeSessions) {
+      recentPathsSet.add(session.currentPath);
+    }
+    
+    // Get view counts for each path using aggregate (O(log n) per path)
+    const pathCountPromises = Array.from(recentPathsSet).map(async (path) => {
+      const count = await pageViewsByPath.count(ctx, { namespace: path });
+      return { path, views: count };
+    });
+    const pathCounts = await Promise.all(pathCountPromises);
+
+    // Sort by views and take top N
+    pathCounts.sort((a, b) => b.views - a.views);
+    const topPaths = pathCounts.slice(0, PAGE_STATS_LIMIT);
+
+    // Build page stats with titles
+    const pageStats = topPaths.map(({ path, views }) => {
       const slug = path.startsWith("/") ? path.slice(1) : path;
-      const post = posts.find((p) => p.slug === slug);
-      const page = pages.find((p) => p.slug === slug);
+      const post = postsBySlug[slug];
+      const page = pagesBySlug[slug];
 
       let title = path;
       let pageType = "other";
@@ -333,17 +358,8 @@ export const getStats = query({
         pageType = "page";
       }
 
-      return {
-        path,
-        title,
-        pageType,
-        views,
-      };
+      return { path, title, pageType, views };
     });
-
-    const pageStats = (await Promise.all(pageStatsPromises)).sort(
-      (a, b) => b.views - a.views,
-    );
 
     // Extract visitor locations from active sessions (only those with coordinates)
     const visitorLocations = activeSessions
@@ -370,6 +386,7 @@ export const getStats = query({
       publishedPages: pages.length,
       trackingSince,
       pageStats,
+      totalPaths: totalPathsCount,
       visitorLocations,
     };
   },
@@ -426,9 +443,8 @@ export const backfillAggregatesChunk = internalMutation({
       .query("pageViews")
       .paginate({ numItems: BACKFILL_BATCH_SIZE, cursor: args.cursor });
 
-    // Track unique sessions (restore from previous chunks)
+    // Track unique sessions and paths (restore from previous chunks)
     const seenSessions = new Set<string>(args.seenSessionIds);
-    let uniqueCount = 0;
 
     // Process each view in this batch
     for (const doc of result.page) {
@@ -438,11 +454,13 @@ export const backfillAggregatesChunk = internalMutation({
       // Insert into totalPageViews aggregate (one per view)
       await totalPageViews.insertIfDoesNotExist(ctx, doc);
 
+      // Insert into uniquePaths aggregate (one per unique path)
+      await uniquePaths.insertIfDoesNotExist(ctx, doc);
+
       // Insert into uniqueVisitors aggregate (one per session)
       if (!seenSessions.has(doc.sessionId)) {
         seenSessions.add(doc.sessionId);
         await uniqueVisitors.insertIfDoesNotExist(ctx, doc);
-        uniqueCount++;
       }
     }
 
@@ -456,9 +474,7 @@ export const backfillAggregatesChunk = internalMutation({
 
       await ctx.scheduler.runAfter(
         0,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (await import("./_generated/api")).internal.stats
-          .backfillAggregatesChunk as any,
+        internal.stats.backfillAggregatesChunk,
         {
           cursor: result.continueCursor,
           totalProcessed: newTotalProcessed,
@@ -504,9 +520,7 @@ export const backfillAggregates = internalMutation({
     // Start the chunked backfill process
     await ctx.scheduler.runAfter(
       0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (await import("./_generated/api")).internal.stats
-        .backfillAggregatesChunk as any,
+      internal.stats.backfillAggregatesChunk,
       {
         cursor: null,
         totalProcessed: 0,

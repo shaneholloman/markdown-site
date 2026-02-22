@@ -2,16 +2,16 @@
 
 ---
 Type: page
-Date: 2026-01-13
+Date: 2026-02-22
 ---
 
-An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Two ways to publish: write markdown and sync from the terminal, or use the web dashboard. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.
+An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Two ways to publish: write markdown and sync from the terminal, or use the web dashboard. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex with self-hosted static delivery by default.
 
 ## What makes it a dev sync system?
 
 **File-based content.** Posts and pages live in `content/blog/` and `content/pages/` as markdown files with frontmatter. Version controlled in your repo. The dashboard provides a web UI for creating and editing content directly in the database.
 
-**CLI publishing workflow.** Write markdown locally, then run `npm run sync` (dev) or `npm run sync:prod` (production). Content appears instantly via Convex real-time sync. Images require git commit and push since they are served as static files from Netlify.
+**CLI publishing workflow.** Write markdown locally, then run `npm run sync` (dev) or `npm run sync:prod` (production). Content appears instantly via Convex real-time sync. Static assets and source-code changes ship with `npm run deploy` in the default Convex self-hosted path.
 
 **Dashboard workflow.** Create and edit content at `/dashboard` without touching files. Dashboard content saves directly to the database with `source: "dashboard"` tracking. Export to markdown files with `npm run export:db` when needed.
 
@@ -67,7 +67,7 @@ It's a hybrid: developer workflow for publishing + real-time delivery like a dyn
 | Frontend | React + TypeScript |
 | Backend  | Convex             |
 | Styling  | CSS variables      |
-| Hosting  | Netlify            |
+| Hosting  | Convex self-hosted |
 | Content  | Markdown           |
 
 ## Features

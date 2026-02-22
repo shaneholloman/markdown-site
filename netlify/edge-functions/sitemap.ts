@@ -2,7 +2,7 @@ import type { Context } from "@netlify/edge-functions";
 
 // Edge function to proxy sitemap to Convex HTTP endpoint
 export default async function handler(
-  request: Request,
+  _request: Request,
   _context: Context,
 ): Promise<Response> {
   const convexUrl =

@@ -4,9 +4,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
 ![React](https://img.shields.io/badge/React-18-61dafb.svg)
 ![Convex](https://img.shields.io/badge/Convex-enabled-ff6b6b.svg)
-![Netlify](https://img.shields.io/badge/Netlify-hosted-00C7B7.svg)
+![Convex](https://img.shields.io/badge/Convex-self--hosted-ff6b6b.svg)
 
-An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.
+An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.
 
 Write markdown locally, run `npm run sync` (dev) or `npm run sync:prod` (production), and content appears instantly across all connected browsers. Built with React, Convex, and Vite. Optimized for AEO, GEO, and LLM discovery.
 
@@ -52,9 +52,9 @@ Full documentation is available at **[markdown.fast/docs](https://www.markdown.f
 - [Setup Guide](https://www.markdown.fast/setup-guide) - Complete fork and deployment guide
 - [Fork Configuration Guide](https://www.markdown.fast/fork-configuration-guide) - Automated or manual fork setup
 - [Dashboard Guide](https://www.markdown.fast/how-to-use-the-markdown-sync-dashboard) - Content management and site configuration
-- [WorkOS Setup](https://www.markdown.fast/how-to-setup-workos) - Authentication for dashboard protection
 - [MCP Server](https://www.markdown.fast/how-to-use-mcp-server) - AI tool integration for Cursor and Claude Desktop
 - [AgentMail Setup](https://www.markdown.fast/blog/how-to-use-agentmail) - Newsletter and contact form integration
+- [WorkOS Setup](https://www.markdown.fast/how-to-setup-workos) - Legacy authentication mode (use `auth.mode: "workos"` in siteConfig)
 
 ### AI Development Tools
 
@@ -63,10 +63,12 @@ The project includes documentation optimized for AI coding assistants:
 - **CLAUDE.md** - Project instructions for Claude Code CLI with workflows, commands, and conventions
 - **AGENTS.md** - General AI agent instructions for understanding the codebase structure
 - **llms.txt** - AI agent discovery file at `/llms.txt`
-- **.claude/skills/** - Focused skill documentation:
+- **.cursor/skills/** - Focused skill documentation:
   - `frontmatter.md` - Complete frontmatter syntax and all field options
   - `convex.md` - Convex patterns specific to this app
   - `sync.md` - How sync commands work and content flow
+  - `robel-auth/SKILL.md` - `@robelest/convex-auth` integration patterns
+  - `convex-self-hosting/SKILL.md` - Convex static self hosting setup
 
 These files are automatically updated during `npm run sync:discovery` with current site statistics.
 
@@ -86,7 +88,30 @@ cp fork-config.json.example fork-config.json
 npm run configure
 ```
 
-See the [Fork Configuration Guide](https://www.markdown.fast/fork-configuration-guide) for detailed instructions.
+The `fork-config.json.example` includes all configurable options:
+
+- **Site settings**: name, title, description, URL, domain
+- **Auth mode**: `convex-auth` (default), `workos` (legacy), or `none` (local dev)
+- **Hosting mode**: `convex-self-hosted` (default) or `netlify` (legacy)
+- **Media provider**: `convex` (default), `convexfs`, or `r2`
+- **Creator info**: name, social links, bio
+- **Feature toggles**: newsletter, dashboard, stats page, AI chat, etc.
+
+See the [Fork Configuration Guide](https://www.markdown.fast/fork-configuration-guide) for detailed instructions and [FORK_CONFIG.md](./FORK_CONFIG.md) for the complete reference.
+
+## One click setup paths
+
+Use either path to get your own clone + Convex backend quickly:
+
+1. GitHub template flow:
+   - Click [Use this template](https://github.com/waynesutton/markdown-site/generate)
+   - Clone your new repo
+   - Run `npm install`, `npx convex dev --once`, `npm run sync`, `npm run deploy`
+2. CLI flow:
+   - Run `npx create-markdown-sync my-site`
+   - Follow prompts and open your site when setup finishes
+3. Website setup guide:
+   - Follow [markdown.fast/fork-configuration-guide](https://www.markdown.fast/fork-configuration-guide)
 
 ## Getting Started
 
@@ -119,9 +144,37 @@ npm run dev
 
 4. Open http://localhost:5173
 
+### Validation scripts
+
+Verify your environment and deployment:
+
+```bash
+npm run validate:env       # Check local env readiness
+npm run validate:env:prod  # Check production env
+npm run verify:deploy      # Verify deployed endpoints
+npm run verify:deploy:prod # Verify production endpoints
+```
+
 ## Deployment
 
-### Netlify
+### Default deployment (Convex self hosted)
+
+```bash
+npx @convex-dev/self-hosting setup
+npx convex dev --once
+npm run deploy
+```
+
+`npm run deploy` runs the full one-shot flow through `@convex-dev/self-hosting` and builds for the target Convex deployment automatically.
+
+### Custom domain setup
+
+- Set your Convex custom domain to `markdown.fast` in the Convex dashboard.
+- Point DNS from Cloudflare to Convex using the records Convex provides.
+- Set `VITE_CONVEX_SITE_URL` (or `VITE_SITE_URL`) for frontend HTTP route overrides.
+- Keep `VITE_CONVEX_URL` for the Convex client URL.
+
+### Legacy deployment (Netlify)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/d8c4d83d-7486-42de-844b-6f09986dc9aa/deploy-status)](https://app.netlify.com/projects/markdowncms/deploys)
 
@@ -141,9 +194,80 @@ npx convex deploy
 
 For detailed setup, see the [Convex Netlify Deployment Guide](https://docs.convex.dev/production/hosting/netlify) and [netlify-deploy-fix.md](./netlify-deploy-fix.md) for troubleshooting.
 
+## Auth modes
+
+Default mode:
+
+- `auth.mode: "convex-auth"` - GitHub OAuth via `@robelest/convex-auth`
+- `hosting.mode: "convex-self-hosted"` - Static assets via `@convex-dev/self-hosting`
+- `media.provider: "convex"` - Direct Convex storage
+
+Legacy mode:
+
+- `auth.mode: "workos"` for WorkOS AuthKit compatibility
+- `hosting.mode: "netlify"` for Netlify deployment
+- `media.provider: "convexfs"` or `media.provider: "r2"` for optional media backends
+
+Local fallback mode:
+
+- `auth.mode: "none"` for local development only
+
+## Dashboard admin access
+
+Dashboard access is server enforced when `dashboard.requireAuth: true`.
+
+### Setting up GitHub OAuth (required for fork users)
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Create a new OAuth App
+3. Set Homepage URL to your frontend URL (e.g., `http://localhost:5173`)
+4. Set Authorization callback URL to: `https://<your-deployment>.convex.site/api/auth/callback/github`
+5. Copy Client ID and Client Secret
+
+### Set environment variables
+
+```bash
+npx convex env set AUTH_GITHUB_ID "your-github-client-id"
+npx convex env set AUTH_GITHUB_SECRET "your-github-client-secret"
+npx convex env set DASHBOARD_ADMIN_BOOTSTRAP_KEY "choose-a-long-random-secret"
+```
+
+### Bootstrap your admin
+
+```bash
+npx convex run authAdmin:bootstrapDashboardAdmin \
+  '{"bootstrapKey":"choose-a-long-random-secret","email":"your-email@example.com"}'
+```
+
+### Grant additional admins
+
+```bash
+npx convex run authAdmin:grantDashboardAdmin '{"email":"colleague@example.com"}'
+```
+
+### Optional strict email gate
+
+```bash
+npx convex env set DASHBOARD_PRIMARY_ADMIN_EMAIL "your-email@example.com"
+```
+
+See [FORK_CONFIG.md](./FORK_CONFIG.md#setting-up-your-admin-email-required-for-fork-users) for complete admin setup instructions.
+
 ## Tech Stack
 
-React 18, TypeScript, Vite, Convex, Netlify
+React 18, TypeScript, Vite, Convex (self hosted), `@robelest/convex-auth`, `@convex-dev/self-hosting`. Legacy mode: Netlify + WorkOS.
+
+## Recent Updates (v2.21.0)
+
+- **Convex self hosting** as default deployment via `@convex-dev/self-hosting`
+- **@robelest/convex-auth** as default authentication with GitHub OAuth
+- **Server-side dashboard admin** authorization with `dashboardAdmins` table
+- **Multi-mode architecture** supporting convex-auth, workos, and none auth modes
+- **Lightweight rich text editor** replacing Quill (zero vulnerabilities)
+- **Validation scripts** for environment and deployment verification
+- **One-click deploy improvements** with updated fork configuration
+
+See the [Changelog](https://www.markdown.fast/changelog) for the full version history.
 
 ## Source
 

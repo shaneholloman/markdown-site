@@ -39,13 +39,13 @@ export function isValidGitHubUsername(username: string): boolean {
 
 // Extract GitHub username from URL
 export function extractGitHubUsername(url: string): string {
-  const match = url.match(/github\.com\/([^\/]+)/);
+  const match = url.match(/github\.com\/([^/]+)/);
   return match ? match[1] : '';
 }
 
 // Extract Twitter handle from URL
 export function extractTwitterHandle(url: string): string {
-  const match = url.match(/(?:twitter\.com|x\.com)\/([^\/]+)/);
+  const match = url.match(/(?:twitter\.com|x\.com)\/([^/]+)/);
   return match ? `@${match[1]}` : '';
 }
 
@@ -83,10 +83,20 @@ export function printSuccess(projectName: string): void {
   console.log(kleur.cyan('  npx convex dev') + kleur.dim('    # Start Convex (required first time)'));
   console.log(kleur.cyan('  npm run sync') + kleur.dim('     # Sync content (in another terminal)'));
   console.log(kleur.cyan('  npm run dev') + kleur.dim('      # Start dev server'));
+  console.log(kleur.cyan('  npm run validate:env') + kleur.dim('  # Check local setup and optional auth env'));
+  console.log(kleur.cyan('  npm run deploy') + kleur.dim('    # One-shot Convex self-hosted deploy'));
+  console.log(kleur.cyan('  npm run verify:deploy') + kleur.dim('  # Verify deployed endpoints'));
+  console.log('');
+  console.log('Optional auth setup (can be done later):');
+  console.log(kleur.cyan('  npx convex env set AUTH_GITHUB_ID "<id>"'));
+  console.log(kleur.cyan('  npx convex env set AUTH_GITHUB_SECRET "<secret>"'));
+  console.log(kleur.cyan('  npx convex env set DASHBOARD_ADMIN_BOOTSTRAP_KEY "<random-key>"'));
+  console.log(kleur.cyan('  npx convex run authAdmin:bootstrapDashboardAdmin \'{"bootstrapKey":"<random-key>","email":"you@example.com"}\''));
   console.log('');
   console.log('Resources:');
   console.log(kleur.dim('  Docs:       https://www.markdown.fast/docs'));
   console.log(kleur.dim('  Deployment: https://www.markdown.fast/docs-deployment'));
+  console.log(kleur.dim('  Auth setup: https://www.markdown.fast/docs-dashboard'));
   console.log(kleur.dim('  WorkOS:     https://www.markdown.fast/how-to-setup-workos'));
   console.log('');
   console.log(kleur.dim('To remove and start over:'));

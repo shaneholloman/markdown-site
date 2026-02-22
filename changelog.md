@@ -4,6 +4,116 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Stats performance optimizations for faster loading and reduced Convex usage:
+  - Stats tracking now respects `statsPage.enabled` config in `usePageTracking.ts` (no DB writes when disabled)
+  - Removed expensive full table scan fallback in `getStats` query (O(n) to O(log n))
+  - Added `uniquePaths` aggregate component for efficient path tracking
+  - Paginated `pageStats` to return top 50 pages by views instead of all paths
+  - Updated Stats page UI to show "Top Pages by Views" with "(showing X of Y)" count indicator
+
+- Updated docs content pages to use Convex-first deployment language while preserving legacy compatibility notes:
+  - `content/pages/about.md`
+  - `content/pages/docs.md`
+  - `content/pages/docs-content.md`
+  - `content/pages/footer.md`
+
+- Improved one-click deploy onboarding for Convex-first setup:
+  - `package.json` deploy scripts now use upstream self-hosting flow directly
+  - Added one-click path docs in `README.md` and `FORK_CONFIG.md` for GitHub template and CLI setup
+  - Updated fork guide URL examples to Convex-first neutral domains (`*.example.com`) instead of Netlify-first defaults
+- Improved `create-markdown-sync` onboarding output with explicit deferred-auth next steps and deploy verification commands.
+- Added dashboard auth setup visibility:
+  - New query `authAdmin:getAuthSetupStatus` exposes auth/setup readiness signals
+  - `src/pages/Dashboard.tsx` now shows auth setup status in login UI and a first-admin bootstrap guidance screen when no admins exist
+- Added validation scripts for setup and deploy verification:
+  - `scripts/validate-env.ts`
+  - `scripts/verify-deploy.ts`
+  - New npm scripts: `validate:env`, `validate:env:prod`, `verify:deploy`, `verify:deploy:prod`
+
+- Added migration baseline for default `@robelest/convex-auth` + `@convex-dev/self-hosting` architecture while preserving legacy WorkOS and Netlify compatibility.
+- Added dual mode config surface in `siteConfig`:
+  - `auth.mode`: `convex-auth | workos | none`
+  - `hosting.mode`: `convex-self-hosted | netlify`
+  - `media.provider`: `convex | convexfs | r2`
+- Added backend auth and hosting wiring:
+  - `convex/auth.ts` with Convex Auth exports
+  - `convex/staticHosting.ts` for static asset deployment APIs
+  - `convex/http.ts` now registers `auth.http.add(http)` and `registerStaticRoutes(...)`
+  - `convex/convex.config.ts` now registers Convex Auth, Self Hosting, and R2 components
+- Added optional media backends:
+  - `convex/r2.ts` for Cloudflare R2 uploads with admin checks
+  - `convex/media.ts` for provider resolution and direct Convex upload helpers
+  - Dashboard upload flows updated in `ImageUploadModal` and `MediaLibrary` for `convex`, `convexfs`, and `r2` modes
+- Refactored frontend auth bootstrap:
+  - `src/main.tsx` now always uses centralized auth wrapper
+  - `src/AppWithWorkOS.tsx` now handles convex-auth, WorkOS legacy, and no-auth fallback with proper `ConvexAuthWrapper` component
+  - `src/utils/workos.ts` now exports auth mode aware behavior
+- Added custom domain override support in frontend route helpers via `VITE_CONVEX_SITE_URL` and `VITE_SITE_URL`.
+- Aligned default/legacy/local mode wording across `README.md`, `FORK_CONFIG.md`, and `fork-config.json.example`.
+
+- Replaced the Dashboard rich text editor implementation to remove Quill dependencies.
+  - `src/pages/Dashboard.tsx` now uses a lightweight `contentEditable` rich text editor with a simple formatting toolbar.
+  - Preserved existing three-mode workflow in Write sections: Markdown, Rich Text, Preview.
+  - Preserved markdown <-> rich text conversion using existing Showdown and Turndown conversion flow.
+  - Enabled image insertion in rich text mode through the existing `ImageUploadModal` flow.
+- Updated rich text editor styles in `src/styles/global.css` for the new toolbar and editing surface.
+
+### Fixed
+
+- Fixed `@robelest/convex-auth` integration for dashboard admin access:
+  - Auth client now properly initialized in `ConvexAuthWrapper` component to call `convex.setAuth()`
+  - Added email lookup from auth component since JWT only contains subject (userId|sessionId)
+  - Admin matching now works with `components.auth.public.userGetById` to fetch user email
+  - Added `extractUserId()` helper to parse userId from subject format
+- Fixed `versions:getStats` read-limit crash in Dashboard Version Control card by removing unbounded `contentVersions` table scan and switching to index-based oldest/newest lookups.
+- Fixed dashboard sign-out in `convex-auth` mode by using the `@robelest/convex-auth` client sign-out flow in `src/pages/Dashboard.tsx`.
+- Fixed false "Dashboard access is open" banner in `convex-auth` mode when `dashboard.requireAuth` is enabled.
+- Resolved project typecheck failures in these files:
+  - `src/components/AskAIModal.tsx`
+  - `src/components/Layout.tsx`
+  - `src/hooks/useSearchHighlighting.ts`
+  - `src/pages/Post.tsx`
+- Restored clean checks:
+  - `npm run lint` passes
+  - `npm run typecheck` passes
+- Fixed strict typing in auth helpers:
+  - `convex/auth.ts` now uses typed constructor parameter casting instead of `any`
+  - `convex/dashboardAuth.ts` now uses generated `ActionCtx` and `QueryCtx` types
+
+### Security
+
+- Added optional strict dashboard email gate in `convex/dashboardAuth.ts` via `DASHBOARD_PRIMARY_ADMIN_EMAIL`.
+- Added server-side dashboard admin authorization with new `dashboardAdmins` table and admin APIs in `convex/authAdmin.ts`.
+- Enforced admin checks for dashboard-facing backend functions (`cms`, `posts.listAll`, `pages.listAll`, `newsletter` admin APIs, `versions`, `files`, and `importAction`).
+- Locked down ConvexFS upload route authorization in `convex/http.ts` to require dashboard admin identity.
+- Removed Quill-related vulnerable dependency chain from production dependencies.
+- `npm audit --omit=dev` now reports `found 0 vulnerabilities`.
+
+### Documentation
+
+- Created `prds/adding-robel-auth.md` with complete migration guide including:
+  - The fix summary (email lookup from auth component)
+  - All problems encountered and solutions
+  - Admin setup instructions for fork users
+  - Non-admin user behavior documentation
+  - Environment variables reference
+  - GitHub OAuth setup guide
+- Updated `FORK_CONFIG.md` with detailed admin setup instructions for fork users including bootstrap commands.
+
+### Validation
+
+- Ran runtime smoke checks for Ask AI modal and docs navigation flow in local development.
+- Tested full GitHub OAuth flow with admin email verification.
+- Re-ran migration validation checks:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npx convex codegen`
+  - `npm run build`
+
 ## [2.20.1] - 2026-01-11
 
 ### Added

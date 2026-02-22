@@ -60,7 +60,7 @@ Open `http://localhost:5173` to view locally.
 
 - Node.js 18+
 - Convex account (free at convex.dev)
-- Netlify account (free at netlify.com)
+- Netlify account (optional, only for legacy Netlify hosting mode)
 
 ## Project structure
 
@@ -75,12 +75,8 @@ markdown-site/
 │   ├── pages.ts        # Page queries/mutations
 │   ├── http.ts         # API endpoints
 │   └── rss.ts          # RSS generation
-├── netlify/
-│   └── edge-functions/ # Netlify edge functions
-│       ├── rss.ts      # RSS proxy
-│       ├── sitemap.ts  # Sitemap proxy
-│       ├── api.ts      # API proxy
-│       └── botMeta.ts  # OG crawler detection
+├── netlify/            # Legacy hosting support only
+│   └── edge-functions/ # Netlify edge functions (legacy mode)
 ├── src/
 │   ├── components/     # React components
 │   ├── context/        # Theme context
@@ -91,7 +87,7 @@ markdown-site/
 │   ├── raw/            # Generated raw markdown files
 │   ├── robots.txt      # Crawler rules
 │   └── llms.txt        # AI discovery
-└── netlify.toml        # Deployment config
+└── netlify.toml        # Netlify deployment config (legacy mode)
 ```
 
 ## Search
@@ -124,7 +120,7 @@ Each post and page includes a share dropdown with options:
 | View as Markdown     | Opens raw `.md` file in new tab            |
 | Download as SKILL.md | Downloads skill file for AI agent training |
 
-**Raw markdown URLs:** AI service links use GitHub raw URLs to fetch markdown content. This bypasses Netlify edge functions and provides reliable access for AI services.
+**Raw markdown URLs:** AI service links use GitHub raw URLs to fetch markdown content. This keeps AI link behavior stable across both Convex self-hosting and legacy Netlify hosting modes.
 
 **Git push required for AI links:** The "Open in ChatGPT," "Open in Claude," and "Open in Perplexity" options use GitHub raw URLs. For these to work, you must push your content to GitHub with `git push`. The `npm run sync` command syncs content to Convex for your live site, but AI services fetch directly from GitHub.
 
@@ -273,7 +269,7 @@ The site includes an HTTP-based Model Context Protocol (MCP) server for AI tool 
 
 **Features:**
 
-- 24/7 availability via Netlify Edge Functions
+- 24/7 availability via Convex HTTP endpoints by default
 - Public access with rate limiting (50 req/min per IP)
 - Optional API key for higher limits (1000 req/min)
 - Read-only access to content
@@ -304,7 +300,7 @@ Add to `~/.cursor/mcp.json`:
 }
 ```
 
-**For forks:** The MCP server automatically connects to your Convex deployment. Ensure `VITE_CONVEX_URL` is set in Netlify. Optionally set `MCP_API_KEY` for authenticated access with higher rate limits.
+**For forks:** The MCP server connects to your Convex deployment. In default Convex self-hosted mode, deploy with `npm run deploy`. In legacy Netlify mode, ensure `VITE_CONVEX_URL` is set in Netlify. Optionally set `MCP_API_KEY` for authenticated access with higher rate limits.
 
 See [How to Use the MCP Server](/how-to-use-mcp-server) for full documentation.
 

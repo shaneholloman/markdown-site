@@ -19,6 +19,12 @@ import {
 
 // Derive the .site URL from Convex URL for uploads
 const getSiteUrl = () => {
+  const explicitSiteUrl =
+    (import.meta.env.VITE_CONVEX_SITE_URL as string | undefined) ||
+    (import.meta.env.VITE_SITE_URL as string | undefined);
+  if (explicitSiteUrl) {
+    return explicitSiteUrl;
+  }
   const convexUrl = import.meta.env.VITE_CONVEX_URL ?? "";
   return convexUrl.replace(/\.cloud$/, ".site");
 };
@@ -47,12 +53,18 @@ export function MediaLibrary() {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const uploadSettings = useQuery(api.media.getUploadSettings);
+  const mediaProvider = uploadSettings?.provider ?? "convex";
   // Check if Bunny CDN is configured (server-side check)
   const configStatus = useQuery(api.files.isConfigured);
   const isBunnyConfigured = configStatus?.configured ?? false;
 
   // Convex hooks
   const commitFile = useAction(api.files.commitFile);
+  const generateDirectUploadUrl = useMutation(api.media.generateDirectUploadUrl);
+  const resolveDirectUpload = useAction(api.media.resolveDirectUpload);
+  const generateR2UploadUrl = useMutation(api.r2.generateUploadUrl);
+  const syncR2Metadata = useMutation(api.r2.syncMetadata);
   const deleteFile = useMutation(api.files.deleteFile);
   const deleteFiles = useMutation(api.files.deleteFiles);
   const { results, status, loadMore } = usePaginatedQuery(
@@ -99,29 +111,54 @@ export function MediaLibrary() {
         // Get image dimensions
         const dimensions = await getImageDimensions(file);
 
-        // Upload blob to ConvexFS endpoint
-        const res = await fetch(`${siteUrl}/fs/upload`, {
-          method: "POST",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
+        if (mediaProvider === "convexfs") {
+          // Upload blob to ConvexFS endpoint
+          const res = await fetch(`${siteUrl}/fs/upload`, {
+            method: "POST",
+            headers: { "Content-Type": file.type },
+            body: file,
+          });
 
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || `Upload failed: ${res.status}`);
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText || `Upload failed: ${res.status}`);
+          }
+
+          const { blobId } = await res.json();
+
+          // Commit file to storage path
+          await commitFile({
+            blobId,
+            filename: file.name,
+            contentType: file.type,
+            size: file.size,
+            width: dimensions.width,
+            height: dimensions.height,
+          });
+        } else if (mediaProvider === "r2") {
+          const { key, url } = await generateR2UploadUrl({});
+          const uploadRes = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": file.type },
+            body: file,
+          });
+          if (!uploadRes.ok) {
+            throw new Error(`R2 upload failed: ${uploadRes.status}`);
+          }
+          await syncR2Metadata({ key });
+        } else {
+          const uploadUrl = await generateDirectUploadUrl({});
+          const uploadRes = await fetch(uploadUrl, {
+            method: "POST",
+            headers: { "Content-Type": file.type },
+            body: file,
+          });
+          if (!uploadRes.ok) {
+            throw new Error(`Upload failed: ${uploadRes.status}`);
+          }
+          const { storageId } = await uploadRes.json();
+          await resolveDirectUpload({ storageId });
         }
-
-        const { blobId } = await res.json();
-
-        // Commit file to storage path
-        await commitFile({
-          blobId,
-          filename: file.name,
-          contentType: file.type,
-          size: file.size,
-          width: dimensions.width,
-          height: dimensions.height,
-        });
       } catch (err) {
         setError((err as Error).message);
         break;
@@ -133,7 +170,15 @@ export function MediaLibrary() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, [commitFile, siteUrl]);
+  }, [
+    commitFile,
+    generateDirectUploadUrl,
+    generateR2UploadUrl,
+    mediaProvider,
+    resolveDirectUpload,
+    siteUrl,
+    syncR2Metadata,
+  ]);
 
   // Get image dimensions
   const getImageDimensions = (file: File): Promise<{ width: number; height: number }> => {
@@ -266,7 +311,7 @@ export function MediaLibrary() {
       </div>
 
       {/* Configuration Status */}
-      {!isBunnyConfigured && (
+      {mediaProvider === "convexfs" && !isBunnyConfigured && (
         <div className="media-config-warning">
           <Warning size={20} />
           <div>
@@ -275,6 +320,18 @@ export function MediaLibrary() {
               Set BUNNY_API_KEY, BUNNY_STORAGE_ZONE, and BUNNY_CDN_HOSTNAME
               environment variables in Convex Dashboard.
               See <a href="/docs-media-setup">setup guide</a>.
+            </p>
+          </div>
+        </div>
+      )}
+      {mediaProvider !== "convexfs" && (
+        <div className="media-config-warning">
+          <Warning size={20} />
+          <div>
+            <strong>Media library grid uses ConvexFS mode</strong>
+            <p>
+              Current provider is <code>{mediaProvider}</code>. Upload works, but
+              file browsing and bulk delete are available in <code>convexfs</code> mode.
             </p>
           </div>
         </div>

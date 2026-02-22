@@ -141,11 +141,11 @@ export function useSearchHighlighting({
 
       // Scroll to first match with offset for fixed header
       if (firstMark) {
+        const markElement = firstMark as HTMLElement;
         // Small delay to ensure DOM has updated after highlighting
         setTimeout(() => {
-          if (!firstMark) return;
           const headerOffset = 80;
-          const elementRect = firstMark.getBoundingClientRect();
+          const elementRect = markElement.getBoundingClientRect();
           const absoluteElementTop = elementRect.top + window.pageYOffset;
           const offsetPosition = absoluteElementTop - headerOffset - window.innerHeight / 2 + 50;
 

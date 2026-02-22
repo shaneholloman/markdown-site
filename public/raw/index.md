@@ -32,8 +32,8 @@ agents. -->
 
 ## Blog Posts (21)
 
-- **[Markdown Sync RC1 Release](/raw/version-rc1.md)** - RC1 brings semantic search, ConvexFS Media Library, OpenCode integration, RAG-based AI Q&A, and a new CLI to get started in seconds.
-  - Date: 2026-01-11 | Reading time: 3 min read | Tags: release, rc1, features, convex, ai
+- **[Convex first: new defaults for markdown.fast](/raw/convex-first-architecture.md)** - Self-hosted static files, built-in auth, and one-command deploys. No external services required.
+  - Date: 2026-02-21 | Reading time: 4 min read | Tags: convex, deployment, auth, architecture
 - **[OpenCode Integration](/raw/docs-opencode.md)** - This framework includes full OpenCode support with agents, commands, skills, and plugins.
   - Date: 2026-01-10 | Reading time: 4 min read | Tags: opencode, plugins, terminal
 - **[How to Use Code Blocks](/raw/how-to-use-code-blocks.md)** - A guide to syntax highlighting, diff rendering, and code formatting in your markdown posts.
@@ -103,6 +103,6 @@ All content is available as raw markdown files at `/raw/{slug}.md`
 
 ---
 
-Built with [Convex](https://convex.dev) for real-time sync and deployed on [Netlify](https://netlify.com). Read the [project on GitHub](https://github.com/waynesutton/markdown-site) to fork and deploy your own. View [real-time site stats](/stats).
+Built with [Convex](https://convex.dev) for real-time sync and deployed with Convex self-hosting by default. Legacy Netlify hosting remains available for compatibility. Read the [project on GitHub](https://github.com/waynesutton/markdown-site) to fork and deploy your own. View [real-time site stats](/stats).
 
 Created by [Wayne](https://x.com/waynesutton) with Convex, Cursor, and Claude Opus 4.5. Follow on [Twitter/X](https://x.com/waynesutton), [LinkedIn](https://www.linkedin.com/in/waynesutton/), and [GitHub](https://github.com/waynesutton). This project is licensed under the MIT [License](https://github.com/waynesutton/markdown-site?tab=MIT-1-ov-file).

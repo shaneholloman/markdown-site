@@ -6,7 +6,7 @@ slug: "how-to-setup-workos"
 published: true
 tags: ["workos", "authentication", "tutorial", "dashboard"]
 readTime: "10 min read"
-featured: true
+featured: false
 featuredOrder: 4
 layout: "sidebar"
 image: /images/workos.png

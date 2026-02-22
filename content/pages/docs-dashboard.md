@@ -19,16 +19,24 @@ The Dashboard at `/dashboard` provides a centralized UI for managing content, co
 
 **Access:** Navigate to `/dashboard` in your browser. The dashboard is not linked in the navigation by default (similar to Newsletter Admin pattern).
 
-**Authentication:** WorkOS authentication is optional. Configure it in `siteConfig.ts`:
+**Authentication:** The dashboard uses `@robelest/convex-auth` (GitHub OAuth) by default. Configure access in `siteConfig.ts`:
 
 ```typescript
 dashboard: {
   enabled: true,
-  requireAuth: false, // Set to true to require WorkOS authentication
+  requireAuth: true, // Set to false to make dashboard open access (dev only)
 },
 ```
 
-When `requireAuth` is `false`, the dashboard is open access. When `requireAuth` is `true` and WorkOS is configured, users must log in to access the dashboard. See [How to setup WorkOS](https://www.markdown.fast/how-to-setup-workos) for authentication setup.
+When `requireAuth` is `true`, users must sign in with GitHub to access the dashboard. Admin access is granted via:
+
+```bash
+npx convex run authAdmin:grantDashboardAdmin '{"email":"you@example.com"}'
+```
+
+When `requireAuth` is `false`, the dashboard is open access (not recommended for production).
+
+> **Legacy:** If you are using WorkOS auth (`auth.mode: "workos"` in `siteConfig.ts`), dashboard access requires WorkOS login instead. See [How to setup WorkOS](https://www.markdown.fast/how-to-setup-workos).
 
 ### Content management
 

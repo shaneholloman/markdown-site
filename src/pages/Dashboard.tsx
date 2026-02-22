@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { Link, Navigate } from "react-router-dom";
+import { useQuery, useMutation, useAction, useConvex } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useTheme } from "../context/ThemeContext";
@@ -10,8 +10,6 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 import TurndownService from "turndown";
 import Showdown from "showdown";
 import {
@@ -76,6 +74,11 @@ import {
   AuthLoading as ConvexAuthLoading,
 } from "convex/react";
 import { useAuth as useWorkOSAuth } from "@workos-inc/authkit-react";
+import {
+  client as createConvexAuthClient,
+  parseAuthError,
+} from "@robelest/convex-auth/client";
+import type { ConvexReactClient } from "convex/react";
 
 // Conditionally use auth components based on WorkOS configuration
 // When WorkOS is not configured, use dummy components that render nothing or just children
@@ -87,6 +90,9 @@ const Unauthenticated: React.ComponentType<{ children: React.ReactNode }> =
 
 const AuthLoading: React.ComponentType<{ children: React.ReactNode }> =
   isWorkOSConfigured ? ConvexAuthLoading : () => null;
+
+// Default slug values that should trigger a warning
+const DEFAULT_SLUGS = ["your-post-url", "page-url"];
 
 // Dummy auth hook for when WorkOS is not configured
 const dummyAuth = {
@@ -835,40 +841,232 @@ function LoginPrompt() {
   );
 }
 
+function ConvexAuthLoginPrompt() {
+  const convex = useConvex();
+  const loginOptions = useQuery(api.authAdmin.getDashboardLoginOptions);
+  const authSetupStatus = useQuery(api.authAdmin.getAuthSetupStatus);
+  const [isGithubSubmitting, setIsGithubSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const authClient = useMemo(
+    () =>
+      createConvexAuthClient({
+        convex: convex as unknown as ConvexReactClient,
+      }),
+    [convex],
+  );
+
+  const handleGithubSignIn = async () => {
+    setErrorMessage(null);
+    setIsGithubSubmitting(true);
+    try {
+      const result = await authClient.signIn("github", {
+        redirectTo: "/dashboard",
+      });
+      if (result.redirect) {
+        window.location.assign(result.redirect.toString());
+        return;
+      }
+      if (!result.signingIn) {
+        setErrorMessage(
+          "GitHub auth is not configured. Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET in Convex env.",
+        );
+      }
+    } catch (error) {
+      const parsed = parseAuthError(error);
+      const message =
+        parsed?.message ||
+        (error instanceof Error ? error.message : "Failed to sign in");
+      setErrorMessage(message);
+    } finally {
+      setIsGithubSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="dashboard-auth-container">
+      <div className="dashboard-auth-card">
+        <h1>Markdown Sync Dashboard</h1>
+        <p>Sign in to continue.</p>
+        <button
+          onClick={handleGithubSignIn}
+          className="dashboard-sign-in-button"
+          disabled={isGithubSubmitting || loginOptions === undefined}
+          style={{ marginTop: "1rem" }}
+        >
+          {isGithubSubmitting
+            ? "Redirecting..."
+            : loginOptions?.githubEnabled
+              ? "Continue with GitHub"
+              : "GitHub login not configured"}
+        </button>
+        {errorMessage && (
+          <p style={{ marginTop: "0.75rem", color: "var(--text-secondary)" }}>
+            {errorMessage}
+          </p>
+        )}
+        {loginOptions && !loginOptions.githubEnabled && (
+          <p style={{ marginTop: "0.75rem", color: "var(--text-secondary)" }}>
+            Set AUTH_GITHUB_ID and AUTH_GITHUB_SECRET in Convex env.
+          </p>
+        )}
+        {loginOptions && loginOptions.githubEnabled && !loginOptions.oauthBaseConfigured && (
+          <p style={{ marginTop: "0.75rem", color: "var(--text-secondary)" }}>
+            OAuth callback base URL is missing. Set SITE_URL (or CUSTOM_AUTH_SITE_URL).
+          </p>
+        )}
+        {authSetupStatus && (
+          <div
+            style={{
+              marginTop: "1rem",
+              padding: "0.75rem",
+              border: "1px solid var(--border-color)",
+              borderRadius: "0.5rem",
+              textAlign: "left",
+              fontSize: "0.9rem",
+              color: "var(--text-secondary)",
+            }}
+          >
+            <p style={{ margin: 0, color: "var(--text-primary)", fontWeight: 600 }}>
+              Auth setup status
+            </p>
+            <p style={{ margin: "0.4rem 0 0" }}>
+              GitHub OAuth: {authSetupStatus.githubEnabled ? "configured" : "missing"}
+            </p>
+            <p style={{ margin: "0.25rem 0 0" }}>
+              OAuth callback base URL:{" "}
+              {authSetupStatus.oauthBaseConfigured ? "configured" : "missing"}
+            </p>
+            <p style={{ margin: "0.25rem 0 0" }}>
+              Admin bootstrap key:{" "}
+              {authSetupStatus.bootstrapKeyConfigured ? "configured" : "missing"}
+            </p>
+            <p style={{ margin: "0.25rem 0 0" }}>
+              Dashboard admins: {authSetupStatus.adminCount}
+            </p>
+            {authSetupStatus.adminCount === 0 && (
+              <p style={{ margin: "0.6rem 0 0" }}>
+                First admin not set. After signing in, run{" "}
+                <code>npx convex run authAdmin:bootstrapDashboardAdmin</code> with your
+                bootstrap key and email.
+              </p>
+            )}
+          </div>
+        )}
+        <p style={{ marginTop: "1rem" }}>
+          <Link to="/">Back to Home</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function FirstAdminSetupRequired() {
+  return (
+    <div className="dashboard-auth-container">
+      <div className="dashboard-auth-card">
+        <h1>Dashboard admin setup required</h1>
+        <p>
+          You are signed in, but no dashboard admin exists yet. Bootstrap the first admin
+          from your terminal.
+        </p>
+        <p style={{ marginTop: "0.75rem", textAlign: "left", color: "var(--text-secondary)" }}>
+          1. Set a bootstrap key in Convex env:
+          <br />
+          <code>npx convex env set DASHBOARD_ADMIN_BOOTSTRAP_KEY &quot;&lt;random-key&gt;&quot;</code>
+          <br />
+          2. Run bootstrap:
+          <br />
+          <code>
+            npx convex run authAdmin:bootstrapDashboardAdmin
+          </code>
+        </p>
+        <p style={{ marginTop: "1rem" }}>
+          <Link to="/">Back to Home</Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Main Dashboard export with conditional auth wrapper
 export default function Dashboard() {
   // Check if dashboard is enabled in siteConfig
   const dashboardEnabled = siteConfig.dashboard?.enabled ?? true;
   const requireAuth = siteConfig.dashboard?.requireAuth ?? true;
+  const authMode =
+    siteConfig.auth?.mode ?? (isWorkOSConfigured ? "workos" : "none");
+  const isDashboardAdmin = useQuery(api.authAdmin.isCurrentUserDashboardAdmin);
+  const isAuthenticated = useQuery(api.authAdmin.isCurrentUserAuthenticated);
+  const authSetupStatus = useQuery(api.authAdmin.getAuthSetupStatus);
 
   // If dashboard is disabled, show disabled message
   if (!dashboardEnabled) {
     return <DashboardDisabled />;
   }
 
-  // If auth is required but WorkOS is not configured, show setup instructions
-  if (requireAuth && !isWorkOSConfigured) {
-    return <WorkOSSetupRequired />;
-  }
-
-  // If WorkOS is not configured and auth is not required, show dashboard directly
-  if (!isWorkOSConfigured) {
+  // Optional local mode without auth
+  if (!requireAuth) {
     return <DashboardContent />;
   }
 
-  // WorkOS is configured, use auth flow
+  // Legacy WorkOS mode
+  if (authMode === "workos") {
+    if (!isWorkOSConfigured) {
+      return <WorkOSSetupRequired />;
+    }
+    return (
+      <>
+        <AuthLoading>
+          <LoadingState />
+        </AuthLoading>
+        <Unauthenticated>
+          <LoginPrompt />
+        </Unauthenticated>
+        <Authenticated>
+          {isDashboardAdmin === undefined ? (
+            <LoadingState />
+          ) : isDashboardAdmin ? (
+            <DashboardContent />
+          ) : (
+            <Navigate to="/?dashboardNotice=not-admin" replace />
+          )}
+        </Authenticated>
+      </>
+    );
+  }
+
+  // Convex auth mode: show login prompt before admin gate.
+  if (authMode === "convex-auth") {
+    if (
+      isAuthenticated === undefined ||
+      isDashboardAdmin === undefined ||
+      authSetupStatus === undefined
+    ) {
+      return <LoadingState />;
+    }
+    if (!isAuthenticated) {
+      return <ConvexAuthLoginPrompt />;
+    }
+    if (!isDashboardAdmin) {
+      if (authSetupStatus.adminCount === 0) {
+        return <FirstAdminSetupRequired />;
+      }
+      return <Navigate to="/?dashboardNotice=not-admin" replace />;
+    }
+    return <DashboardContent />;
+  }
+
+  // No-auth mode still enforces server-side admin checks when requireAuth is true.
+  if (isDashboardAdmin === undefined) {
+    return <LoadingState />;
+  }
+  if (!isDashboardAdmin) {
+    return <Navigate to="/?dashboardNotice=not-admin" replace />;
+  }
+
   return (
-    <>
-      <AuthLoading>
-        <LoadingState />
-      </AuthLoading>
-      <Unauthenticated>
-        <LoginPrompt />
-      </Unauthenticated>
-      <Authenticated>
-        <DashboardContent />
-      </Authenticated>
-    </>
+    <DashboardContent />
   );
 }
 
@@ -877,6 +1075,10 @@ function DashboardContent() {
   const { theme, setTheme } = useTheme();
   const { fontFamily, setFontFamily } = useFont();
   const { user, signOut } = useAuth();
+  const convex = useConvex();
+  const authMode =
+    siteConfig.auth?.mode ?? (isWorkOSConfigured ? "workos" : "none");
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [activeSection, setActiveSection] = useState<DashboardSection>("posts");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
@@ -970,7 +1172,15 @@ function DashboardContent() {
   }, []);
 
   // Check if sync server is available on mount
+  // Skip check entirely in development to avoid console noise
   useEffect(() => {
+    // Only check sync server if explicitly enabled via env var
+    const syncServerEnabled = import.meta.env.VITE_SYNC_SERVER_ENABLED === "true";
+    if (!syncServerEnabled) {
+      setSyncServerAvailable(false);
+      return;
+    }
+    
     const checkServer = async () => {
       try {
         const res = await fetch("http://127.0.0.1:3001/health", {
@@ -1039,7 +1249,7 @@ function DashboardContent() {
 
         addToast(`Running: ${commandLabel}`, "info");
 
-        while (true) {
+        for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
 
@@ -1519,9 +1729,30 @@ function DashboardContent() {
     setFontFamily(fonts[nextIndex]);
   };
 
+  const handleDashboardSignOut = useCallback(async () => {
+    if (isSigningOut) {
+      return;
+    }
+    setIsSigningOut(true);
+    try {
+      if (authMode === "convex-auth") {
+        const authClient = createConvexAuthClient({
+          convex: convex as unknown as ConvexReactClient,
+        });
+        await authClient.signOut();
+        window.location.assign("/dashboard");
+        return;
+      }
+      signOut();
+    } finally {
+      setIsSigningOut(false);
+    }
+  }, [authMode, convex, isSigningOut, signOut]);
+
   // Check if auth is disabled (for warning banner)
   const requireAuth = siteConfig.dashboard?.requireAuth ?? false;
-  const showAuthWarning = !requireAuth || !isWorkOSConfigured;
+  const showAuthWarning =
+    !requireAuth || (authMode === "workos" && !isWorkOSConfigured);
 
   return (
     <div
@@ -1536,9 +1767,9 @@ function DashboardContent() {
           <Warning size={16} weight="bold" />
           <span>
             Dashboard access is open.{" "}
-            {!isWorkOSConfigured
-              ? "Configure WorkOS and set requireAuth: true in siteConfig.ts for secure access."
-              : "Set requireAuth: true in siteConfig.ts for secure access."}
+            {siteConfig.auth?.mode === "workos" && !isWorkOSConfigured
+              ? 'Configure WorkOS and keep dashboard.requireAuth: true in siteConfig.ts for secure access.'
+              : 'Keep dashboard.requireAuth: true in siteConfig.ts for secure access.'}
           </span>
         </div>
       )}
@@ -1630,7 +1861,9 @@ function DashboardContent() {
             )}
             <div className="dashboard-user-info">
               <span className="dashboard-user-name">
-                {user?.firstName
+                {authMode === "convex-auth"
+                  ? "Authenticated admin"
+                  : user?.firstName
                   ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
                   : "User"}
               </span>
@@ -1638,11 +1871,14 @@ function DashboardContent() {
           </div>
           <button
             className="dashboard-signout-btn"
-            onClick={() => signOut()}
+            onClick={() => {
+              void handleDashboardSignOut();
+            }}
             title="Sign out"
+            disabled={isSigningOut}
           >
             <SignOut size={18} />
-            <span>Sign out</span>
+            <span>{isSigningOut ? "Signing out..." : "Sign out"}</span>
           </button>
         </div>
       </aside>
@@ -2975,6 +3211,7 @@ function WriteSection({
   // Image upload modal state
   const [showImageUpload, setShowImageUpload] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const richTextRef = useRef<HTMLDivElement>(null);
 
   // Toggle focus mode
   const toggleFocusMode = useCallback(() => {
@@ -3060,20 +3297,26 @@ function WriteSection({
     [editorMode, content, richTextHtml, getBodyContent, getFrontmatter, showdownConverter, turndownService]
   );
 
-  // Quill modules configuration
-  const quillModules = useMemo(
-    () => ({
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "strike"],
-        ["blockquote", "code-block"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link"],
-        ["clean"],
-      ],
-    }),
-    []
+  // Run a rich text command on the contenteditable editor
+  const applyRichTextCommand = useCallback(
+    (command: string, value?: string) => {
+      if (editorMode !== "richtext" || !richTextRef.current) {
+        return;
+      }
+      richTextRef.current.focus();
+      document.execCommand(command, false, value);
+      setRichTextHtml(richTextRef.current.innerHTML);
+    },
+    [editorMode],
   );
+
+  // Keep rich text HTML state in sync with contenteditable DOM changes
+  const handleRichTextInput = useCallback(() => {
+    if (!richTextRef.current) {
+      return;
+    }
+    setRichTextHtml(richTextRef.current.innerHTML);
+  }, []);
 
   // Keyboard shortcut: Escape to exit focus mode
   useEffect(() => {
@@ -3142,12 +3385,22 @@ function WriteSection({
         textarea.setSelectionRange(start + markdown.length + 1, start + markdown.length + 1);
       }, 0);
     } else if (editorMode === "richtext") {
-      // For rich text mode, convert markdown to HTML and append
+      // For rich text mode, insert image at cursor when possible
       const imgMatch = markdown.match(/!\[(.*?)\]\((.*?)\)/);
       if (imgMatch) {
-        const alt = imgMatch[1];
-        const src = imgMatch[2];
-        setRichTextHtml(prev => prev + `<p><img src="${src}" alt="${alt}" /></p>`);
+        const escapeAttr = (value: string) =>
+          value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+        const alt = escapeAttr(imgMatch[1]);
+        const src = escapeAttr(imgMatch[2]);
+        const imageHtml = `<p><img src="${src}" alt="${alt}" /></p>`;
+
+        if (richTextRef.current) {
+          richTextRef.current.focus();
+          document.execCommand("insertHTML", false, imageHtml);
+          setRichTextHtml(richTextRef.current.innerHTML);
+        } else {
+          setRichTextHtml((prev) => prev + imageHtml);
+        }
       }
     } else {
       // Preview mode - append to content
@@ -3240,9 +3493,6 @@ published: false
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, [content, contentType]);
-
-  // Default slug values that should trigger a warning
-  const DEFAULT_SLUGS = ["your-post-url", "page-url"];
 
   // Parse frontmatter and save to database
   const handleSaveToDb = useCallback(async () => {
@@ -3449,8 +3699,7 @@ published: false
             <button
               onClick={() => setShowImageUpload(true)}
               className="dashboard-action-btn"
-              title={editorMode === "richtext" ? "Image insertion not available in Rich Text mode" : "Insert Image"}
-              disabled={editorMode === "richtext"}
+              title="Insert Image"
             >
               <Image size={16} />
               <span>Image</span>
@@ -3507,13 +3756,83 @@ published: false
 
           {editorMode === "richtext" && (
             <div className="dashboard-quill-container">
-              <ReactQuill
-                theme="snow"
-                value={richTextHtml}
-                onChange={setRichTextHtml}
-                modules={quillModules}
-                placeholder="Start writing..."
-              />
+              <div className="ql-toolbar dashboard-simple-toolbar">
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("bold")}
+                  title="Bold"
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("italic")}
+                  title="Italic"
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("strikeThrough")}
+                  title="Strike"
+                >
+                  S
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("formatBlock", "H2")}
+                  title="Heading 2"
+                >
+                  H2
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("formatBlock", "H3")}
+                  title="Heading 3"
+                >
+                  H3
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("insertUnorderedList")}
+                  title="Bullet list"
+                >
+                  List
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("insertOrderedList")}
+                  title="Numbered list"
+                >
+                  1.
+                </button>
+                <button
+                  type="button"
+                  className="dashboard-rich-btn"
+                  onClick={() => applyRichTextCommand("formatBlock", "BLOCKQUOTE")}
+                  title="Quote"
+                >
+                  Quote
+                </button>
+              </div>
+              <div className="ql-container">
+                <div
+                  ref={richTextRef}
+                  className={`ql-editor ${richTextHtml.replace(/<[^>]*>/g, "").trim() ? "" : "ql-blank"}`}
+                  contentEditable
+                  suppressContentEditableWarning
+                  data-placeholder="Start writing..."
+                  onInput={handleRichTextInput}
+                  dangerouslySetInnerHTML={{ __html: richTextHtml }}
+                />
+              </div>
             </div>
           )}
 
@@ -5231,6 +5550,10 @@ function ConfigSection({
     // Stats page
     statsPageEnabled: siteConfig.statsPage?.enabled || false,
     statsPageShowInNav: siteConfig.statsPage?.showInNav || false,
+    // Dashboard navigation
+    dashboardEnabled: siteConfig.dashboard?.enabled ?? true,
+    dashboardRequireAuth: siteConfig.dashboard?.requireAuth ?? true,
+    dashboardShowInNav: siteConfig.dashboard?.showInNav ?? true,
     // GitHub
     githubOwner: siteConfig.gitHubRepo.owner,
     githubRepo: siteConfig.gitHubRepo.repo,
@@ -5370,6 +5693,7 @@ export const siteConfig: SiteConfig = {
   hardcodedNavItems: [
     { slug: "stats", title: "Stats", order: 10, showInNav: ${config.statsPageShowInNav} },
     { slug: "write", title: "Write", order: 20, showInNav: true },
+    { slug: "dashboard", title: "Dashboard", order: 21, showInNav: ${config.dashboardShowInNav} },
   ],
   
   postsDisplay: {
@@ -5457,6 +5781,7 @@ export const siteConfig: SiteConfig = {
   newsletterNotifications: { enabled: true, newSubscriberAlert: true, weeklyStatsSummary: true },
   weeklyDigest: { enabled: true, dayOfWeek: 0, subject: "Weekly Digest" },
   mcpServer: { enabled: ${config.mcpServerEnabled}, endpoint: "${config.mcpServerEndpoint}", publicRateLimit: 50, authenticatedRateLimit: 1000, requireAuth: ${config.mcpServerRequireAuth} },
+  dashboard: { enabled: ${config.dashboardEnabled}, requireAuth: ${config.dashboardRequireAuth}, showInNav: ${config.dashboardShowInNav} },
   
   // Image lightbox configuration
   // Enables click-to-magnify functionality for images in blog posts and pages
@@ -5883,6 +6208,42 @@ export default siteConfig;
                 }
               />
               <span>Show stats in nav</span>
+            </label>
+          </div>
+          <div className="config-field checkbox">
+            <label>
+              <input
+                type="checkbox"
+                checked={config.dashboardEnabled}
+                onChange={(e) =>
+                  handleChange("dashboardEnabled", e.target.checked)
+                }
+              />
+              <span>Enable dashboard page</span>
+            </label>
+          </div>
+          <div className="config-field checkbox">
+            <label>
+              <input
+                type="checkbox"
+                checked={config.dashboardRequireAuth}
+                onChange={(e) =>
+                  handleChange("dashboardRequireAuth", e.target.checked)
+                }
+              />
+              <span>Require dashboard auth</span>
+            </label>
+          </div>
+          <div className="config-field checkbox">
+            <label>
+              <input
+                type="checkbox"
+                checked={config.dashboardShowInNav}
+                onChange={(e) =>
+                  handleChange("dashboardShowInNav", e.target.checked)
+                }
+              />
+              <span>Show dashboard in nav (admins only)</span>
             </label>
           </div>
           <div className="config-field checkbox">
@@ -6513,11 +6874,16 @@ function VersionControlCard({
         When enabled, saves a snapshot before each edit. View and restore previous versions
         from the editor toolbar.
       </p>
-      {versionStats && versionStats.totalVersions > 0 && (
+      {versionStats &&
+        (versionStats.totalVersions === null || versionStats.totalVersions > 0) && (
         <div className="version-stats">
           <div className="version-stat">
             <span className="version-stat-label">Total versions:</span>
-            <span className="version-stat-value">{versionStats.totalVersions}</span>
+            <span className="version-stat-value">
+              {versionStats.totalVersions === null
+                ? "Large dataset (count omitted)"
+                : versionStats.totalVersions}
+            </span>
           </div>
           <div className="version-stat">
             <span className="version-stat-label">Oldest:</span>

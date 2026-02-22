@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { api } from "./_generated/api";
 import FirecrawlApp from "@mendable/firecrawl-js";
+import { requireDashboardAdminAction } from "./dashboardAuth";
 
 /**
  * Generate a URL-safe slug from a title
@@ -50,6 +51,8 @@ export const importFromUrl = action({
     error: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdminAction(ctx);
+
     const apiKey = process.env.FIRECRAWL_API_KEY;
     if (!apiKey) {
       return {

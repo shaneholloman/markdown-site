@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useMutation } from "convex/react";
 import { useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import siteConfig from "../config/siteConfig";
 
 // Heartbeat interval: 30 seconds (with jitter added to prevent synchronized calls)
 const HEARTBEAT_INTERVAL_MS = 30 * 1000;
@@ -67,11 +68,15 @@ function getPageType(path: string): string {
 /**
  * Hook to track page views and maintain active session presence
  * Fetches geo location from Netlify edge function for visitor map
+ * Only tracks when statsPage.enabled is true in siteConfig
  */
 export function usePageTracking(): void {
   const location = useLocation();
   const recordPageView = useMutation(api.stats.recordPageView);
   const heartbeatMutation = useMutation(api.stats.heartbeat);
+
+  // Check if stats tracking is enabled
+  const isStatsEnabled = siteConfig.statsPage?.enabled ?? false;
 
   // Track if we've recorded view for current path
   const lastRecordedPath = useRef<string | null>(null);
@@ -86,8 +91,10 @@ export function usePageTracking(): void {
   const geoDataRef = useRef<GeoData | null>(null);
   const geoFetchedRef = useRef(false);
 
-  // Initialize session ID and fetch geo data once on mount
+  // Initialize session ID and fetch geo data once on mount (only if stats enabled)
   useEffect(() => {
+    if (!isStatsEnabled) return;
+
     sessionIdRef.current = getSessionId();
 
     // Fetch geo data once (skip if already fetched)
@@ -123,7 +130,7 @@ export function usePageTracking(): void {
           });
       }
     }
-  }, []);
+  }, [isStatsEnabled]);
 
   // Debounced heartbeat function to prevent write conflicts
   const sendHeartbeat = useCallback(
@@ -170,8 +177,10 @@ export function usePageTracking(): void {
     [heartbeatMutation]
   );
 
-  // Record page view when path changes
+  // Record page view when path changes (only if stats enabled)
   useEffect(() => {
+    if (!isStatsEnabled) return;
+
     const path = location.pathname;
     const sessionId = sessionIdRef.current;
 
@@ -189,10 +198,12 @@ export function usePageTracking(): void {
         // Silently fail - analytics shouldn't break the app
       });
     }
-  }, [location.pathname, recordPageView]);
+  }, [location.pathname, recordPageView, isStatsEnabled]);
 
-  // Send heartbeat on interval and on path change
+  // Send heartbeat on interval and on path change (only if stats enabled)
   useEffect(() => {
+    if (!isStatsEnabled) return;
+
     const path = location.pathname;
 
     // Add random jitter to initial delay to prevent synchronized heartbeats across tabs
@@ -225,5 +236,5 @@ export function usePageTracking(): void {
       clearTimeout(loopTimeoutId);
       clearTimeout(timeoutId);
     };
-  }, [location.pathname, sendHeartbeat]);
+  }, [location.pathname, sendHeartbeat, isStatsEnabled]);
 }

@@ -201,7 +201,7 @@ The JSON config file supports additional options:
     "showOnPosts": true,
     "showOnPages": true,
     "showOnBlogPage": true,
-    "defaultContent": "Built with [Convex](https://convex.dev) for real-time sync and deployed on [Netlify](https://netlify.com)."
+    "defaultContent": "Built with [Convex](https://convex.dev) for real-time sync."
   },
   "socialFooter": {
     "enabled": true,

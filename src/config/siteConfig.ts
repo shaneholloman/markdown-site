@@ -229,16 +229,36 @@ export interface MCPServerConfig {
 
 // Dashboard configuration
 // Controls access to the /dashboard admin page
-// WorkOS authentication is optional - if not configured, dashboard shows setup instructions
+// Works with auth.mode "convex-auth" (default) and "workos" (legacy)
 export interface DashboardConfig {
   enabled: boolean; // Global toggle for dashboard page
-  requireAuth: boolean; // Require WorkOS authentication (only works if WorkOS is configured)
+  requireAuth: boolean; // Require authenticated + server-side admin access
+  showInNav?: boolean; // Show dashboard entry in top navigation
+}
+
+// Auth mode configuration
+// Controls which auth provider is active
+export interface AuthModeConfig {
+  mode: "convex-auth" | "workos" | "none";
+}
+
+// Hosting mode configuration
+// Controls primary deployment target
+export interface HostingModeConfig {
+  mode: "convex-self-hosted" | "netlify";
+}
+
+// Compatibility configuration
+// Allows docs/UI to expose legacy guidance
+export interface CompatibilityConfig {
+  legacyDocs?: boolean;
 }
 
 // Media library configuration
 // Controls image upload and CDN storage via ConvexFS and Bunny.net
 export interface MediaConfig {
   enabled: boolean; // Global toggle for media library feature
+  provider?: "convex" | "convexfs" | "r2"; // Active media backend (default: "convex")
   maxFileSize: number; // Max file size in MB (default: 10)
   allowedTypes: string[]; // Allowed MIME types
 }
@@ -402,6 +422,15 @@ export interface SiteConfig {
 
   // Dashboard configuration (optional)
   dashboard?: DashboardConfig;
+
+  // Auth mode configuration (optional)
+  auth?: AuthModeConfig;
+
+  // Hosting mode configuration (optional)
+  hosting?: HostingModeConfig;
+
+  // Compatibility options (optional)
+  compat?: CompatibilityConfig;
 
   // Media library configuration (optional)
   media?: MediaConfig;
@@ -701,8 +730,8 @@ export const siteConfig: SiteConfig = {
   // Controls access to the /stats route for viewing site analytics
   // Set enabled: false to make stats page private (route still accessible but shows disabled message)
   statsPage: {
-    enabled: true, // Global toggle for stats page
-    showInNav: true, // Show link in navigation (also controlled via hardcodedNavItems)
+    enabled: false, // Global toggle for stats page
+    showInNav: false, // Show link in navigation (also controlled via hardcodedNavItems)
   },
 
   // Docs section configuration
@@ -748,12 +777,26 @@ export const siteConfig: SiteConfig = {
 
   // Dashboard configuration
   // Admin dashboard at /dashboard for managing content and settings
-  // WorkOS authentication is optional - if not configured, dashboard is open access
   // Set enabled: false to disable the dashboard entirely
   // WARNING: When requireAuth is false, anyone can access the dashboard
   dashboard: {
     enabled: true,
     requireAuth: true,
+    showInNav: true,
+  },
+
+  // Auth mode configuration
+  auth: {
+    mode: "convex-auth",
+  },
+
+  // Hosting mode configuration
+  hosting: {
+    mode: "convex-self-hosted",
+  },
+
+  compat: {
+    legacyDocs: true,
   },
 
   // Media library configuration
@@ -761,6 +804,7 @@ export const siteConfig: SiteConfig = {
   // Requires BUNNY_API_KEY, BUNNY_STORAGE_ZONE, BUNNY_CDN_HOSTNAME in Convex dashboard
   media: {
     enabled: true,
+    provider: "convex",
     maxFileSize: 10, // Max file size in MB
     allowedTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
   },

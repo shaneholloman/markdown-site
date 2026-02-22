@@ -2,7 +2,7 @@
 
 ---
 Type: page
-Date: 2026-01-13
+Date: 2026-02-22
 ---
 
 ## Configuration
@@ -64,11 +64,11 @@ These files contain the main site description text. Update them with your own ta
 
 ```typescript
 // convex/http.ts
-const SITE_URL = "https://your-site.netlify.app";
+const SITE_URL = "https://yourdomain.com"; // your Convex custom domain or .convex.site URL
 const SITE_NAME = "Your Site Name";
 
 // convex/rss.ts
-const SITE_URL = "https://your-site.netlify.app";
+const SITE_URL = "https://yourdomain.com";
 const SITE_TITLE = "Your Site Name";
 const SITE_DESCRIPTION = "Your site description for RSS feeds.";
 ```
@@ -76,7 +76,7 @@ const SITE_DESCRIPTION = "Your site description for RSS feeds.";
 **Post page constants** (`src/pages/Post.tsx`):
 
 ```typescript
-const SITE_URL = "https://your-site.netlify.app";
+const SITE_URL = "https://yourdomain.com";
 const SITE_NAME = "Your Site Name";
 const DEFAULT_OG_IMAGE = "/images/og-default.svg";
 ```
@@ -227,7 +227,7 @@ Theme-aware colors match each site theme. Uses public API (no GitHub token requi
 
 ### Visitor map
 
-Display real-time visitor locations on a world map on the stats page. Uses Netlify's built-in geo detection (no third-party API needed). Privacy friendly: only stores city, country, and coordinates. No IP addresses stored.
+Display real-time visitor locations on a world map on the stats page. Privacy friendly: only stores city, country, and coordinates. No IP addresses stored.
 
 ```typescript
 visitorMap: {
@@ -241,7 +241,9 @@ visitorMap: {
 | `enabled` | `true` to show, `false` to hide      |
 | `title`   | Text above map (`undefined` to hide) |
 
-The map displays with theme-aware colors. Visitor dots pulse to indicate live sessions. Location data comes from Netlify's automatic geo headers at the edge.
+The map displays with theme-aware colors. Visitor dots pulse to indicate live sessions.
+
+> **Note:** Geo detection requires the `netlify/edge-functions/geo.ts` edge function, which is available in the legacy Netlify hosting mode. With Convex self-hosting, visitor locations are not captured unless you add a custom geo detection solution.
 
 ### Logo gallery
 
@@ -420,13 +422,13 @@ Mobile sizes defined in `@media (max-width: 768px)` block.
 | Default OG image | `public/images/og-default.svg` | 1200x630 |
 | Post images      | `public/images/`               | Any      |
 
-**Images require git deploy.** Images are served as static files from your repository, not synced to Convex. After adding images to `public/images/`:
+**Images require a deploy.** Images are served as static files bundled into the app build, not synced to Convex via `npm run sync`. After adding images to `public/images/`:
 
 1. Commit the image files to git
 2. Push to GitHub
-3. Wait for Netlify to rebuild
+3. Run `npm run deploy` (Convex self-hosting) or wait for Netlify to rebuild (Netlify legacy mode)
 
-The `npm run sync` command only syncs markdown text content. Images are deployed when Netlify builds your site. Use `npm run sync:discovery` to update discovery files (AGENTS.md, llms.txt) when site configuration changes.
+The `npm run sync` command only syncs markdown text content. Use `npm run sync:discovery` to update discovery files (AGENTS.md, llms.txt) when site configuration changes.
 
 **Adding images to posts:** You can add images using markdown syntax `![alt](src)` or HTML `<img>` tags. The site uses `rehypeRaw` and `rehypeSanitize` to safely render HTML in markdown content. See [Using Images in Blog Posts](/using-images-in-posts) for complete examples and best practices.
 

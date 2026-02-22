@@ -35,7 +35,7 @@ interface PostProps {
 export default function Post({
   slug: propSlug,
   isHomepage = false,
-  homepageType,
+  homepageType: _homepageType,
 }: PostProps = {}) {
   const { slug: routeSlug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -253,14 +253,15 @@ export default function Post({
     updateMeta('meta[name="twitter:card"]', "content", "summary_large_image");
 
     // Update twitter:site and twitter:creator if configured
+    const postAuthorTwitter = (post as { authorTwitter?: string }).authorTwitter;
     if (siteConfig.twitter?.site) {
       updateMeta('meta[name="twitter:site"]', "content", siteConfig.twitter.site);
     }
-    if (siteConfig.twitter?.creator || post.authorTwitter) {
+    if (siteConfig.twitter?.creator || postAuthorTwitter) {
       updateMeta(
         'meta[name="twitter:creator"]',
         "content",
-        post.authorTwitter || siteConfig.twitter?.creator || "",
+        postAuthorTwitter || siteConfig.twitter?.creator || "",
       );
     }
 
@@ -443,7 +444,7 @@ export default function Post({
                   src={page.image}
                   alt={page.title}
                   className="post-header-image-img"
-                  fetchPriority="high"
+                  fetchpriority="high"
                 />
               </div>
             )}
@@ -517,7 +518,7 @@ export default function Post({
                   src={page.image}
                   alt={page.title}
                   className="post-header-image-img"
-                  fetchPriority="high"
+                  fetchpriority="high"
                 />
               </div>
             )}
@@ -686,7 +687,7 @@ export default function Post({
                 src={post.image}
                 alt={post.title}
                 className="post-header-image-img"
-                  fetchPriority="high"
+                  fetchpriority="high"
               />
             </div>
           )}
@@ -764,7 +765,7 @@ export default function Post({
                 src={post.image}
                 alt={post.title}
                 className="post-header-image-img"
-                  fetchPriority="high"
+                  fetchpriority="high"
               />
             </div>
           )}

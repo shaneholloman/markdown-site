@@ -2,9 +2,6 @@ import { mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
-// Environment variable error message for production
-const ENV_VAR_ERROR_MESSAGE = "AgentMail Environment Variables are not configured in production. Please set AGENTMAIL_API_KEY, AGENTMAIL_INBOX, and AGENTMAIL_CONTACT_EMAIL.";
-
 // Submit contact form message
 // Stores the message and schedules email sending via AgentMail
 export const submitContact = mutation({

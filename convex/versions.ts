@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
+import { requireDashboardAdmin } from "./dashboardAuth";
 
 // Retention period: 3 days in milliseconds
 const RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
@@ -23,6 +24,8 @@ export const setEnabled = mutation({
   args: { enabled: v.boolean() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     const existing = await ctx.db
       .query("versionControlSettings")
       .withIndex("by_key", (q) => q.eq("key", "enabled"))
@@ -104,6 +107,8 @@ export const getVersionHistory = query({
     })
   ),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     const versions = await ctx.db
       .query("contentVersions")
       .withIndex("by_content", (q) =>
@@ -145,6 +150,8 @@ export const getVersion = query({
     v.null()
   ),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     const version = await ctx.db.get(args.versionId);
     if (!version) return null;
 
@@ -170,6 +177,8 @@ export const restoreVersion = mutation({
     message: v.string(),
   }),
   handler: async (ctx, args) => {
+    await requireDashboardAdmin(ctx);
+
     const version = await ctx.db.get(args.versionId);
     if (!version) {
       return { success: false, message: "Version not found" };
@@ -250,27 +259,39 @@ export const getStats = query({
   args: {},
   returns: v.object({
     enabled: v.boolean(),
-    totalVersions: v.number(),
+    totalVersions: v.union(v.number(), v.null()),
     oldestVersion: v.union(v.number(), v.null()),
     newestVersion: v.union(v.number(), v.null()),
   }),
   handler: async (ctx) => {
+    await requireDashboardAdmin(ctx);
+
     const setting = await ctx.db
       .query("versionControlSettings")
       .withIndex("by_key", (q) => q.eq("key", "enabled"))
       .first();
 
-    const versions = await ctx.db.query("contentVersions").collect();
+    // Avoid full-table scans. contentVersions documents include full markdown content,
+    // so collecting all rows can exceed Convex's 16 MB read limit.
+    const oldestVersion = await ctx.db
+      .query("contentVersions")
+      .withIndex("by_createdAt")
+      .first();
 
-    const timestamps = versions.map((v) => v.createdAt);
-    const oldest = timestamps.length > 0 ? Math.min(...timestamps) : null;
-    const newest = timestamps.length > 0 ? Math.max(...timestamps) : null;
+    const newestVersion = await ctx.db
+      .query("contentVersions")
+      .withIndex("by_createdAt")
+      .order("desc")
+      .first();
+
+    const hasVersions = Boolean(oldestVersion);
 
     return {
       enabled: setting?.value === true,
-      totalVersions: versions.length,
-      oldestVersion: oldest,
-      newestVersion: newest,
+      // Returning null here avoids expensive counting logic for large datasets.
+      totalVersions: hasVersions ? null : 0,
+      oldestVersion: oldestVersion?.createdAt ?? null,
+      newestVersion: newestVersion?.createdAt ?? null,
     };
   },
 });

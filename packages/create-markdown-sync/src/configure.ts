@@ -58,6 +58,15 @@ function buildForkConfig(answers: WizardAnswers): Record<string, unknown> {
     siteDescription: answers.siteDescription,
     siteUrl: answers.siteUrl,
     siteDomain: extractDomain(answers.siteUrl),
+    auth: {
+      mode: answers.authMode,
+    },
+    hosting: {
+      mode: answers.hostingMode,
+    },
+    media: {
+      provider: answers.mediaProvider,
+    },
     githubUsername: answers.githubUsername,
     githubRepo: answers.githubRepo,
     contactEmail: answers.contactEmail,
@@ -271,7 +280,7 @@ export async function configureProject(
 
     // 2. Disable auth config if user doesn't need authentication
     // This prevents WorkOS env var errors from blocking Convex setup
-    if (!answers.dashboardRequireAuth) {
+    if (answers.authMode !== 'workos') {
       disableAuthConfig(projectDir);
     }
 

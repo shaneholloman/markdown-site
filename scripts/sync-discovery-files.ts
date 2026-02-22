@@ -232,10 +232,10 @@ function getGitHubUrl(siteConfig: SiteConfigData): string {
 function updateClaudeMd(
   content: string,
   siteConfig: SiteConfigData,
-  siteUrl: string,
+  _siteUrl: string,
   postCount: number,
   pageCount: number,
-  latestPostDate?: string,
+  _latestPostDate?: string,
 ): string {
   // Build status comment to insert after "## Project context"
   const statusComment = `<!-- Auto-updated by sync:discovery -->
@@ -493,7 +493,7 @@ async function syncDiscoveryFiles() {
   const claudePath = path.join(ROOT_DIR, "CLAUDE.md");
   if (fs.existsSync(claudePath)) {
     console.log("Updating CLAUDE.md with current status...");
-    let claudeContent = fs.readFileSync(claudePath, "utf-8");
+    const claudeContent = fs.readFileSync(claudePath, "utf-8");
     const updatedClaudeContent = updateClaudeMd(
       claudeContent,
       siteConfig,

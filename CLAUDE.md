@@ -30,7 +30,14 @@ npm run sync                   # Sync markdown to Convex
 | `npm run build` | Production build |
 | `npx convex dev` | Start Convex dev watcher |
 | `npx convex deploy` | Deploy Convex to production |
+| `npm run deploy` | Deploy static app with Convex self-hosting |
 | `npm run import <url>` | Import external URL as post |
+
+## Default and legacy modes
+
+- Default auth mode: `convex-auth`
+- Default hosting mode: `convex-self-hosted`
+- Legacy compatibility mode: `workos` auth + `netlify` hosting
 
 ## Workflows
 
@@ -57,6 +64,7 @@ npm run sync                   # Sync markdown to Convex
 ```bash
 npm run sync:all:prod          # Sync all content to prod
 npx convex deploy              # Deploy Convex functions
+npm run deploy                 # Deploy static assets via Convex self-hosting
 ```
 
 Netlify build command: `npm ci --include=dev && npx convex deploy --cmd 'npm run build'`

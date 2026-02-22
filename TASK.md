@@ -4,9 +4,112 @@
 
 ## Current Status
 
-v2.20.1 ready. AI generated image true delete with confirmation dialog.
+Session updates complete on 2026-02-21.
+
+- **Stats performance optimizations** (2026-02-21)
+  - Stats tracking now respects `statsPage.enabled` config (no DB writes when disabled)
+  - Removed expensive full table scan fallback in `getStats` query
+  - Added `uniquePaths` aggregate component for O(log n) path tracking
+  - Paginated `pageStats` to return top 50 pages by views
+  - Updated Stats page UI to show "Top Pages by Views" with count indicator
+
+Session updates complete on 2026-02-16.
+
+- **@robelest/convex-auth integration fully working** (2026-02-16)
+  - Auth client properly initialized in `ConvexAuthWrapper` component
+  - Email lookup from auth component fixes admin verification (JWT only has subject, not email)
+  - GitHub OAuth flow tested and working with `wayne@convex.dev`
+  - Dashboard accessible to admins, non-admins redirected with notice
+  - Sign out working correctly in convex-auth mode
+  - Documentation created: `prds/adding-robel-auth.md` with full migration guide
+  - Fork setup instructions updated in `FORK_CONFIG.md`
+
+- Auth + hosting migration implementation completed on 2026-02-16.
+- Default architecture now targets Convex Auth + Convex self-hosting with legacy compatibility retained for WorkOS + Netlify.
+- Server-side dashboard admin authorization is enforced and upload endpoints are locked down.
+- TypeScript checks and Convex codegen both pass after migration updates.
+- Mode wording is now aligned across `README.md`, `FORK_CONFIG.md`, and `fork-config.json.example`.
+- Full migration validation pass completed: lint, typecheck, Convex codegen, and production build all pass.
+- Dashboard auth/access hardening follow-up completed:
+  - Fixed `convex-auth` sign out in Dashboard.
+  - Fixed false "dashboard access open" warning in authenticated convex-auth mode.
+  - Added strict primary admin email gate support for dashboard access.
+  - Fixed Version Control dashboard crash caused by `versions:getStats` full-table read.
+
+- Dashboard rich text editor migrated off Quill to a lightweight built-in editor.
+- Lint and typecheck both pass.
+- Production dependency audit is clean (`npm audit --omit=dev` -> 0 vulnerabilities).
+- Ask AI modal and docs navigation smoke-tested locally.
 
 ## Completed
+
+- [x] Stats performance optimizations (2026-02-21)
+  - [x] Added `statsPage.enabled` check in `usePageTracking.ts` to prevent DB writes when stats disabled
+  - [x] Removed full table scan fallback in `convex/stats.ts` (trust aggregate counts)
+  - [x] Added `uniquePaths` aggregate component in `convex/convex.config.ts`
+  - [x] Updated `recordPageView` and backfill to populate `uniquePaths` aggregate
+  - [x] Paginated `pageStats` to return top 50 pages by views in `getStats` query
+  - [x] Updated `src/pages/Stats.tsx` with "Top Pages by Views" section title
+  - [x] Added `.stats-section-subtitle` CSS class for showing count indicator
+
+- [x] Convex-first docs wording cleanup (2026-02-18)
+  - [x] Updated `content/pages/about.md` to describe Convex self-hosted default deployment
+  - [x] Updated `content/pages/docs.md` to treat Netlify as optional legacy mode
+  - [x] Updated `content/pages/docs-content.md` deploy guidance to use `npm run deploy` by default
+  - [x] Updated `content/pages/footer.md` messaging to Convex-first wording while preserving legacy note
+
+- [x] Convex one-click deploy readiness pass (2026-02-18)
+  - [x] Updated deploy scripts to use CLI-driven self-hosting flow (`deploy`, `upload --build --prod`)
+  - [x] Added setup and deployment checks: `scripts/validate-env.ts`, `scripts/verify-deploy.ts`
+  - [x] Added npm scripts: `validate:env`, `validate:env:prod`, `verify:deploy`, `verify:deploy:prod`
+  - [x] Improved `create-markdown-sync` post-setup guidance for deferred auth setup
+  - [x] Added GitHub template one-click path docs in `README.md` and `FORK_CONFIG.md`
+  - [x] Added auth setup status query (`authAdmin:getAuthSetupStatus`) and dashboard first-admin guidance
+
+- [x] @robelest/convex-auth GitHub OAuth integration (2026-02-16)
+  - [x] Fixed auth client initialization in `src/AppWithWorkOS.tsx` with `ConvexAuthWrapper`
+  - [x] Fixed email lookup from auth component in `convex/dashboardAuth.ts` using `components.auth.public.userGetById`
+  - [x] Added `extractUserId()` helper to parse userId from "userId|sessionId" format
+  - [x] Tested full GitHub OAuth flow with admin email verification
+  - [x] Created PRD documentation: `prds/adding-robel-auth.md`
+  - [x] Updated fork setup instructions in `FORK_CONFIG.md`
+
+- [x] Migration docs consistency pass (2026-02-16)
+  - [x] Aligned Default/Legacy/Local fallback mode wording across `README.md`, `FORK_CONFIG.md`, and `fork-config.json.example`
+  - [x] Updated `FORK_CONFIG.md` dashboard authentication section to match admin-only server enforcement
+  - [x] Added `compat.legacyDocs` to `fork-config.json.example`
+  - [x] Re-ran `npm run lint`, `npm run typecheck`, `npx convex codegen`, and `npm run build`
+
+- [x] Auth + hosting migration baseline implementation (2026-02-16)
+  - [x] Added dual mode config contract (`auth.mode`, `hosting.mode`, `media.provider`) in `siteConfig`
+  - [x] Added Convex Auth wiring (`convex/auth.ts`) and preserved legacy WorkOS path (`convex/auth.config.ts`)
+  - [x] Added Convex self-hosting wiring (`convex/staticHosting.ts`, `registerStaticRoutes`)
+  - [x] Added server-side dashboard admin model (`dashboardAdmins`, `authAdmin` APIs, backend admin guards)
+  - [x] Added media provider abstraction with direct Convex default and optional ConvexFS/R2 support
+  - [x] Updated Dashboard upload components for provider-based upload flows
+  - [x] Updated fork and CLI scaffolding defaults to convex-auth + convex-self-hosted + convex media
+  - [x] Added custom domain env override support (`VITE_CONVEX_SITE_URL`, `VITE_SITE_URL`)
+  - [x] Verified with `npm run typecheck` and `npx convex codegen`
+
+- [x] Remove Quill dependency and replace Dashboard rich text editor (2026-02-16)
+  - [x] Replaced Quill integration in `src/pages/Dashboard.tsx` with a simple `contentEditable` editor and toolbar
+  - [x] Kept Markdown and Preview modes unchanged
+  - [x] Preserved markdown <-> rich text conversion flow
+  - [x] Added rich text image insertion support using existing `ImageUploadModal`
+  - [x] Updated rich text styles in `src/styles/global.css`
+  - [x] Removed Quill dependencies from root and workspace package manifests
+  - [x] Verified `npm audit --omit=dev` reports 0 vulnerabilities
+
+- [x] Fix pre-existing TypeScript errors so `npm run typecheck` passes (2026-02-16)
+  - [x] Updated `src/components/AskAIModal.tsx`
+  - [x] Updated `src/components/Layout.tsx`
+  - [x] Updated `src/hooks/useSearchHighlighting.ts`
+  - [x] Updated `src/pages/Post.tsx`
+  - [x] Re-verified `npm run lint` and `npm run typecheck` both pass
+
+- [x] Runtime smoke-check after TypeScript fixes (2026-02-16)
+  - [x] Ask AI modal open, input, and close flow validated
+  - [x] Docs landing and docs page navigation validated
 
 - [x] AI generated image true delete with confirmation (v2.20.1)
   - [x] Added `by_storageId` index to `aiGeneratedImages` table in schema.ts

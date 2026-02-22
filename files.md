@@ -2,6 +2,109 @@
 
 A brief description of each file in the codebase.
 
+## Recent session updates (2026-02-21)
+
+### Stats performance optimizations (2026-02-21)
+
+- **Stats tracking respects `statsPage.enabled` config** in `src/hooks/usePageTracking.ts`:
+  - Added check for `siteConfig.statsPage?.enabled` before any DB writes
+  - All page view recording and heartbeat tracking disabled when stats is disabled
+  - No database operations occur when `statsPage.enabled: false`
+
+- **Removed full table scan fallback** in `convex/stats.ts`:
+  - Eliminated expensive `allPageViews` collection that scanned entire `pageViews` table
+  - Now trusts aggregate counts directly (O(log n) instead of O(n))
+  - Uses limited scan of 1000 recent views to find active paths
+
+- **Added unique paths aggregate** in `convex/convex.config.ts` and `convex/stats.ts`:
+  - New `uniquePaths` aggregate component tracks distinct paths viewed
+  - Updated `recordPageView` to insert into `uniquePaths` aggregate
+  - Updated backfill function to populate `uniquePaths`
+  - Returns `totalPaths` count for UI display
+
+- **Paginated pageStats to top 50** in `convex/stats.ts`:
+  - Added `PAGE_STATS_LIMIT = 50` constant
+  - Returns only top 50 pages by views instead of all paths
+  - Sorts by views descending before limiting
+
+- **Updated Stats page UI** in `src/pages/Stats.tsx` and `src/styles/global.css`:
+  - Section title changed to "Top Pages by Views"
+  - Shows "(showing X of Y)" when more paths exist than displayed
+  - Added `.stats-section-subtitle` CSS class
+
+### Convex one-click deploy readiness (2026-02-18)
+
+- Updated deploy flow in `package.json` to use `@convex-dev/self-hosting` CLI-driven build/deploy commands.
+- Added setup/deploy check scripts:
+  - `scripts/validate-env.ts` for local/env readiness checks
+  - `scripts/verify-deploy.ts` for endpoint smoke checks after deploy
+- Added auth readiness query in `convex/authAdmin.ts` (`getAuthSetupStatus`) and first-admin setup guidance UI in `src/pages/Dashboard.tsx`.
+- Updated one-click docs in `README.md` and `FORK_CONFIG.md` to include GitHub template and CLI setup paths.
+- Updated content docs wording for Convex-first default while preserving legacy compatibility notes in:
+  - `content/pages/about.md`
+  - `content/pages/docs.md`
+  - `content/pages/docs-content.md`
+  - `content/pages/footer.md`
+
+### @robelest/convex-auth integration fixes
+
+- **Fixed auth client initialization** in `src/AppWithWorkOS.tsx`:
+  - Created `ConvexAuthWrapper` component that properly initializes the auth client
+  - Auth client now correctly calls `convex.setAuth()` to provide tokens to Convex
+  - Added loading state to prevent flash of unauthenticated content
+
+- **Fixed email lookup from auth component** in `convex/dashboardAuth.ts`:
+  - `@robelest/convex-auth` JWT tokens only include subject (userId|sessionId), not email
+  - Added `getUserEmailFromAuthComponent()` to look up email from `components.auth.public.userGetById`
+  - Added `extractUserId()` helper to parse userId from "userId|sessionId" format
+  - Admin matching now works correctly with email-based entries in `dashboardAdmins` table
+
+- **Dashboard auth UX improvements** in `src/pages/Dashboard.tsx`:
+  - Sign out now works correctly in convex-auth mode using `authClient.signOut()`
+  - Removed false "Dashboard access is open" warning when auth is enabled
+  - Non-admin users are redirected to home with dismissible notice
+
+- **Admin management improvements**:
+  - `DASHBOARD_PRIMARY_ADMIN_EMAIL` env var provides optional strict email gate
+  - Bootstrap admin via `authAdmin:bootstrapDashboardAdmin` with secret key
+  - Debug queries added for troubleshooting: `debugCurrentIdentity`, `debugListAllAdmins`
+
+- **Version control crash fix** in `convex/versions.ts`:
+  - Replaced full `contentVersions` table scan with index-based oldest/newest lookups
+  - Prevents Convex 16MB read limit errors on large datasets
+
+- **Documentation updates**:
+  - Created `prds/adding-robel-auth.md` with full migration guide
+  - Updated `FORK_CONFIG.md` with detailed admin setup instructions for fork users
+  - Updated defaults/docs sync for dashboard nav option in `fork-config.json.example`
+
+- Added dual-mode platform config in `src/config/siteConfig.ts` with `auth.mode`, `hosting.mode`, and `media.provider`.
+- Added dashboard admin backend model in `convex/schema.ts`, `convex/dashboardAuth.ts`, and `convex/authAdmin.ts` with grant/revoke/list/isCurrentUserDashboardAdmin functions.
+- Enforced server-side dashboard admin checks in `convex/cms.ts`, `convex/posts.ts` (`listAll`), `convex/pages.ts` (`listAll`), `convex/newsletter.ts` admin endpoints, `convex/versions.ts`, `convex/files.ts`, and `convex/importAction.ts`.
+- Integrated Convex Auth and self-hosting scaffolding in `convex/auth.ts`, `convex/convex.config.ts`, `convex/staticHosting.ts`, and `convex/http.ts` while retaining `convex/auth.config.ts` for WorkOS legacy mode.
+- Added optional R2 and direct storage abstraction in `convex/r2.ts` and `convex/media.ts`, and updated dashboard upload components to support `convex`, `convexfs`, and `r2` providers.
+- Refactored frontend auth bootstrap in `src/main.tsx`, `src/AppWithWorkOS.tsx`, `src/utils/workos.ts`, and `src/pages/Dashboard.tsx` to support provider mode switching and admin-only dashboard access.
+- Updated fork scaffolding defaults in `fork-config.json.example`, `FORK_CONFIG.md`, `scripts/configure-fork.ts`, and `packages/create-markdown-sync/src/{wizard.ts,configure.ts}` for new default architecture with legacy options.
+- Aligned mode wording across `README.md`, `FORK_CONFIG.md`, and `fork-config.json.example`:
+  - Default mode: `convex-auth` + `convex-self-hosted` + `convex`
+  - Legacy mode: `workos` + `netlify` with optional `convexfs`/`r2`
+  - Local fallback mode: `auth.mode = "none"` for non-production development
+- Updated `FORK_CONFIG.md` dashboard auth section to document admin-only dashboard access and grant commands (`authAdmin:grantDashboardAdmin`).
+- Added `compat.legacyDocs` example setting in `fork-config.json.example`.
+- Re-ran migration verification checks: `npm run lint`, `npm run typecheck`, `npx convex codegen`, and `npm run build`.
+
+- Replaced Quill-based rich text editor in `src/pages/Dashboard.tsx` with a simpler built-in `contentEditable` editor and lightweight toolbar.
+- Kept Markdown mode and Preview mode in Dashboard write flow, and preserved markdown <-> rich text conversion using existing Showdown and Turndown utilities.
+- Enabled image insertion in rich text mode using existing `ImageUploadModal`.
+- Removed Quill dependencies from root and CLI workspace `package.json` files.
+- Updated editor styling in `src/styles/global.css` to support the new simple rich text toolbar and editor surface.
+- Fixed TypeScript errors in `src/components/AskAIModal.tsx`, `src/components/Layout.tsx`, `src/hooks/useSearchHighlighting.ts`, and `src/pages/Post.tsx`.
+- ESLint and production audit now pass with no vulnerabilities:
+  - `npm run lint` -> pass
+  - `npm run typecheck` -> pass
+  - `npm audit --omit=dev` -> found 0 vulnerabilities
+- Performed runtime smoke test for Ask AI modal and docs navigation on local dev server.
+
 ## Root Files
 
 | File                       | Description                                           |
@@ -49,7 +152,7 @@ A brief description of each file in the codebase.
 | `TagPage.tsx` | Tag archive page displaying posts filtered by a specific tag. Includes view mode toggle (list/cards) with localStorage persistence                                                                                                                                                                                                                                |
 | `AuthorPage.tsx` | Author archive page displaying posts by a specific author. Includes view mode toggle (list/cards) with localStorage persistence. Author name clickable in posts links to this page. |
 | `Write.tsx`   | Three-column markdown writing page with Cursor docs-style UI, frontmatter reference with copy buttons, theme toggle, font switcher (serif/sans/monospace), localStorage persistence, and optional AI Agent mode (toggleable via siteConfig.aiChat.enabledOnWritePage). When enabled, Agent replaces the textarea with AIChatView component. Includes scroll prevention when switching to Agent mode to prevent page jump. Title changes to "Agent" when in AI chat mode. |
-| `Dashboard.tsx` | Centralized dashboard at `/dashboard` for content management and site configuration. **Cloud CMS Features:** Direct database save ("Save to DB" button), source tracking (Dashboard vs Synced badges), delete confirmation modal with warning, CRUD operations for dashboard-created content, sync warning modal for synced content (warns that local file changes will overwrite dashboard edits with download/copy options). **Content Management:** Posts and Pages list views with filtering, search, pagination, items per page selector, source badges, delete buttons (dashboard content only); Post/Page editor with markdown editor, live preview, "Save Changes" button, draggable/resizable frontmatter sidebar (200px-600px), independent scrolling, download markdown, export to markdown, all 30+ frontmatter fields synchronized with schema; Write Post/Page sections with three editor modes (Markdown, Rich Text via Quill, Preview), full-screen writing interface. **Rich Text Editor:** Quill-based WYSIWYG editor with toolbar (headers, bold, italic, lists, links, code, blockquote), automatic HTML-to-Markdown conversion on mode switch, theme-aware styling. **AI Agent:** Tab-based UI for Chat and Image Generation, multi-model selector (Claude Sonnet 4, GPT-4o, Gemini 2.0 Flash), image generation with Nano Banana models, aspect ratio selection, download button, and MD/HTML copy options with code preview. **Other Features:** Newsletter management (all Newsletter Admin features integrated); Content import (direct database import via Firecrawl, no file sync needed); Site configuration (Config Generator UI with Version Control toggle); Index HTML editor; Analytics (real-time stats dashboard); Sync commands UI with sync server integration; Header sync buttons; Dashboard search; Toast notifications; Command modal; Version history modal for viewing diffs and restoring previous versions; Mobile responsive design. Uses Convex queries for real-time data, localStorage for preferences, ReactMarkdown for preview. Optional WorkOS authentication via siteConfig.dashboard.requireAuth. |
+| `Dashboard.tsx` | Centralized dashboard at `/dashboard` for content management and site configuration. **Cloud CMS Features:** Direct database save ("Save to DB" button), source tracking (Dashboard vs Synced badges), delete confirmation modal with warning, CRUD operations for dashboard-created content, sync warning modal for synced content (warns that local file changes will overwrite dashboard edits with download/copy options). **Content Management:** Posts and Pages list views with filtering, search, pagination, items per page selector, source badges, delete buttons (dashboard content only); Post/Page editor with markdown editor, live preview, "Save Changes" button, draggable/resizable frontmatter sidebar (200px-600px), independent scrolling, download markdown, export to markdown, all 30+ frontmatter fields synchronized with schema; Write Post/Page sections with three editor modes (Markdown, Rich Text, Preview), full-screen writing interface. **Rich Text Editor:** lightweight `contentEditable` editor with simple toolbar (bold, italic, strike, headings, lists, quote), image insertion support, automatic HTML-to-Markdown conversion on mode switch, theme-aware styling. **AI Agent:** Tab-based UI for Chat and Image Generation, multi-model selector (Claude Sonnet 4, GPT-4o, Gemini 2.0 Flash), image generation with Nano Banana models, aspect ratio selection, download button, and MD/HTML copy options with code preview. **Other Features:** Newsletter management (all Newsletter Admin features integrated); Content import (direct database import via Firecrawl, no file sync needed); Site configuration (Config Generator UI with Version Control toggle); Index HTML editor; Analytics (real-time stats dashboard); Sync commands UI with sync server integration; Header sync buttons; Dashboard search; Toast notifications; Command modal; Version history modal for viewing diffs and restoring previous versions; Mobile responsive design. Uses Convex queries for real-time data, localStorage for preferences, ReactMarkdown for preview. Optional WorkOS authentication via siteConfig.dashboard.requireAuth. |
 | `Callback.tsx` | OAuth callback handler for WorkOS authentication. Handles redirect from WorkOS after user login, exchanges authorization code for user information, then redirects to dashboard. Only used when WorkOS is configured. |
 | `NewsletterAdmin.tsx` | Three-column newsletter admin page for managing subscribers and sending newsletters. Left sidebar with navigation and stats, main area with searchable subscriber list, right sidebar with send newsletter panel and recent sends. Access at /newsletter-admin, configurable via siteConfig.newsletterAdmin. |
 
@@ -102,7 +205,7 @@ A brief description of each file in the codebase.
 
 | File                       | Description                                                                                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `usePageTracking.ts`       | Page view recording and active session heartbeat                                                                                                         |
+| `usePageTracking.ts`       | Page view recording and active session heartbeat. Respects `siteConfig.statsPage.enabled` (no DB writes when disabled) |
 | `useSearchHighlighting.ts` | Search term highlighting and scroll-to-match. Reads `?q=` URL param, waits for content to load, highlights matches in DOM, scrolls to first match. |
 
 ### Styles (`src/styles/`)
@@ -125,11 +228,11 @@ A brief description of each file in the codebase.
 | `semanticSearchQueries.ts` | Internal queries for fetching post/page details by IDs for semantic search                                 |
 | `embeddings.ts`    | Embedding generation actions using OpenAI text-embedding-ada-002                                                   |
 | `embeddingsQueries.ts` | Internal queries and mutations for embedding storage and retrieval                                             |
-| `stats.ts`         | Real-time stats with aggregate component for O(log n) counts, page view recording, session heartbeat               |
+| `stats.ts`         | Real-time stats with aggregate components for O(log n) counts (pageViewsByPath, totalPageViews, uniqueVisitors, uniquePaths), page view recording, session heartbeat, top 50 page stats pagination |
 | `crons.ts`         | Cron jobs for stale session cleanup (every 5 minutes), weekly newsletter digest (Sundays 9am UTC), weekly stats summary (Mondays 9am UTC), and version cleanup (daily 3am UTC). Uses environment variables SITE_URL and SITE_NAME for email content. |
-| `http.ts`          | HTTP endpoints: sitemap (includes tag pages), API (update SITE_URL/SITE_NAME when forking, uses www.markdown.fast), Open Graph HTML generation for social crawlers with hreflang and twitter:site meta tags |
+| `http.ts`          | HTTP endpoints: `/raw/` dynamic markdown serving with `text/plain` content type (browser-viewable and AI-readable, content served from Convex DB), sitemap (includes tag pages), API (update SITE_URL/SITE_NAME when forking, uses www.markdown.fast), Open Graph HTML generation for social crawlers with hreflang and twitter:site meta tags. Static app files served via `registerStaticRoutes` (Convex self-hosting). |
 | `rss.ts`           | RSS feed generation (update SITE_URL/SITE_TITLE when forking, uses www.markdown.fast)                              |
-| `auth.config.ts`  | Convex authentication configuration for WorkOS. Defines JWT providers for WorkOS API and user management. Requires WORKOS_CLIENT_ID environment variable in Convex. Optional - only needed if using WorkOS authentication for dashboard. |
+| `auth.config.ts`  | Legacy WorkOS JWT configuration. The default auth mode uses `@robelest/convex-auth` in `convex/auth.ts`. This file is kept for backwards compatibility when `auth.mode === "workos"`. WorkOS JWT providers are only active when `WORKOS_CLIENT_ID` is set in Convex environment variables. |
 | `aiChats.ts`       | Queries and mutations for AI chat history (per-session, per-context storage). Handles anonymous session IDs, per-page chat contexts, and message history management. Supports page content as context for AI responses. Includes `deleteGeneratedImage` mutation for removing AI generated images from database and storage.                                                                                                                                           |
 | `aiChatActions.ts` | Multi-provider AI chat action supporting Anthropic (Claude Sonnet 4), OpenAI (GPT-4o), and Google (Gemini 2.0 Flash). Requires respective API keys: ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_AI_API_KEY. Lazy API key validation only shows errors when user attempts to use a specific model. System prompt configurable via environment variables. Supports page content context and chat history (last 20 messages). |
 | `aiImageGeneration.ts` | Gemini image generation action using Google AI API. Supports gemini-2.0-flash-exp-image-generation (Nano Banana) and imagen-3.0-generate-002 (Nano Banana Pro) models. Features aspect ratio selection (1:1, 16:9, 9:16, 4:3, 3:4), Convex storage integration, and session-based image tracking. Requires GOOGLE_AI_API_KEY environment variable. |
@@ -141,7 +244,7 @@ A brief description of each file in the codebase.
 | `askAI.node.ts`    | Ask AI HTTP action for streaming responses (Node.js runtime). Retrieves question from database, performs vector search using existing semantic search embeddings, generates AI response via Anthropic Claude or OpenAI GPT-4o, streams via appendChunk. Includes CORS headers and source citations. |
 | `fs.ts`            | ConvexFS instance configuration with Bunny.net Edge Storage integration. Conditionally creates ConvexFS instance only when BUNNY_API_KEY, BUNNY_STORAGE_ZONE, and BUNNY_CDN_HOSTNAME environment variables are set. Exports `isBunnyConfigured` boolean and `fs` instance (or null if not configured). |
 | `files.ts`         | File management mutations and queries for media library: commitFile (upload with validation), listFiles (paginated), deleteFile, deleteFiles (bulk), setFileExpiration, getFileInfo, getDownloadUrl, getFileCount, isConfigured. Validates file types (PNG, JPG, GIF, WebP) and size (10MB max). |
-| `convex.config.ts` | Convex app configuration with aggregate component registrations (pageViewsByPath, totalPageViews, uniqueVisitors), persistentTextStreaming component, and ConvexFS component for media storage. |
+| `convex.config.ts` | Convex app configuration with aggregate component registrations (pageViewsByPath, totalPageViews, uniqueVisitors, uniquePaths), persistentTextStreaming component, and ConvexFS component for media storage. |
 | `tsconfig.json`    | Convex TypeScript configuration                                                                                    |
 
 ### HTTP Endpoints (defined in `http.ts`)
@@ -160,6 +263,7 @@ A brief description of each file in the codebase.
 | `/openapi.yaml`               | OpenAPI 3.0 specification                                                     |
 | `/llms.txt`                   | AI agent discovery                                                            |
 | `/ask-ai-stream`              | Ask AI streaming endpoint for RAG-based Q&A (POST with streamId)              |
+| `/raw/{slug}.md`              | Dynamic raw markdown serving with `text/plain` content type. Serves post or page content from Convex DB. Browser-viewable and readable by AI services (Claude, ChatGPT, Perplexity). |
 
 ## Content (`content/blog/`)
 
@@ -249,6 +353,8 @@ Markdown files for static pages like About, Projects, Contact, Changelog.
 | `send-newsletter-stats.ts` | CLI tool for sending weekly stats summary (npm run newsletter:send:stats). Calls scheduleSendStatsSummary mutation directly. |
 | `sync-server.ts`          | Local HTTP server for executing sync commands from Dashboard UI. Runs on localhost:3001 with optional token authentication. Whitelisted commands only. Part of markdown sync v2. |
 | `export-db-posts.ts`      | Exports dashboard-created posts and pages to markdown files in `content/blog/` and `content/pages/`. Only exports content with `source: "dashboard"`. Supports development and production environments via `npm run export:db` and `npm run export:db:prod`. |
+| `validate-env.ts`         | Validates local env readiness for development/production and reports optional Convex auth/deploy env settings. |
+| `verify-deploy.ts`        | Verifies deployed Convex self-hosted endpoints (`/`, RSS, sitemap, API) using an explicit URL or derived `*.convex.site` URL. |
 
 ### Sync Commands
 
@@ -287,7 +393,9 @@ Frontmatter is the YAML metadata at the top of each markdown file. Here is how i
 - `convex/schema.ts`: Add field to the posts or pages table schema
 - `convex/posts.ts` or `convex/pages.ts`: Update sync mutation to handle new field
 
-## Netlify (`netlify/edge-functions/`)
+## Netlify edge functions (`netlify/edge-functions/`) — legacy hosting mode
+
+> These edge functions are used when `hosting.mode: "netlify"` is set in `siteConfig.ts`. They are not active in Convex self-hosting mode. With Convex self-hosting, RSS, sitemap, API, and `/raw/` routes are handled directly by HTTP actions in `convex/http.ts`.
 
 | File         | Description                                                                                                    |
 | ------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -295,7 +403,7 @@ Frontmatter is the YAML metadata at the top of each markdown file. Here is how i
 | `rss.ts`     | Proxies `/rss.xml` and `/rss-full.xml` to Convex HTTP                                                          |
 | `sitemap.ts` | Proxies `/sitemap.xml` to Convex HTTP                                                                          |
 | `api.ts`     | Proxies `/api/posts`, `/api/post`, `/api/export` to Convex                                                     |
-| `geo.ts`     | Returns user geo location from Netlify's automatic geo headers for visitor map                                 |
+| `geo.ts`     | Returns user geo location from Netlify's automatic geo headers for visitor map (Netlify-only, not available in Convex self-hosting) |
 | `mcp.ts`     | HTTP-based MCP server for AI tool integration (Cursor, Claude Desktop). Accessible at /mcp endpoint. Exposes read-only tools: list_posts, get_post, list_pages, get_page, get_homepage, search_content, export_all. Uses Netlify rate limiting (50 req/min public, 1000 req/min with API key). Optional authentication via MCP_API_KEY environment variable. |
 
 ## Public Assets (`public/`)
