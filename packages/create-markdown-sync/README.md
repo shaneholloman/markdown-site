@@ -23,11 +23,14 @@ This interactive CLI will:
 # Create a new project
 npx create-markdown-sync my-blog
 
-# With specific package manager
-npx create-markdown-sync my-blog --pm yarn
+# Overwrite existing directory
+npx create-markdown-sync my-blog --force
 
 # Skip Convex setup (configure later)
 npx create-markdown-sync my-blog --skip-convex
+
+# Don't open browser after setup
+npx create-markdown-sync my-blog --skip-open
 ```
 
 ## What You Get
@@ -42,7 +45,15 @@ A fully configured markdown-sync site with:
 - Newsletter subscriptions (via AgentMail)
 - MCP server for AI tool integration
 - Dashboard for content management
-- Deploy-ready for Netlify
+- Convex self-hosting (default) or Netlify deployment
+
+## Default Architecture
+
+- **Auth**: `@robelest/convex-auth` with GitHub OAuth
+- **Hosting**: Convex self-hosting via `@convex-dev/self-hosting`
+- **Media**: Direct Convex storage
+
+Legacy options (WorkOS auth, Netlify hosting, ConvexFS/R2 media) are available during setup.
 
 ## Requirements
 
@@ -53,8 +64,23 @@ A fully configured markdown-sync site with:
 
 ```bash
 cd my-site
-npm run dev      # Start dev server at localhost:5173
-npm run sync     # Sync content changes to Convex
+npx convex dev        # Start Convex (required first time)
+npm run sync          # Sync content (in another terminal)
+npm run dev           # Start dev server at localhost:5173
+npm run validate:env  # Check local setup
+npm run deploy        # Deploy to Convex self-hosting
+npm run verify:deploy # Verify deployed endpoints
+```
+
+## Optional Auth Setup
+
+Authentication is deferred by default. To enable dashboard auth:
+
+```bash
+npx convex env set AUTH_GITHUB_ID "<github-oauth-app-id>"
+npx convex env set AUTH_GITHUB_SECRET "<github-oauth-app-secret>"
+npx convex env set DASHBOARD_ADMIN_BOOTSTRAP_KEY "<random-key>"
+npx convex run authAdmin:bootstrapDashboardAdmin '{"bootstrapKey":"<key>","email":"you@example.com"}'
 ```
 
 ## Documentation

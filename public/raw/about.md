@@ -36,6 +36,11 @@ Sync command scripts are located in `scripts/` (sync-posts.ts, sync-discovery-fi
 - <span class="copy-command">npm run export:db</span> - Export dashboard posts/pages to content folders (development)
 - <span class="copy-command">npm run export:db:prod</span> - Export dashboard posts/pages (production)
 
+**Deployment (Convex self-hosted):**
+
+- <span class="copy-command">npm run deploy</span> - Build and upload static assets to Convex production
+- <span class="copy-command">npm run deploy:static</span> - Upload static assets only (use after `npx convex deploy`)
+
 **Version controlled.** Markdown source files live in your repo alongside code. Commit changes, review diffs, roll back like any codebase. The sync command pushes content to the database.
 
 ```bash

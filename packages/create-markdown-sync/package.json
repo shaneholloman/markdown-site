@@ -1,6 +1,6 @@
 {
   "name": "create-markdown-sync",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Create a markdown-sync site with a single command",
   "main": "dist/index.js",
   "bin": {

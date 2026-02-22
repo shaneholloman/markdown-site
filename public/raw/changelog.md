@@ -9,6 +9,42 @@ All notable changes to this project.
 
 ---
 
+## v2.21.1
+
+Released February 21, 2026
+
+**Stats performance optimizations**
+
+This release significantly improves stats page loading performance and reduces Convex database usage.
+
+**Performance improvements:**
+
+- Stats tracking now respects `statsPage.enabled` config. When disabled, no page views or heartbeats are recorded, eliminating all stats-related DB writes.
+- Removed the expensive full table scan fallback in `getStats` query. The query now trusts aggregate counts directly, improving from O(n) to O(log n) complexity.
+- Added `uniquePaths` aggregate component for efficient tracking of distinct pages viewed.
+- Paginated `pageStats` to return only the top 50 pages by views instead of all paths.
+
+**UI updates:**
+
+- Stats page now shows "Top Pages by Views" section title
+- Displays "(showing X of Y)" count indicator when more paths exist than displayed
+
+**Files changed:**
+
+- `src/hooks/usePageTracking.ts` (stats enabled check)
+- `convex/stats.ts` (removed table scan, added pagination, added uniquePaths)
+- `convex/convex.config.ts` (uniquePaths aggregate registration)
+- `src/pages/Stats.tsx` (updated section title and count display)
+- `src/styles/global.css` (stats-section-subtitle class)
+
+**After deploying**, run the backfill to populate the new aggregate:
+
+```bash
+npx convex run stats:backfillAggregates
+```
+
+---
+
 ## v2.21.0
 
 Released February 21, 2026

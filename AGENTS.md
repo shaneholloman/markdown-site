@@ -4,7 +4,7 @@ Instructions for AI coding agents working on this codebase.
 
 ## Project overview
 
-Your content is instantly available to browsers, LLMs, and AI agents.. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.
+Your content is instantly available to browsers, LLMs, and AI agents.. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.
 
 ## Default and legacy modes
 
@@ -27,8 +27,8 @@ Your content is instantly available to browsers, LLMs, and AI agents.. Write mar
 - **Site URL**: https://yoursite.example.com
 - **Total Posts**: 20
 - **Total Pages**: 4
-- **Latest Post**: 2026-01-11
-- **Last Updated**: 2026-01-11T22:27:49.674Z
+- **Latest Post**: 2026-02-21
+- **Last Updated**: 2026-02-22T07:07:07.309Z
 
 ## Tech stack
 

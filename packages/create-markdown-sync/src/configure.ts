@@ -27,18 +27,30 @@ function fixTemplateSiteConfig(projectDir: string): void {
   writeFileSync(siteConfigPath, content, 'utf-8');
 }
 
-// Create empty auth config when user doesn't need authentication
-// This prevents WorkOS env var errors from blocking Convex setup
-function disableAuthConfig(projectDir: string): void {
+// Configure auth based on selected mode
+// - convex-auth: Uses @robelest/convex-auth with GitHub OAuth (default)
+// - workos: Uses WorkOS AuthKit (legacy)
+// - none: No authentication
+function configureAuthMode(projectDir: string, authMode: string): void {
   const authConfigPath = join(projectDir, 'convex/auth.config.ts');
 
-  // Replace with empty auth config (no providers)
-  const emptyAuthConfig = `// Auth configuration (WorkOS disabled)
-// To enable WorkOS authentication, see: https://docs.convex.dev/auth/authkit/
+  if (authMode === 'workos') {
+    // WorkOS mode: auth.config.ts is already set up in template
+    // Just ensure it's ready for WorkOS env vars
+    return;
+  }
+
+  // For convex-auth and none modes, disable legacy auth.config.ts
+  // The main auth is handled by convex/auth.ts with @robelest/convex-auth
+  const emptyAuthConfig = `// Legacy auth configuration (WorkOS disabled)
+// This project uses @robelest/convex-auth for authentication.
+// See convex/auth.ts for the main auth configuration.
 //
+// To switch to WorkOS authentication:
 // 1. Create a WorkOS account at https://workos.com
 // 2. Set WORKOS_CLIENT_ID in your Convex dashboard environment variables
-// 3. Replace this file with the WorkOS auth config
+// 3. Update siteConfig.ts: auth.mode: "workos"
+// 4. Replace this file with the WorkOS auth config
 
 const authConfig = {
   providers: [],
@@ -278,11 +290,8 @@ export async function configureProject(
     // 1. Fix template siteConfig.ts to have clean values (fixes embedded quote issues)
     fixTemplateSiteConfig(projectDir);
 
-    // 2. Disable auth config if user doesn't need authentication
-    // This prevents WorkOS env var errors from blocking Convex setup
-    if (answers.authMode !== 'workos') {
-      disableAuthConfig(projectDir);
-    }
+    // 2. Configure auth based on selected mode
+    configureAuthMode(projectDir, answers.authMode);
 
     // 3. Build fork-config.json content
     const forkConfig = buildForkConfig(answers);

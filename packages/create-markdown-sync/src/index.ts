@@ -7,7 +7,7 @@ import { configureProject } from './configure.js';
 import { installDependencies, runInitialSync, startDevServer } from './install.js';
 import { setupConvex } from './convex-setup.js';
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 
 async function main(): Promise<void> {
   // Parse command line arguments

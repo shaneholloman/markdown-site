@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Updated `create-markdown-sync` CLI to v0.2.0:
+  - Properly handles `convex-auth` mode as default (no longer only disables for non-workos)
+  - Updated auth config comments to reference `@robelest/convex-auth` as primary auth system
+  - Updated README with new deployment commands and optional auth setup instructions
+  - Version bump to 0.2.0 to reflect v2.21.x architecture changes
+
 - Stats performance optimizations for faster loading and reduced Convex usage:
   - Stats tracking now respects `statsPage.enabled` config in `usePageTracking.ts` (no DB writes when disabled)
   - Removed expensive full table scan fallback in `getStats` query (O(n) to O(log n))
