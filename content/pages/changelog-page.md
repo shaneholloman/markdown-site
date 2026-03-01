@@ -13,6 +13,28 @@ All notable changes to this project.
 
 ---
 
+## v2.21.5
+
+Released February 27, 2026
+
+**TypeScript error fixes**
+
+Fixes TypeScript compilation errors for cleaner builds with zero errors.
+
+**Changes:**
+
+- Removed unused variables `pathsWithCounts` and `allPathsFromAggregate` in `convex/stats.ts`
+- Fixed `fetchpriority` to `fetchPriority` (React camelCase) in logo and header images
+
+**Files changed:**
+
+- `convex/stats.ts` (removed unused variables)
+- `src/components/Layout.tsx` (fetchPriority fix)
+- `src/pages/Home.tsx` (fetchPriority fix)
+- `src/pages/Post.tsx` (4 fetchPriority fixes)
+
+---
+
 ## v2.21.4
 
 Released February 22, 2026

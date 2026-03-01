@@ -136,6 +136,19 @@ npx convex dev
 
 This will create your Convex project and generate the `.env.local` file.
 
+If you are using WSL 2 and browser auth does not open, run:
+
+```bash
+npx convex login --no-open --login-flow paste
+npx convex dev --once
+```
+
+Then start normal watch mode:
+
+```bash
+npx convex dev
+```
+
 3. Start the development server:
 
 ```bash

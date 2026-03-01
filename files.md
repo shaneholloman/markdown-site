@@ -2,7 +2,37 @@
 
 A brief description of each file in the codebase.
 
-## Recent session updates (2026-02-22)
+## Recent session updates (2026-02-27)
+
+### WSL 2 Convex setup docs hardening (2026-02-27)
+
+- **Validated open issue #7 context**:
+  - Confirmed WSL 2 setup failure path was still possible in manual onboarding docs
+  - Applied docs-only fix so standard non-WSL flow stays unchanged
+
+- **Added WSL 2 fallback flow** in `content/blog/setup-guide.md`:
+  - Added manual login command: `npx convex login --no-open --login-flow paste`
+  - Added first-run setup command: `npx convex dev --once`
+  - Clarified that standard `npx convex dev` can be run after successful initialization
+
+- **Added WSL 2 fallback in `README.md` setup**:
+  - Added equivalent fallback commands for browser auth issues in WSL 2
+  - Keeps existing standard setup flow unchanged for macOS and Linux users with normal browser integration
+
+### TypeScript error fixes (2026-02-27)
+
+- **Removed unused variables** in `convex/stats.ts`:
+  - Removed unused `pathsWithCounts` array declaration
+  - Removed unused `allPathsFromAggregate` variable from `uniquePaths.sum()` call
+  - Cleaned up dead code that was never executed
+
+- **Fixed HTML attribute casing** in multiple React components:
+  - Changed `fetchpriority` to `fetchPriority` (React uses camelCase for DOM attributes)
+  - Fixed in `src/components/Layout.tsx` (logo image)
+  - Fixed in `src/pages/Home.tsx` (logo image)
+  - Fixed in `src/pages/Post.tsx` (4 header images for posts and pages)
+
+## Previous session updates (2026-02-22)
 
 ### Button border radius consistency fix (2026-02-22)
 

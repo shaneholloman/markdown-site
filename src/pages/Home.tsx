@@ -450,7 +450,7 @@ export default function Home() {
             className="home-logo"
             width={48}
             height={48}
-            fetchpriority="high"
+            fetchPriority="high"
           />
         )}
         <h1 className="home-name">{siteConfig.name}</h1>

@@ -1,6 +1,6 @@
 ---
 title: "Setup Guide"
-description: "Step-by-step guide to fork this markdown sync framework, set up Convex backend, and deploy to Netlify in under 10 minutes."
+description: "Step-by-step guide to fork this markdown sync framework, set up Convex backend, and deploy in under 10 minutes."
 date: "2025-12-14"
 slug: "setup-guide"
 published: true
@@ -22,7 +22,9 @@ docsLanding: true
 
 # Fork and Deploy Your Own Markdown Framework
 
-This guide walks you through forking [this markdown framework](https://github.com/waynesutton/markdown-site), setting up your Convex backend, and deploying to Netlify. The entire process takes about 10 minutes.
+This guide walks you through forking [this markdown framework](https://github.com/waynesutton/markdown-site), setting up your Convex backend, and deploying with Convex self-hosting. The entire process takes about 10 minutes.
+
+**Default stack:** Convex self-hosting (static assets served from Convex CDN) with `@robelest/convex-auth` for authentication. Netlify deployment is available as a legacy option.
 
 **How publishing works:** Once deployed, you write posts in markdown, run `npm run sync` for development or `npm run sync:prod` for production, and they appear on your live site immediately. No rebuild or redeploy needed. Convex handles real-time data sync, so all connected browsers update automatically.
 
@@ -38,12 +40,10 @@ This guide walks you through forking [this markdown framework](https://github.co
   - [Step 3: Sync Your Blog Posts](#step-3-sync-your-blog-posts)
   - [Step 4: Run Locally](#step-4-run-locally)
   - [Step 5: Get Your Convex HTTP URL](#step-5-get-your-convex-http-url)
-  - [Step 6: Verify Edge Functions](#step-6-verify-edge-functions)
-  - [Step 7: Deploy to Netlify](#step-7-deploy-to-netlify)
-    - [Option A: Netlify CLI](#option-a-netlify-cli)
-    - [Option B: Netlify Dashboard](#option-b-netlify-dashboard)
-    - [Netlify Build Configuration](#netlify-build-configuration)
-  - [Step 8: Set Up Production Convex](#step-8-set-up-production-convex)
+  - [Step 6: Deploy with Convex Self-Hosting](#step-6-deploy-with-convex-self-hosting)
+  - [Step 7: Set Up Authentication (Optional)](#step-7-set-up-authentication-optional)
+  - [Step 8: Deploy Convex Functions](#step-8-deploy-convex-functions)
+  - [Legacy: Netlify Deployment](#legacy-netlify-deployment)
   - [Writing Blog Posts](#writing-blog-posts)
     - [Frontmatter Fields](#frontmatter-fields)
     - [How Frontmatter Works](#how-frontmatter-works)
@@ -108,7 +108,7 @@ Before you start, make sure you have:
 - Node.js 18 or higher installed
 - A GitHub account
 - A Convex account (free at [convex.dev](https://convex.dev))
-- A Netlify account (free at [netlify.com](https://netlify.com))
+- A Netlify account (optional, only needed for legacy hosting mode)
 
 ## Step 1: Fork the Repository
 
@@ -142,6 +142,23 @@ This will
 3. Generate a `.env.local` file with your `VITE_CONVEX_URL`
 
 Keep this terminal running during development. It syncs your Convex functions automatically.
+
+### WSL 2 setup note
+
+If you are using WSL 2 and Convex login fails to open a browser, use the manual login flow:
+
+```bash
+npx convex login --no-open --login-flow paste
+npx convex dev --once
+```
+
+After setup succeeds, you can start watch mode normally:
+
+```bash
+npx convex dev
+```
+
+`--once` completes project initialization and generates `.env.local` without requiring a long running watch session.
 
 ### Verify the Schema
 
@@ -250,22 +267,74 @@ The HTTP URL uses `.convex.site` instead of `.convex.cloud`:
 https://happy-animal-123.convex.site
 ```
 
-## Step 6: Verify Edge Functions
+## Step 6: Deploy with Convex Self-Hosting
 
-The blog uses Netlify Edge Functions to dynamically proxy RSS, sitemap, and API requests to your Convex HTTP endpoints. No manual URL configuration is needed.
+This app uses **Convex self-hosting** as the default deployment mode. The static React/Vite build is uploaded to Convex storage and served directly from the Convex CDN. No external hosting provider needed.
 
-Edge functions in `netlify/edge-functions/`:
+### First-Time Setup
 
-- `rss.ts` - Proxies `/rss.xml` and `/rss-full.xml`
-- `sitemap.ts` - Proxies `/sitemap.xml`
-- `api.ts` - Proxies `/api/posts` and `/api/post`
-- `botMeta.ts` - Serves Open Graph HTML to social media crawlers
+```bash
+# Set up self-hosting (one-time)
+npx @convex-dev/self-hosting setup
 
-These functions automatically read `VITE_CONVEX_URL` from your environment and convert it to the Convex HTTP site URL (`.cloud` becomes `.site`).
+# Push backend state
+npx convex dev --once
 
-## Step 7: Deploy to Netlify
+# Build and deploy
+npm run deploy
+```
 
-For detailed Convex + Netlify integration, see the official [Convex Netlify Deployment Guide](https://docs.convex.dev/production/hosting/netlify).
+### Ongoing Deploys
+
+After the initial setup, deploy with a single command:
+
+```bash
+npm run deploy
+```
+
+The `deploy` script runs `npx @convex-dev/self-hosting deploy` which builds the app and uploads static assets to Convex in one step.
+
+### Custom Domain
+
+Set your custom domain in the Convex dashboard under Project Settings > Domains. Point your DNS (Cloudflare or registrar) to the records Convex provides. Set `SITE_URL` in your Convex environment variables to match.
+
+### Environment Variables (Convex Dashboard)
+
+| Variable | Description |
+| -------- | ----------- |
+| `SITE_URL` | Your production URL (e.g., `https://yourdomain.com`) |
+| `CONVEX_SITE_URL` | Auto-set by Convex (your `.convex.site` URL) |
+
+## Step 7: Set Up Authentication (Optional)
+
+Authentication uses `@robelest/convex-auth` with GitHub OAuth by default. The auth provider, sessions, and admin access are all handled inside Convex with no external auth service required.
+
+### GitHub OAuth Setup
+
+1. Go to GitHub > Settings > Developer settings > OAuth Apps
+2. Create a new OAuth App with these settings:
+   - **Homepage URL**: Your site URL (e.g., `https://your-deployment.convex.site`)
+   - **Authorization callback URL**: `https://<your-deployment>.convex.site/api/auth/callback/github`
+3. Copy your Client ID and Client Secret
+4. Add to Convex environment variables:
+   - `AUTH_GITHUB_ID`: Your GitHub OAuth Client ID
+   - `AUTH_GITHUB_SECRET`: Your GitHub OAuth Client Secret
+
+See [Dashboard](#dashboard) below for admin setup instructions.
+
+## Step 8: Deploy Convex Functions
+
+To deploy only the Convex backend functions (without rebuilding static assets):
+
+```bash
+npx convex deploy
+```
+
+---
+
+## Legacy: Netlify Deployment
+
+> Netlify deployment is the legacy hosting mode. It is still fully supported for forks that prefer Netlify or have existing Netlify setups. Set `hosting.mode: "netlify"` in `siteConfig.ts` to use this path.
 
 ### Option A: Netlify CLI
 
@@ -280,13 +349,13 @@ netlify login
 netlify init
 
 # Deploy
-npm run deploy
+netlify deploy --prod
 ```
 
 ### Option B: Netlify Dashboard
 
 1. Go to [app.netlify.com](https://app.netlify.com)
-2. Click "Add new site" then "wImport an existing project"
+2. Click "Add new site" then "Import an existing project"
 3. Connect your GitHub repository
 4. Configure build settings:
    - Build command: `npm ci --include=dev && npx convex deploy --cmd 'npm run build'`
@@ -296,7 +365,16 @@ npm run deploy
    - `VITE_CONVEX_URL`: Your production Convex URL (e.g., `https://your-deployment.convex.cloud`)
 6. Click "Deploy site"
 
-The `CONVEX_DEPLOY_KEY` deploys functions at build time. The `VITE_CONVEX_URL` is required for edge functions to proxy RSS, sitemap, and API requests at runtime.
+### Netlify Edge Functions
+
+In Netlify mode, edge functions in `netlify/edge-functions/` handle RSS, sitemap, and API proxying:
+
+- `rss.ts` - Proxies `/rss.xml` and `/rss-full.xml`
+- `sitemap.ts` - Proxies `/sitemap.xml`
+- `api.ts` - Proxies `/api/posts` and `/api/post`
+- `botMeta.ts` - Serves Open Graph HTML to social media crawlers
+
+These functions automatically read `VITE_CONVEX_URL` from your environment.
 
 ### Netlify Build Configuration
 
@@ -310,22 +388,6 @@ The `netlify.toml` file includes the correct build settings:
 [build.environment]
   NODE_VERSION = "20"
 ```
-
-Key points:
-
-- `npm ci --include=dev` forces devDependencies to install even when `NODE_ENV=production`
-- The build script uses `npx vite build` to resolve vite from node_modules
-- `@types/node` is required for TypeScript to recognize `process.env`
-
-## Step 8: Set Up Production Convex
-
-For production, deploy your Convex functions:
-
-```bash
-npx convex deploy
-```
-
-This creates a production deployment. Update your Netlify environment variable with the production URL if different.
 
 ## Writing Blog Posts
 
@@ -1493,14 +1555,24 @@ Imported posts are created as drafts (`published: false`). Review, edit, set `pu
 4. Use `npm run sync:all` or `npm run sync:all:prod` to sync content and update discovery files together
 5. Verify posts exist in Convex dashboard
 
-### RSS/Sitemap not working
+### RSS/Sitemap not working (Convex self-hosting)
+
+1. Test the Convex HTTP URL directly: `https://your-deployment.convex.site/rss.xml`
+2. Verify `SITE_URL` is set in Convex environment variables
+3. Check that Convex HTTP endpoints are deployed (`npx convex deploy`)
+
+### RSS/Sitemap not working (Netlify legacy)
 
 1. Verify `VITE_CONVEX_URL` is set in Netlify environment variables
-2. Check that Convex HTTP endpoints are deployed (`npx convex deploy`)
-3. Test the Convex HTTP URL directly: `https://your-deployment.convex.site/rss.xml`
-4. Verify edge functions exist in `netlify/edge-functions/`
+2. Check edge functions in `netlify/edge-functions/`
 
-### Build failures on Netlify
+### Static deploy issues (Convex self-hosting)
+
+1. Run `npx convex dev --once` to push backend state if HTTP actions are disabled
+2. Run `npm run deploy` again if assets appear stale (clear browser cache too)
+3. Verify `npx @convex-dev/self-hosting setup` was run at least once
+
+### Build failures on Netlify (legacy mode)
 
 Common errors and fixes:
 
@@ -1700,16 +1772,26 @@ The Dashboard at `/dashboard` provides a centralized UI for managing content, co
 
 **Access:** Navigate to `/dashboard` in your browser. The dashboard is not linked in the navigation by default.
 
-**Authentication:** WorkOS authentication is optional. Configure it in `siteConfig.ts`:
+**Authentication:** Dashboard authentication uses `@robelest/convex-auth` by default. Configure it in `siteConfig.ts`:
 
 ```typescript
 dashboard: {
   enabled: true,
-  requireAuth: false, // Set to true to require WorkOS authentication
+  requireAuth: false, // Set to true to require authentication
 },
 ```
 
-When `requireAuth` is `false`, the dashboard is open access. When `requireAuth` is `true` and WorkOS is configured, users must log in to access the dashboard. See [How to setup WorkOS](https://www.markdown.fast/how-to-setup-workos) for authentication setup.
+When `requireAuth` is `false`, the dashboard is open access. When `requireAuth` is `true`, users must log in via GitHub OAuth to access the dashboard.
+
+**Admin setup:** After signing in with GitHub, grant yourself admin access using the Convex CLI:
+
+```bash
+npx convex run authAdmin:grantDashboardAdmin '{"email": "your-email@example.com"}'
+```
+
+Use the email associated with your GitHub account. Only dashboard admins can access the dashboard when `requireAuth: true`.
+
+**Legacy WorkOS auth:** If you prefer WorkOS, set `auth.mode: "workos"` in `siteConfig.ts` and configure `WORKOS_CLIENT_ID` in Convex environment variables. See [How to setup WorkOS](https://www.markdown.fast/how-to-setup-workos) for details.
 
 **Key Features:**
 

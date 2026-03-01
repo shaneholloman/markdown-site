@@ -4,6 +4,18 @@
 
 ## Current Status
 
+Session updates complete on 2026-02-27.
+
+- **WSL 2 Convex setup docs hardening** (2026-02-27)
+  - Verified GitHub issue #7 (WSL 2 Convex setup failure) remains relevant for manual setup docs
+  - Added WSL 2 fallback login flow to docs: `npx convex login --no-open --login-flow paste`
+  - Added first-run initialization fallback: `npx convex dev --once`
+
+- **TypeScript error fixes** (2026-02-27)
+  - Removed unused variables `pathsWithCounts` and `allPathsFromAggregate` in `convex/stats.ts`
+  - Fixed `fetchpriority` to `fetchPriority` (React camelCase) in `Layout.tsx`, `Home.tsx`, and `Post.tsx` (6 instances total)
+  - `npx tsc --noEmit` now passes with zero errors
+
 Session updates complete on 2026-02-22.
 
 - **Button border radius consistency fix** (2026-02-22)
@@ -65,6 +77,17 @@ Session updates complete on 2026-02-16.
 - Ask AI modal and docs navigation smoke-tested locally.
 
 ## Completed
+
+- [x] WSL 2 Convex setup docs hardening (2026-02-27)
+  - [x] Added WSL 2 fallback login flow in `content/blog/setup-guide.md` using `npx convex login --no-open --login-flow paste`
+  - [x] Added README fallback setup commands using `npx convex dev --once` for first-time initialization
+
+- [x] TypeScript error fixes (2026-02-27)
+  - [x] Removed unused `pathsWithCounts` and `allPathsFromAggregate` variables in `convex/stats.ts`
+  - [x] Fixed `fetchpriority` to `fetchPriority` in `src/components/Layout.tsx`
+  - [x] Fixed `fetchpriority` to `fetchPriority` in `src/pages/Home.tsx`
+  - [x] Fixed `fetchpriority` to `fetchPriority` in `src/pages/Post.tsx` (4 instances)
+  - [x] Verified `npx tsc --noEmit` passes with zero errors
 
 - [x] Media Library and router fixes (2026-02-22)
   - [x] Added `RecentUpload` tracking with preview and MD/HTML/URL copy buttons for convex/r2 providers

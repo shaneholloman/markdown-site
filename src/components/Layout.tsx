@@ -213,7 +213,7 @@ export default function Layout({ children }: LayoutProps) {
               width={siteConfig.innerPageLogo.size}
               height={siteConfig.innerPageLogo.size}
               style={{ height: siteConfig.innerPageLogo.size, width: "auto" }}
-              fetchpriority="high"
+              fetchPriority="high"
             />
           </Link>
         )}

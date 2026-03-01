@@ -70,7 +70,7 @@ agents. -->
   - Date: 2025-12-14 | Reading time: 5 min read | Tags: markdown, tutorial, code
 - **[How we fixed AI crawlers blocked by Netlify edge functions](/raw/netlify-edge-excludedpath-ai-crawlers.md)** - ChatGPT and Perplexity couldn't fetch /raw/*.md files on Netlify. The fix: Content-Type headers. Here's what we tried and what actually worked.
   - Date: 2025-12-14 | Reading time: 5 min read | Tags: netlify, edge-functions, ai, troubleshooting
-- **[Setup Guide](/raw/setup-guide.md)** - Step-by-step guide to fork this markdown sync framework, set up Convex backend, and deploy to Netlify in under 10 minutes.
+- **[Setup Guide](/raw/setup-guide.md)** - Step-by-step guide to fork this markdown sync framework, set up Convex backend, and deploy in under 10 minutes.
   - Date: 2025-12-14 | Reading time: 8 min read | Tags: convex, netlify, tutorial, deployment
 - **[Using Images in Blog Posts](/raw/using-images-in-posts.md)** - Learn how to add header images, inline images, and Open Graph images to your markdown posts.
   - Date: 2025-12-14 | Reading time: 4 min read | Tags: images, tutorial, markdown, open-graph

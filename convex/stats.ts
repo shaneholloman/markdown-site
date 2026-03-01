@@ -293,18 +293,6 @@ export const getStats = query({
       pagesBySlug[page.slug] = { title: page.title };
     }
 
-    // Get unique paths from aggregate (iterate to get all paths)
-    // This is O(n) but avoids the full pageViews table scan
-    const pathsWithCounts: Array<{ path: string; views: number }> = [];
-    
-    // Use aggregate to iterate through unique paths
-    // Each namespace in pageViewsByPath represents a unique path
-    // We need to get all paths first, then count views for each
-    const allPathsFromAggregate = await uniquePaths.sum(ctx, {
-      // Get all paths by iterating the aggregate
-      // The aggregate stores one entry per unique path
-    });
-    
     // Since we can't iterate the aggregate directly, we need to get paths differently
     // Use a limited scan of recent page views to find active paths
     // Then use aggregates for accurate counts

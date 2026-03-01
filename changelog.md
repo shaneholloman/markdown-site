@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Improved WSL 2 setup resilience for Convex onboarding:
+  - Verified open issue #7 behavior against current setup docs and kept normal flow unchanged
+  - Added WSL 2 manual login fallback (`npx convex login --no-open --login-flow paste`) in `content/blog/setup-guide.md`
+  - Added WSL 2 fallback setup commands in `README.md` with `npx convex dev --once` for first-time initialization
+
+- Fixed TypeScript errors for cleaner builds:
+  - Removed unused variables `pathsWithCounts` and `allPathsFromAggregate` in `convex/stats.ts`
+  - Fixed `fetchpriority` to `fetchPriority` (React camelCase) in `Layout.tsx`, `Home.tsx`, and `Post.tsx`
+
 - Fixed button border-radius inconsistency across Write page and Dashboard:
   - Added missing CSS variables `--border-radius-sm: 4px`, `--border-radius-md: 6px`, `--border-radius-lg: 8px` to `:root`
   - Dashboard mode toggles (Markdown/Rich Text/Preview) and action buttons now have consistent 6px border radius
