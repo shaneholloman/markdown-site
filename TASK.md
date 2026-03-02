@@ -4,6 +4,12 @@
 
 ## Current Status
 
+Session updates complete on 2026-03-01.
+
+- **Rybbit analytics integration** (2026-03-01)
+  - Added Rybbit analytics script to `index.html`
+  - Script loads with `defer` attribute for non-blocking page load
+
 Session updates complete on 2026-02-27.
 
 - **WSL 2 Convex setup docs hardening** (2026-02-27)
@@ -77,6 +83,10 @@ Session updates complete on 2026-02-16.
 - Ask AI modal and docs navigation smoke-tested locally.
 
 ## Completed
+
+- [x] Rybbit analytics integration (2026-03-01)
+  - [x] Added Rybbit analytics script to `index.html` with site ID `24731ca420a4`
+  - [x] Script loads with `defer` for non-blocking page rendering
 
 - [x] WSL 2 Convex setup docs hardening (2026-02-27)
   - [x] Added WSL 2 fallback login flow in `content/blog/setup-guide.md` using `npx convex login --no-open --login-flow paste`

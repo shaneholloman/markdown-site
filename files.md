@@ -2,7 +2,16 @@
 
 A brief description of each file in the codebase.
 
-## Recent session updates (2026-02-27)
+## Recent session updates (2026-03-01)
+
+### Rybbit analytics integration (2026-03-01)
+
+- **Added Rybbit analytics script** in `index.html`:
+  - Added `<script src="https://app.rybbit.io/api/script.js" data-site-id="24731ca420a4" defer>` before closing `</body>` tag
+  - Script loads with `defer` attribute to avoid blocking page rendering
+  - Enables Rybbit analytics tracking for the site
+
+## Previous session updates (2026-02-27)
 
 ### WSL 2 Convex setup docs hardening (2026-02-27)
 
@@ -207,7 +216,7 @@ A brief description of each file in the codebase.
 | `package.json`             | Dependencies and scripts for the blog                 |
 | `tsconfig.json`            | TypeScript configuration                              |
 | `vite.config.ts`           | Vite bundler configuration                            |
-| `index.html`               | Main HTML entry with SEO meta tags, JSON-LD, critical CSS inline, and resource hints |
+| `index.html`               | Main HTML entry with SEO meta tags, JSON-LD, critical CSS inline, resource hints, and Rybbit analytics |
 | `netlify.toml`             | Netlify deployment and Convex HTTP redirects          |
 | `README.md`                | Project documentation (streamlined with links to docs)|
 | `AGENTS.md`                | AI coding agent instructions (agents.md spec)         |

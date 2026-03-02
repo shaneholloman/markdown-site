@@ -13,6 +13,25 @@ All notable changes to this project.
 
 ---
 
+## v2.21.6
+
+Released March 1, 2026
+
+**Rybbit analytics integration**
+
+Adds Rybbit analytics for site tracking.
+
+**Changes:**
+
+- Added Rybbit analytics script to `index.html` with site ID `24731ca420a4`
+- Script loads with `defer` attribute to avoid blocking page rendering
+
+**Files changed:**
+
+- `index.html` (added Rybbit analytics script)
+
+---
+
 ## v2.21.5
 
 Released February 27, 2026

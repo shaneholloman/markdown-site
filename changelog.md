@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Rybbit analytics integration:
+  - Added Rybbit analytics script to `index.html` with site ID `24731ca420a4`
+  - Script loads with `defer` attribute to avoid blocking page rendering
+
 ### Fixed
 
 - Improved WSL 2 setup resilience for Convex onboarding:
