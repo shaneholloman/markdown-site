@@ -6,6 +6,14 @@
 
 ## Completed
 
+### Agent-ready mobile widget update (2026-04-26)
+
+- [x] Created PRD at `prds/agent-ready-mobile-widget.md`
+- [x] Updated `src/App.tsx` so `AgentReadyWidget` opts into mobile collapse behavior with a 480px breakpoint and collapsed initial mobile state
+- [x] Verified `@waynesutton/agent-ready@0.2.0` is the latest published npm version and the app already depends on `^0.2.0`
+- [x] Verified `npm run typecheck` passes
+- [x] Updated `changelog.md` and `files.md`
+
 ### Reduce Convex subscription noise in production (2026-04-26)
 
 - [x] Investigated auth:signIn/auth:store cycling in production logs. Confirmed this is normal @robelest/convex-auth token refresh behavior, not a bug. Multiple pairs indicate concurrent visitors or tabs.

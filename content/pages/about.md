@@ -38,6 +38,16 @@ Sync command scripts are located in `scripts/` (sync-posts.ts, sync-discovery-fi
 
 - <span class="copy-command">npm run sync:wiki -- --kb=&lt;id&gt;</span> - Sync wiki into a specific knowledge base
 
+**Agent ready ([`@waynesutton/agent-ready`](https://github.com/waynesutton/agent-ready-component) is installed):**
+
+- <span class="copy-command">npx agent-ready sync</span> - Sync agent-ready config to dev deployment
+- <span class="copy-command">npx agent-ready sync --prod</span> - Sync agent-ready config to production
+- <span class="copy-command">npx agent-ready regenerate</span> - Rebuild llms.txt, agents.md, llms-full.txt (dev)
+- <span class="copy-command">npx agent-ready regenerate --prod</span> - Rebuild discovery files (production)
+- <span class="copy-command">npx agent-ready status</span> - Check cache status and test mode (dev)
+- <span class="copy-command">npx agent-ready status --prod</span> - Check production status
+- <span class="copy-command">npx agent-ready go-live --prod</span> - Disable test mode and serve files publicly
+
 **Export dashboard content:**
 
 - <span class="copy-command">npm run export:db</span> - Export dashboard posts/pages to content folders (development)

@@ -36,9 +36,9 @@ Your content is instantly available to browsers, LLMs, and AI agents.. Write mar
 - **Site URL**: https://www.markdown.fast
 - **Total Posts**: 24
 - **Total Pages**: 4
-- **Wiki Pages**: 43
+- **Wiki Pages**: 44
 - **Latest Post**: 2026-04-14
-- **Last Updated**: 2026-04-27T01:37:37.292Z
+- **Last Updated**: 2026-04-27T05:31:00.362Z
 
 ## Tech stack
 
@@ -472,7 +472,7 @@ Knowledge bases with API enabled also have public endpoints at `/api/kb`, `/api/
 
 ## Wiki knowledge base
 
-43 compiled wiki pages. Access via VFS:
+44 compiled wiki pages. Access via VFS:
 
 ```bash
 curl -X POST https://www.markdown.fast/vfs/exec -H "Content-Type: application/json" -d '{"command": "ls /wiki"}'
@@ -556,6 +556,9 @@ curl -X POST https://www.markdown.fast/vfs/exec -H "Content-Type: application/js
 
 **Opencode:**
 - OpenCode Integration (`/wiki/wiki-docs-opencode`)
+
+**concept:**
+- AgentMail Integration with Markdown Sync (`/wiki/wiki-agentmail-integration`)
 
 ## Content import
 

@@ -4,6 +4,11 @@ A brief description of each file in the codebase.
 
 ## Recent session updates (2026-04-26)
 
+### Agent-ready mobile widget update (2026-04-26)
+
+- **Modified** `src/App.tsx`: `AgentReadyWidget` now opts into the `@waynesutton/agent-ready@0.2.0` mobile collapse feature with `mobileCollapse`, `mobileBreakpoint={480}`, and `defaultMobileCollapsed`, keeping desktop behavior unchanged.
+- **New file** `prds/agent-ready-mobile-widget.md`: PRD documenting the package mobile feature, host app wiring, edge cases, and verification steps.
+
 ### Reduce Convex subscription noise in production (2026-04-26)
 
 - **Modified** `src/components/FeaturedCards.tsx`: Accepts optional `featuredPosts`/`featuredPages` props from parent to avoid duplicate subscriptions. Skips `getAllPosts`/`getAllPages` queries when in frontmatter mode (the default). Moved `useItemsMode` calculation above hook calls so skip logic works correctly.

@@ -148,6 +148,9 @@ function App() {
             appUrl={appUrl}
             position="floating-bottom-right"
             theme="dark"
+            mobileCollapse={true}
+            mobileBreakpoint={480}
+            defaultMobileCollapsed={true}
           />
         </>
       )}

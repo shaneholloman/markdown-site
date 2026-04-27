@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Agent-ready widget now opts into the `@waynesutton/agent-ready@0.2.0` mobile collapse behavior with a 480px breakpoint and collapsed initial state on phones
 - FeaturedCards accepts optional `featuredPosts`/`featuredPages` props to avoid duplicate Convex subscriptions when parent already has the data
 - FeaturedCards skips `getAllPosts`/`getAllPages` queries in frontmatter mode (the default) since those queries are only needed for legacy items mode
 - Layout skips `getDocsPages`/`getDocsPosts` subscriptions when `siteConfig.docsSection.enabled` is false
@@ -17,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Created `prds/agent-ready-mobile-widget.md` documenting the host app update for the new agent-ready mobile widget props
 - Installed `@waynesutton/agent-ready@0.1.7` Convex component with peer deps `@convex-dev/crons` and `@convex-dev/workpool` for auto-generated llms.txt, agents.md, and llms-full.txt
 - Registered `agentReady`, `crons`, and `workpool` components in `convex/convex.config.ts`
 - Mounted agent-ready HTTP routes in `convex/http.ts` with `skipRoutes: ["/sitemap.xml"]` to avoid conflict with existing dynamic sitemap
