@@ -6,6 +6,9 @@ import selfHosting from "@convex-dev/self-hosting/convex.config";
 import r2 from "@convex-dev/r2/convex.config";
 import fs from "convex-fs/convex.config.js";
 import rateLimiter from "@convex-dev/rate-limiter/convex.config.js";
+import agentReady from "@waynesutton/agent-ready/convex.config.js";
+import crons from "@convex-dev/crons/convex.config.js";
+import workpool from "@convex-dev/workpool/convex.config.js";
 
 const app = defineApp();
 
@@ -38,6 +41,15 @@ app.use(fs);
 
 // Rate limiter component for application-level rate limiting
 app.use(rateLimiter);
+
+// Dynamic cron scheduling (peer dep for agent-ready)
+app.use(crons);
+
+// Workpool for durable background jobs (peer dep for agent-ready)
+app.use(workpool);
+
+// Agent-ready component for llms.txt, agents.md, and llms-full.txt
+app.use(agentReady);
 
 export default app;
 

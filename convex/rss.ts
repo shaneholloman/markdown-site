@@ -6,7 +6,7 @@ import type { DataModel } from "./_generated/dataModel";
 const SITE_URL = process.env.SITE_URL || "https://www.markdown.fast";
 const SITE_TITLE = "markdown sync framework";
 const SITE_DESCRIPTION =
-  "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.";
+  "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.";
 
 // Escape XML special characters
 function escapeXml(text: string): string {

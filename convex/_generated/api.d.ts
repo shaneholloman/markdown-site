@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as agentReady_analytics from "../agentReady/analytics.js";
+import type * as agentReady_content from "../agentReady/content.js";
 import type * as aiChatActions from "../aiChatActions.js";
 import type * as aiChats from "../aiChats.js";
 import type * as aiImageGeneration from "../aiImageGeneration.js";
@@ -62,6 +64,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "agentReady/analytics": typeof agentReady_analytics;
+  "agentReady/content": typeof agentReady_content;
   aiChatActions: typeof aiChatActions;
   aiChats: typeof aiChats;
   aiImageGeneration: typeof aiImageGeneration;
@@ -147,4 +151,7 @@ export declare const components: {
   r2: import("@convex-dev/r2/_generated/component.js").ComponentApi<"r2">;
   fs: import("convex-fs/_generated/component.js").ComponentApi<"fs">;
   rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+  crons: import("@convex-dev/crons/_generated/component.js").ComponentApi<"crons">;
+  workpool: import("@convex-dev/workpool/_generated/component.js").ComponentApi<"workpool">;
+  agentReady: import("@waynesutton/agent-ready/_generated/component.js").ComponentApi<"agentReady">;
 };

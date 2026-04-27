@@ -5,6 +5,7 @@ import ScrollToTopOnNav from "./components/ScrollToTopOnNav";
 import { usePageTracking } from "./hooks/usePageTracking";
 import { SidebarProvider } from "./context/SidebarContext";
 import siteConfig from "./config/siteConfig";
+import { AgentReadyWidget, UpdateBanner } from "@waynesutton/agent-ready/react";
 
 // Lazy load page components for better LCP and code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -71,6 +72,8 @@ function App() {
   const useCustomHomepage =
     siteConfig.homepage.type !== "default" && siteConfig.homepage.slug;
 
+  const appUrl = import.meta.env.VITE_CONVEX_SITE_URL as string;
+
   return (
     <SidebarProvider>
       <ScrollToTopOnNav />
@@ -131,6 +134,16 @@ function App() {
           </Routes>
         </Suspense>
       </Layout>
+      {appUrl && (
+        <>
+          <UpdateBanner appUrl={appUrl} />
+          <AgentReadyWidget
+            appUrl={appUrl}
+            position="floating-bottom-right"
+            theme="dark"
+          />
+        </>
+      )}
     </SidebarProvider>
   );
 }

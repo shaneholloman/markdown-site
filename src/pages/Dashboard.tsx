@@ -11,7 +11,7 @@ import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import TurndownService from "turndown";
-import Showdown from "showdown";
+import { Marked } from "marked";
 import {
   ArrowLeft,
   Article,
@@ -3477,13 +3477,9 @@ function WriteSection({
     return service;
   }, []);
 
-  const showdownConverter = useMemo(() => {
-    const converter = new Showdown.Converter({
-      tables: true,
-      strikethrough: true,
-      tasklists: true,
-    });
-    return converter;
+  const markedInstance = useMemo(() => {
+    const instance = new Marked({ gfm: true, breaks: false });
+    return instance;
   }, []);
 
   // Convert between modes - extract body content for rich text editing
@@ -3508,7 +3504,7 @@ function WriteSection({
       if (newMode === "richtext" && editorMode === "markdown") {
         // Converting from markdown to rich text
         const bodyContent = getBodyContent(content);
-        const html = showdownConverter.makeHtml(bodyContent);
+        const html = markedInstance.parse(bodyContent) as string;
         setRichTextHtml(html);
       } else if (newMode === "markdown" && editorMode === "richtext") {
         // Converting from rich text back to markdown
@@ -3519,7 +3515,7 @@ function WriteSection({
 
       setEditorMode(newMode);
     },
-    [editorMode, content, richTextHtml, getBodyContent, getFrontmatter, showdownConverter, turndownService]
+    [editorMode, content, richTextHtml, getBodyContent, getFrontmatter, markedInstance, turndownService]
   );
 
   // Run a rich text command on the contenteditable editor

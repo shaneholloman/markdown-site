@@ -12,13 +12,13 @@ export const {
   listMetadata,
   deleteObject,
 } = r2.clientApi<DataModel>({
-  checkUpload: async (ctx) => {
+  checkUpload: async (ctx, _bucket) => {
     await requireDashboardAdmin(ctx);
   },
-  checkReadBucket: async (ctx) => {
+  checkReadBucket: async (ctx, _bucket) => {
     await requireDashboardAdmin(ctx);
   },
-  checkDelete: async (ctx) => {
+  checkDelete: async (ctx, _bucket, _key) => {
     await requireDashboardAdmin(ctx);
   },
 });

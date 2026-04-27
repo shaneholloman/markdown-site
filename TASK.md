@@ -6,6 +6,40 @@
 
 ## Completed
 
+### Setup and fork install audit (2026-04-26)
+
+- [x] Wrote PRD at `prds/setup-fork-install-audit.md`
+- [x] Updated `scripts/configure-fork.ts` to support all fork-config.json fields: `statsPage`, `imageLightbox`, `semanticSearch`, `dashboard`, `mcpServer`, `newsletter`, `contactForm`, `newsletterAdmin`, `aiChat`, `askAI`, `rightSidebar`, `footer`, `visitorMap`, `twitter`, `newsletterNotifications`, `weeklyDigest`, `aiDashboard`
+- [x] Added canonical URL and hreflang link updates to configure script's `updateIndexHtml()`
+- [x] Changed configure script "Next steps" from "Deploy to Netlify" to "Deploy when ready: npm run deploy"
+- [x] Updated generated llms.txt template from "Hosting: Netlify with edge functions" to "Hosting: Convex self-hosted (default) or Netlify (legacy)"
+- [x] Updated `sync-discovery-files.ts` project overview and llms.txt description from "Built on Convex and Netlify" to "Built on Convex"
+- [x] Updated all site description strings in `index.html` (4 meta tags), `convex/http.ts` (2 API responses), and `convex/rss.ts` (1 feed description) from "Built on Convex and Netlify" to "Built on Convex"
+- [x] Moved `vite` from runtime deps to devDeps in `packages/create-markdown-sync/package.json` (CLI never imports vite)
+- [x] Bumped `@types/node` to `^22.0.0` in CLI package
+- [x] Verified FORK_CONFIG.md, README.md, and fork-config.json.example are already current
+- [x] Verified configure script compiles and runs (exits with expected "fork-config.json not found" when no local config exists)
+
+### Agent-ready component integration (2026-04-26)
+
+- [x] Installed `@waynesutton/agent-ready@0.1.7` with peer deps `@convex-dev/crons` and `@convex-dev/workpool`
+- [x] Registered `agentReady`, `crons`, and `workpool` in `convex/convex.config.ts`
+- [x] Mounted agent-ready HTTP routes in `convex/http.ts` with `skipRoutes: ["/sitemap.xml"]`
+- [x] Added `AgentReadyWidget` and `UpdateBanner` to `src/App.tsx`
+- [x] Ran `npx agent-ready setup` wizard (app name, URL, analytics, Claude AI descriptions)
+- [x] Ran `npx agent-ready sync`, `npx agent-ready regenerate`, and `npx agent-ready go-live`
+- [x] Added `agent-ready.config.json` to `.gitignore`
+- [x] Created PRD at `prds/agent-ready-route-conflicts.md` for the sitemap route conflict (fix shipped in 0.1.7)
+- [x] Updated from 0.1.5 to 0.1.6 to 0.1.7 as the component author shipped fixes
+
+### Agent-ready sitemap route conflict fix (2026-04-26)
+
+- [x] Confirmed Convex push was failing because agent-ready and the app both registered `GET /sitemap.xml`
+- [x] Updated `convex/http.ts` to keep the app's dynamic sitemap and skip agent-ready's sitemap route with `skipRoutes`
+- [x] Added `sitemapEnabled: false` to `agent-ready.config.json` so route ownership matches the component config
+- [x] Verified the running Convex watcher reports `Convex functions ready`
+- [x] Verified `npm audit` reports zero vulnerabilities
+
 ### Production readiness docs for Convex static hosting (2026-04-26)
 
 - [x] Checked upstream self-hosting guidance with `.cursor/skills/convex-self-hosting/scripts/check-upstream.sh`

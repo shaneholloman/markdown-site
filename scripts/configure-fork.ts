@@ -114,6 +114,91 @@ interface ForkConfig {
       showYear?: boolean;
     };
   };
+  rightSidebar?: {
+    enabled: boolean;
+    minWidth?: number;
+  };
+  footer?: {
+    enabled: boolean;
+    showOnHomepage?: boolean;
+    showOnPosts?: boolean;
+    showOnPages?: boolean;
+    showOnBlogPage?: boolean;
+    defaultContent?: string;
+  };
+  visitorMap?: {
+    enabled: boolean;
+    title?: string;
+  };
+  aiChat?: {
+    enabledOnWritePage?: boolean;
+    enabledOnContent?: boolean;
+  };
+  aiDashboard?: {
+    enableImageGeneration?: boolean;
+    defaultTextModel?: string;
+    textModels?: Array<{ id: string; name: string; provider: string }>;
+    imageModels?: Array<{ id: string; name: string; provider: string }>;
+  };
+  newsletter?: {
+    enabled: boolean;
+    agentmail?: { inbox: string };
+    signup?: {
+      home?: { enabled: boolean; position?: string; title?: string; description?: string };
+      blogPage?: { enabled: boolean; position?: string; title?: string; description?: string };
+      posts?: { enabled: boolean; position?: string; title?: string; description?: string };
+    };
+  };
+  contactForm?: {
+    enabled: boolean;
+    title?: string;
+    description?: string;
+  };
+  newsletterAdmin?: {
+    enabled: boolean;
+    showInNav?: boolean;
+  };
+  newsletterNotifications?: {
+    enabled: boolean;
+    newSubscriberAlert?: boolean;
+    weeklyStatsSummary?: boolean;
+  };
+  weeklyDigest?: {
+    enabled: boolean;
+    dayOfWeek?: number;
+    subject?: string;
+  };
+  statsPage?: {
+    enabled: boolean;
+    showInNav?: boolean;
+  };
+  mcpServer?: {
+    enabled: boolean;
+    endpoint?: string;
+    publicRateLimit?: number;
+    authenticatedRateLimit?: number;
+    requireAuth?: boolean;
+  };
+  dashboard?: {
+    enabled: boolean;
+    requireAuth?: boolean;
+    showInNav?: boolean;
+  };
+  imageLightbox?: {
+    enabled: boolean;
+  };
+  semanticSearch?: {
+    enabled: boolean;
+  };
+  twitter?: {
+    site?: string;
+    creator?: string;
+  };
+  askAI?: {
+    enabled: boolean;
+    defaultModel?: string;
+    models?: Array<{ id: string; name: string; provider: string }>;
+  };
   auth?: {
     mode: "convex-auth" | "workos" | "none";
   };
@@ -418,6 +503,118 @@ function updateSiteConfig(config: ForkConfig): void {
     }
   }
 
+  // Update statsPage if specified
+  if (config.statsPage) {
+    content = content.replace(
+      /statsPage: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Global toggle for stats page/,
+      `statsPage: {\n    enabled: ${config.statsPage.enabled}, // Global toggle for stats page`,
+    );
+    if (config.statsPage.showInNav !== undefined) {
+      content = content.replace(
+        /showInNav: (?:true|false),\s*\/\/ Show link in navigation \(controlled via hardcodedNavItems\)/,
+        `showInNav: ${config.statsPage.showInNav}, // Show link in navigation (controlled via hardcodedNavItems)`,
+      );
+    }
+  }
+
+  // Update imageLightbox if specified
+  if (config.imageLightbox) {
+    content = content.replace(
+      /imageLightbox: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Enable click-to-magnify/,
+      `imageLightbox: {\n    enabled: ${config.imageLightbox.enabled}, // Enable click-to-magnify`,
+    );
+  }
+
+  // Update semanticSearch if specified
+  if (config.semanticSearch) {
+    content = content.replace(
+      /semanticSearch: \{[\s\S]*?enabled: (?:true|false)/,
+      `semanticSearch: {\n    enabled: ${config.semanticSearch.enabled}`,
+    );
+  }
+
+  // Update dashboard if specified
+  if (config.dashboard) {
+    content = content.replace(
+      /dashboard: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Global toggle for dashboard page/,
+      `dashboard: {\n    enabled: ${config.dashboard.enabled}, // Global toggle for dashboard page`,
+    );
+    if (config.dashboard.requireAuth !== undefined) {
+      content = content.replace(
+        /requireAuth: (?:true|false),\s*\/\/ Require authenticated/,
+        `requireAuth: ${config.dashboard.requireAuth}, // Require authenticated`,
+      );
+    }
+    if (config.dashboard.showInNav !== undefined) {
+      content = content.replace(
+        /showInNav: (?:true|false),\s*\/\/ Show dashboard entry in top navigation/,
+        `showInNav: ${config.dashboard.showInNav}, // Show dashboard entry in top navigation`,
+      );
+    }
+  }
+
+  // Update mcpServer if specified
+  if (config.mcpServer) {
+    content = content.replace(
+      /mcpServer: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Global toggle for MCP server/,
+      `mcpServer: {\n    enabled: ${config.mcpServer.enabled}, // Global toggle for MCP server`,
+    );
+    if (config.mcpServer.requireAuth !== undefined) {
+      content = content.replace(
+        /requireAuth: (?:true|false),\s*\/\/ Require API key for all requests/,
+        `requireAuth: ${config.mcpServer.requireAuth}, // Require API key for all requests`,
+      );
+    }
+  }
+
+  // Update newsletter.enabled if specified
+  if (config.newsletter) {
+    content = content.replace(
+      /newsletter: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Master switch for newsletter/,
+      `newsletter: {\n    enabled: ${config.newsletter.enabled}, // Master switch for newsletter`,
+    );
+  }
+
+  // Update contactForm if specified
+  if (config.contactForm) {
+    content = content.replace(
+      /contactForm: \{[\s\S]*?enabled: (?:true|false),\s*\/\/ Global toggle for contact form/,
+      `contactForm: {\n    enabled: ${config.contactForm.enabled}, // Global toggle for contact form`,
+    );
+  }
+
+  // Update newsletterAdmin if specified
+  if (config.newsletterAdmin) {
+    content = content.replace(
+      /newsletterAdmin: \{[\s\S]*?enabled: (?:true|false)/,
+      `newsletterAdmin: {\n    enabled: ${config.newsletterAdmin.enabled}`,
+    );
+  }
+
+  // Update aiChat if specified
+  if (config.aiChat) {
+    if (config.aiChat.enabledOnWritePage !== undefined) {
+      content = content.replace(
+        /enabledOnWritePage: (?:true|false)/,
+        `enabledOnWritePage: ${config.aiChat.enabledOnWritePage}`,
+      );
+    }
+    if (config.aiChat.enabledOnContent !== undefined) {
+      content = content.replace(
+        /enabledOnContent: (?:true|false)/,
+        `enabledOnContent: ${config.aiChat.enabledOnContent}`,
+      );
+    }
+  }
+
+  // Update askAI if specified
+  if (config.askAI) {
+    content = content.replace(
+      /askAI: \{[\s\S]*?enabled: (?:true|false)/,
+      `askAI: {\n    enabled: ${config.askAI.enabled}`,
+    );
+  }
+
   // Update auth mode if specified
   if (config.auth?.mode) {
     content = content.replace(
@@ -583,6 +780,20 @@ function updateIndexHtml(config: ForkConfig): void {
   log("\nUpdating index.html...");
 
   const replacements: Array<{ search: string | RegExp; replace: string }> = [
+    // Canonical URL
+    {
+      search: /<link rel="canonical" href="https:\/\/[^"]*" \/>/,
+      replace: `<link rel="canonical" href="${config.siteUrl}/" />`,
+    },
+    // Hreflang links
+    {
+      search: /<link rel="alternate" hreflang="en" href="https:\/\/[^"]*" \/>/,
+      replace: `<link rel="alternate" hreflang="en" href="${config.siteUrl}/" />`,
+    },
+    {
+      search: /<link rel="alternate" hreflang="x-default" href="https:\/\/[^"]*" \/>/,
+      replace: `<link rel="alternate" hreflang="x-default" href="${config.siteUrl}/" />`,
+    },
     // Meta description (match any content)
     {
       search: /<meta\s*name="description"\s*content="[^"]*"\s*\/>/,
@@ -756,13 +967,12 @@ Each post contains:
 # Technical
 - Backend: Convex (real-time database)
 - Frontend: React, TypeScript, Vite
-- Hosting: Netlify with edge functions
+- Hosting: Convex self-hosted (default) or Netlify (legacy)
 - Content: Markdown with frontmatter
 
 # Links
 - GitHub: ${githubUrl}
 - Convex: https://convex.dev
-- Netlify: https://netlify.com
 `;
 
   const filePath = path.join(PROJECT_ROOT, "public/llms.txt");
@@ -983,7 +1193,7 @@ function main(): void {
   log("2. Run: npx convex dev (if not already running)");
   log("3. Run: npm run sync (to sync content to development)");
   log("4. Run: npm run dev (to start the dev server)");
-  log("5. Deploy to Netlify when ready");
+  log("5. Deploy when ready: npm run deploy");
 }
 
 main();

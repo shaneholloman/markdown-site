@@ -5,6 +5,7 @@ import { internal, components } from "./_generated/api";
 import { handleRssFeed, handleRssFullFeed } from "./rss";
 import { handleStreamResponse, handleStreamResponseOptions } from "./askAI.node";
 import { registerRoutes } from "convex-fs";
+import { registerRoutes as registerAgentReadyRoutes } from "@waynesutton/agent-ready";
 import { fs } from "./fs";
 import { auth } from "./auth";
 
@@ -27,6 +28,12 @@ const http = httpRouter();
 // Register Convex Auth routes for default auth mode.
 // Legacy WorkOS mode remains available through convex/auth.config.ts.
 auth.http.add(http);
+
+// Agent-ready routes for llms.txt, agents.md, llms-full.txt, and status endpoints.
+// This app owns its dynamic sitemap, so skip agent-ready's sitemap route.
+registerAgentReadyRoutes(http, components.agentReady, {
+  skipRoutes: ["/sitemap.xml"],
+});
 
 // Serve raw markdown files with text/plain so browsers and AI services
 // (Claude, ChatGPT, Perplexity) can read them. Must be registered before
@@ -274,7 +281,7 @@ http.route({
       site: SITE_NAME,
       url: SITE_URL,
       description:
-        "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.",
+        "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.",
       posts: posts.map((post: { title: string; slug: string; description: string; date: string; readTime?: string; tags: string[] }) => ({
         title: post.title,
         slug: post.slug,
@@ -420,7 +427,7 @@ http.route({
       site: SITE_NAME,
       url: SITE_URL,
       description:
-        "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.",
+        "An open-source publishing framework built for AI agents and developers to ship websites, docs, or blogs. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.",
       exportedAt: new Date().toISOString(),
       totalPosts: posts.length,
       posts: posts.map((post) => ({

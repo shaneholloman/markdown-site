@@ -279,7 +279,7 @@ function updateAgentsMd(
 
   // Update Project overview section
   const projectOverviewRegex = /## Project overview\n\n([^\n]+)/;
-  const newOverview = `## Project overview\n\n${siteConfig.description || siteConfig.bio}. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.`;
+  const newOverview = `## Project overview\n\n${siteConfig.description || siteConfig.bio}. Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.`;
 
   content = content.replace(projectOverviewRegex, newOverview);
 
@@ -387,8 +387,8 @@ function generateLlmsTxt(
 # Site Information
 - Name: ${siteConfig.name}
 - URL: ${siteUrl}
-- Description: ${siteConfig.description || siteConfig.bio} Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex and Netlify.
-- Topics: Markdown, Convex, React, TypeScript, Netlify, Open Source, AI, LLM, AEO, GEO
+- Description: ${siteConfig.description || siteConfig.bio} Write markdown, sync from the terminal. Your content is instantly available to browsers, LLMs, and AI agents. Built on Convex.
+- Topics: Markdown, Convex, React, TypeScript, Open Source, AI, LLM, AEO, GEO
 - Total Posts: ${postCount}
 - Wiki Pages: ${wikiCount}
 ${latestPostDate ? `- Latest Post: ${latestPostDate}\n` : ""}- GitHub: ${githubUrl}
