@@ -6,6 +6,16 @@
 
 ## Completed
 
+### Reduce Convex subscription noise in production (2026-04-26)
+
+- [x] Investigated auth:signIn/auth:store cycling in production logs. Confirmed this is normal @robelest/convex-auth token refresh behavior, not a bug. Multiple pairs indicate concurrent visitors or tabs.
+- [x] FeaturedCards now accepts optional `featuredPosts`/`featuredPages` props from parent. Skips duplicate `useQuery` calls when data is already available. Skips `getAllPosts`/`getAllPages` in frontmatter mode (the default).
+- [x] Home passes its already-fetched featured data to FeaturedCards as props, eliminating 2 duplicate subscriptions.
+- [x] Layout skips `getDocsPages`/`getDocsPosts` queries when `siteConfig.docsSection.enabled` is false, eliminating 2 subscriptions on non-docs sites.
+- [x] Home skips `isCurrentUserAuthenticated` query unless the `?dashboardNotice=not-admin` param is present.
+- [x] Created PRD at `prds/reduce-subscription-noise.md`
+- [x] Home page subscriptions reduced from 11-15 to ~7 per page load
+
 ### Agent-ready full config, widget URL fix, and production deploy (2026-04-26)
 
 - [x] Populated `agent-ready.config.json` with 28 pages and 16 API endpoints

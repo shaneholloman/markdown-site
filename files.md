@@ -4,6 +4,13 @@ A brief description of each file in the codebase.
 
 ## Recent session updates (2026-04-26)
 
+### Reduce Convex subscription noise in production (2026-04-26)
+
+- **Modified** `src/components/FeaturedCards.tsx`: Accepts optional `featuredPosts`/`featuredPages` props from parent to avoid duplicate subscriptions. Skips `getAllPosts`/`getAllPages` queries when in frontmatter mode (the default). Moved `useItemsMode` calculation above hook calls so skip logic works correctly.
+- **Modified** `src/pages/Home.tsx`: Passes already-fetched featured data to FeaturedCards as props, eliminating 2 duplicate subscriptions. Skips `isCurrentUserAuthenticated` query unless `?dashboardNotice=not-admin` param is present.
+- **Modified** `src/components/Layout.tsx`: Skips `getDocsPages`/`getDocsPosts` subscriptions when `siteConfig.docsSection.enabled` is false.
+- **New file** `prds/reduce-subscription-noise.md`: PRD documenting the production log noise investigation, auth cycling analysis (confirmed not a convex-auth bug), subscription audit table, and three targeted fixes that reduce home page subscriptions from 11-15 to ~7.
+
 ### Setup and fork install audit (2026-04-26)
 
 - **Modified** `scripts/configure-fork.ts`: Added support for all fork-config.json fields (`statsPage`, `imageLightbox`, `semanticSearch`, `dashboard`, `mcpServer`, `newsletter`, `contactForm`, `newsletterAdmin`, `aiChat`, `askAI`). Updated canonical URL and hreflang link updates in `index.html`. Changed final "Next steps" text from Netlify to Convex self-hosted deploy. Updated llms.txt template hosting reference.

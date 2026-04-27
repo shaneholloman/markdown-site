@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- FeaturedCards accepts optional `featuredPosts`/`featuredPages` props to avoid duplicate Convex subscriptions when parent already has the data
+- FeaturedCards skips `getAllPosts`/`getAllPages` queries in frontmatter mode (the default) since those queries are only needed for legacy items mode
+- Layout skips `getDocsPages`/`getDocsPosts` subscriptions when `siteConfig.docsSection.enabled` is false
+- Home skips `isCurrentUserAuthenticated` subscription unless the `?dashboardNotice=not-admin` query param is present
+- Home passes its fetched featured data to FeaturedCards as props, cutting 2 duplicate subscriptions per page load
+- Home page Convex subscriptions reduced from 11-15 to ~7, reducing log noise from auth-triggered re-evaluation bursts
+
 ### Added
 
 - Installed `@waynesutton/agent-ready@0.1.7` Convex component with peer deps `@convex-dev/crons` and `@convex-dev/workpool` for auto-generated llms.txt, agents.md, and llms-full.txt

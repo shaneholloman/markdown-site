@@ -18,27 +18,50 @@ interface FeaturedData {
 }
 
 interface FeaturedCardsProps {
-  // Optional: legacy items config (for backwards compatibility)
   items?: FeaturedItem[];
-  // New: use Convex queries directly (when items is not provided)
   useFrontmatter?: boolean;
+  // Pre-fetched data from parent to avoid duplicate subscriptions
+  featuredPosts?: Array<{
+    slug: string;
+    title: string;
+    description: string;
+    excerpt?: string;
+    image?: string;
+    featuredOrder?: number;
+  }>;
+  featuredPages?: Array<{
+    slug: string;
+    title: string;
+    excerpt?: string;
+    image?: string;
+    featuredOrder?: number;
+  }>;
 }
 
-// Featured cards component displays posts/pages as cards with excerpts
-// Supports two modes:
-// 1. items prop: uses hardcoded config (legacy, requires redeploy)
-// 2. useFrontmatter: uses featured field from markdown frontmatter (syncs with npm run sync)
 export default function FeaturedCards({
   items,
   useFrontmatter = true,
+  featuredPosts: propFeaturedPosts,
+  featuredPages: propFeaturedPages,
 }: FeaturedCardsProps) {
-  // Fetch featured posts and pages from Convex
-  const featuredPosts = useQuery(api.posts.getFeaturedPosts);
-  const featuredPages = useQuery(api.pages.getFeaturedPages);
+  const useItemsMode = items && items.length > 0 && !useFrontmatter;
 
-  // Fetch all posts and pages (for legacy items mode)
-  const allPosts = useQuery(api.posts.getAllPosts);
-  const allPages = useQuery(api.pages.getAllPages);
+  // Skip queries when parent already provided data, or when not needed
+  const fetchedFeaturedPosts = useQuery(
+    api.posts.getFeaturedPosts,
+    propFeaturedPosts !== undefined ? "skip" : {},
+  );
+  const fetchedFeaturedPages = useQuery(
+    api.pages.getFeaturedPages,
+    propFeaturedPages !== undefined ? "skip" : {},
+  );
+
+  const featuredPosts = propFeaturedPosts ?? fetchedFeaturedPosts;
+  const featuredPages = propFeaturedPages ?? fetchedFeaturedPages;
+
+  // Only fetch all posts/pages in legacy items mode
+  const allPosts = useQuery(api.posts.getAllPosts, useItemsMode ? {} : "skip");
+  const allPages = useQuery(api.pages.getAllPages, useItemsMode ? {} : "skip");
 
   // Build featured data from frontmatter (new mode)
   const getFeaturedFromFrontmatter = (): FeaturedData[] => {
@@ -119,10 +142,6 @@ export default function FeaturedCards({
     return result;
   };
 
-  // Determine which mode to use
-  const useItemsMode = items && items.length > 0 && !useFrontmatter;
-
-  // Get featured data based on mode
   const featuredData = useItemsMode
     ? getFeaturedFromItems()
     : getFeaturedFromFrontmatter();

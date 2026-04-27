@@ -34,9 +34,9 @@ export default function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Fetch docs pages and posts for detecting if current page is in docs section
-  const docsPages = useQuery(api.pages.getDocsPages);
-  const docsPosts = useQuery(api.posts.getDocsPosts);
+  const docsEnabled = siteConfig.docsSection?.enabled ?? false;
+  const docsPages = useQuery(api.pages.getDocsPages, docsEnabled ? {} : "skip");
+  const docsPosts = useQuery(api.posts.getDocsPosts, docsEnabled ? {} : "skip");
 
   // Check if current page is a docs page
   const currentSlug = location.pathname.replace(/^\//, "");

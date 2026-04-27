@@ -385,7 +385,10 @@ export default function Home() {
   const showPostsOnHome = siteConfig.postsDisplay.showOnHome;
   const dashboardNotice = new URLSearchParams(location.search).get("dashboardNotice");
   const showNotAdminNotice = dashboardNotice === "not-admin";
-  const isAuthenticated = useQuery(api.authAdmin.isCurrentUserAuthenticated);
+  const isAuthenticated = useQuery(
+    api.authAdmin.isCurrentUserAuthenticated,
+    showNotAdminNotice ? {} : "skip",
+  );
   const dismissDashboardNotice = () => {
     const params = new URLSearchParams(location.search);
     params.delete("dashboardNotice");
@@ -721,7 +724,11 @@ export default function Home() {
                 ))}
               </ul>
             ) : (
-              <FeaturedCards useFrontmatter={true} />
+              <FeaturedCards
+                useFrontmatter={true}
+                featuredPosts={featuredPosts}
+                featuredPages={featuredPages}
+              />
             )}
           </div>
         )}
