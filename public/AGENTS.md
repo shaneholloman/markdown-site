@@ -33,12 +33,12 @@ Your content is instantly available to browsers, LLMs, and AI agents.. Write mar
 
 - **Site Name**: markdown sync
 - **Site Title**: markdown sync framework
-- **Site URL**: https://yoursite.example.com
+- **Site URL**: https://www.markdown.fast
 - **Total Posts**: 24
 - **Total Pages**: 4
-- **Wiki Pages**: 49
+- **Wiki Pages**: 43
 - **Latest Post**: 2026-04-14
-- **Last Updated**: 2026-04-27T00:51:30.963Z
+- **Last Updated**: 2026-04-27T01:37:37.292Z
 
 ## Tech stack
 
@@ -472,10 +472,10 @@ Knowledge bases with API enabled also have public endpoints at `/api/kb`, `/api/
 
 ## Wiki knowledge base
 
-49 compiled wiki pages. Access via VFS:
+43 compiled wiki pages. Access via VFS:
 
 ```bash
-curl -X POST https://yoursite.example.com/vfs/exec -H "Content-Type: application/json" -d '{"command": "ls /wiki"}'
+curl -X POST https://www.markdown.fast/vfs/exec -H "Content-Type: application/json" -d '{"command": "ls /wiki"}'
 ```
 
 **General:**
@@ -504,10 +504,6 @@ curl -X POST https://yoursite.example.com/vfs/exec -H "Content-Type: application
 - Convex first: new defaults for markdown.fast (`/wiki/wiki-convex-first-architecture`)
 - How convex-doctor took markdown.fast from 42 to 100 (`/wiki/wiki-convex-doctor-score-42-to-100`)
 
-**Slides:**
-- Slide template example (`/wiki/wiki-slide-template-example`)
-- Markdown slides (`/wiki/wiki-markdown-slides`)
-
 **Features:**
 - Visitor tracking and stats improvements (`/wiki/wiki-visitor-tracking-and-stats-improvements`)
 - New features: search, featured section, and logo gallery (`/wiki/wiki-new-features-search-featured-logos`)
@@ -518,6 +514,10 @@ curl -X POST https://yoursite.example.com/vfs/exec -H "Content-Type: application
 **Git:**
 - Team Workflows (`/wiki/wiki-team-workflows-git-version-control`)
 - Git commit message best practices (`/wiki/wiki-git-commit-message-best-practices`)
+
+**Slides:**
+- Slide template example (`/wiki/wiki-slide-template-example`)
+- Markdown slides (`/wiki/wiki-markdown-slides`)
 
 **Release:**
 - v1.18.0 release: 12 versions of shipping (`/wiki/wiki-raw-markdown-and-copy-improvements`)
@@ -556,20 +556,6 @@ curl -X POST https://yoursite.example.com/vfs/exec -H "Content-Type: application
 
 **Opencode:**
 - OpenCode Integration (`/wiki/wiki-docs-opencode`)
-
-**overview:**
-- Markdown Sync Framework Overview (`/wiki/wiki-markdown-sync-framework-overview`)
-- Markdown Framework Overview (`/wiki/wiki-markdown-framework-overview`)
-- Markdown Framework Overview (`/wiki/markdown-framework-overview`)
-
-**framework:**
-- Markdown Sync Framework Overview (`/wiki/wiki-markdown-sync-overview`)
-
-**concept:**
-- # AGENTS.md instructions for /Users/waynesutton/Documents/sites/test-convex-app/todo6 (`/wiki/agentsmdinstructionsfor-users-waynesutton-documents-sites-test-convex-app-todo6`)
-
-**markdown:**
-- Markdown Syntax Reference (`/wiki/markdown-syntax-reference`)
 
 ## Content import
 

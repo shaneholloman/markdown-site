@@ -13,6 +13,67 @@ All notable changes to this project.
 
 ---
 
+## v2.35.0
+
+Released April 26, 2026
+
+**Agent-ready component: full config, widget URL fix, and production deploy**
+
+- Populated `agent-ready.config.json` with 28 pages and 16 API endpoints so llms.txt and agents.md reflect the full site content
+- All generated URLs now use `https://www.markdown.fast` instead of the raw Convex deployment URL
+- Enabled `fullTxtEnabled: true` for richer llms-full.txt output
+- Fixed the widget URL resolver so production builds use `VITE_SITE_URL` or the live browser origin instead of baking in the dev Convex site URL
+- Deployed updated static bundle to production with the widget URL fix
+
+---
+
+## v2.34.0
+
+Released April 26, 2026
+
+**Agent-ready component integration**
+
+- Installed `@waynesutton/agent-ready@0.1.7` with peer deps `@convex-dev/crons` and `@convex-dev/workpool`
+- Auto-generates, caches, and serves llms.txt, agents.md, and llms-full.txt from the Convex backend
+- Registered `agentReady`, `crons`, and `workpool` components in `convex/convex.config.ts`
+- Mounted agent-ready HTTP routes with `skipRoutes: ["/sitemap.xml"]` to avoid conflict with the existing dynamic sitemap
+- Added `AgentReadyWidget` and `UpdateBanner` to the frontend (floating bottom-right, dark theme)
+- Scaffolded `convex/agentReady/content.ts` and `convex/agentReady/analytics.ts` wrapper files
+- Fixed Convex push failure caused by duplicate `/sitemap.xml` route registration between the app and agent-ready
+
+---
+
+## v2.33.0
+
+Released April 26, 2026
+
+**Setup and fork install audit**
+
+- Updated `scripts/configure-fork.ts` to support all fork-config.json fields: `statsPage`, `imageLightbox`, `semanticSearch`, `dashboard`, `mcpServer`, `newsletter`, `contactForm`, `newsletterAdmin`, `aiChat`, `askAI`
+- Changed configure script "Next steps" from Netlify deploy to Convex self-hosted deploy
+- Updated all site description strings from "Built on Convex and Netlify" to "Built on Convex" across `index.html`, `convex/http.ts`, `convex/rss.ts`, and `sync-discovery-files.ts`
+- Moved `vite` from runtime to devDependencies in `packages/create-markdown-sync`
+
+---
+
+## v2.32.0
+
+Released April 26, 2026
+
+**Robel auth preview.30 upgrade and admin email lockdown**
+
+- Upgraded `@robelest/convex-auth` to `^0.0.4-preview.30` with first-party `github()` provider. Removed direct `arctic` dependency
+- Rewrote `convex/auth.ts` to use lowercase factory functions: `password()` and `github({ clientId, clientSecret })`
+- `isDashboardAdmin()` now treats `DASHBOARD_PRIMARY_ADMIN_EMAIL` as the sole admin gate when set. The `dashboardAdmins` table is bypassed entirely in strict mode
+- Non-admin authenticated users see a demo view with a denied-state banner showing the signed-in email, expected admin email, and a "Sign out and retry" button
+- Frontend auth uses a singleton `getConvexAuthClient()` from `@robelest/convex-auth/browser` to prevent duplicate OAuth callback verification
+- OAuth callback cleanup is owned by the auth library during normal login. The app only cleans stale params after a five-second unauthenticated grace period
+- Fixed blank page on load caused by the auth client throwing during SPA init with a stale refresh token
+- Fixed repeated `Invalid verification code` logs from multiple auth client instances consuming the same callback
+- Fixed strict admin mode falling into first-admin bootstrap when no `dashboardAdmins` rows existed
+
+---
+
 ## v2.31.0
 
 Released April 14, 2026
